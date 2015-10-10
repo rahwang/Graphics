@@ -1,12 +1,16 @@
 #pragma once
 
 #include <openGL/drawable.h>
+#include <scene/geometry/geometry.h>
 
+class Geometry;
 class BoundingBox : public Drawable
 {
 public:
     BoundingBox():
-    minimum(), maximum() {}
+    minimum(), maximum() {
+        object = NULL;
+    }
 
     ~BoundingBox(){}
     void create();
@@ -15,4 +19,5 @@ public:
 
     glm::vec3 minimum;
     glm::vec3 maximum;
+    Geometry *object;
 };

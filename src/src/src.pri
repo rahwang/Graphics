@@ -30,7 +30,8 @@ SOURCES += \
     $$PWD/scene/materials/phongmaterial.cpp \
     $$PWD/scene/materials/lambertmaterial.cpp \
     $$PWD/scene/geometry/geometry.cpp \
-    $$PWD/scene/geometry/boundingbox.cpp
+    $$PWD/scene/geometry/boundingbox.cpp \
+    $$PWD/scene/geometry/bvhnode.cpp
 
 HEADERS += \
     $$PWD/mainwindow.h \
@@ -65,4 +66,5 @@ HEADERS += \
     $$PWD/raytracing/samplers/uniformpixelsampler.h \
     $$PWD/scene/materials/lambertmaterial.h \
     $$PWD/scene/materials/phongmaterial.h \
-    $$PWD/scene/geometry/boundingbox.h
+    $$PWD/scene/geometry/boundingbox.h \
+    $$PWD/scene/geometry/bvhnode.h

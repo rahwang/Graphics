@@ -77,6 +77,7 @@ void SquarePlane::SetBoundingBox() {
 
     bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
     bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
+    bounding_box->object = this;
 }
 
 void SquarePlane::create()

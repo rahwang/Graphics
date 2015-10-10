@@ -7,6 +7,7 @@
 #include <scene/materials/material.h>
 #include <scene/transform.h>
 
+class BoundingBox;
 class Intersection;//Forward declaration because Intersection and Geometry cross-include each other
 class Material;
 

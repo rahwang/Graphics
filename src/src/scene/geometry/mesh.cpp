@@ -147,6 +147,7 @@ void Triangle::SetBoundingBox() {
 
     bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
     bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
+    bounding_box->object = this;
 }
 
 Intersection Mesh::GetIntersection(Ray r)
@@ -194,6 +195,7 @@ void Mesh::SetMaterial(Material *m)
 
 void Mesh::SetBoundingBox() {
     int i = 5;
+    bounding_box->object = this;
 }
 
 void Mesh::LoadOBJ(const QStringRef &filename, const QStringRef &local_path)

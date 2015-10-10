@@ -150,6 +150,7 @@ void Cube::SetBoundingBox() {
 
     bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
     bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
+    bounding_box->object = this;
 }
 
 //These are functions that are only defined in this cpp file. They're used for organizational purposes
