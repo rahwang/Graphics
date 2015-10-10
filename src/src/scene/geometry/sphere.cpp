@@ -76,6 +76,26 @@ glm::vec3 Sphere::NormalMapping(const glm::vec3 &point, const glm::vec3 &normal)
     return new_normal;
 }
 
+// Set min and max bounds for the bounding box.
+void Sphere::SetBoundingBox() {
+    glm::mat4 S(0.5f, 0, 0, 0,
+                0, 0.5f, 0, 0,
+                0, 0, 0.5f, 0,
+                0, 0, 0, -1.0f);
+    glm::mat4 R = transform.T() * glm::inverse(S) * glm::transpose(transform.T());
+
+
+    float min_z = (R[2][3] - sqrt(pow(R[2][3], 2) - R[3][3] * R[2][2])) / R[3][3];
+    float max_z = (R[2][3] + sqrt(pow(R[2][3], 2) - R[3][3] * R[2][2])) / R[3][3];
+    float min_y = (R[1][3] - sqrt(pow(R[1][3], 2) - R[3][3] * R[1][1])) / R[3][3];
+    float max_y = (R[1][3] + sqrt(pow(R[1][3], 2) - R[3][3] * R[1][1])) / R[3][3];
+    float min_x = (R[0][3] - sqrt(pow(R[0][3], 2) - R[3][3] * R[0][0])) / R[3][3];
+    float max_x = (R[0][3] + sqrt(pow(R[0][3], 2) - R[3][3] * R[0][0])) / R[3][3];
+
+    bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
+    bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
+}
+
 // These are functions that are only defined in this cpp file. They're used for organizational purposes
 // when filling the arrays used to hold the vertex and index data.
 void createSphereVertexPositions(glm::vec3 (&sph_vert_pos)[SPH_VERT_COUNT])

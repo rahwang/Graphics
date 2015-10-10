@@ -27,7 +27,8 @@ public:
 
     glm::vec2 GetUVCoordinates(const glm::vec3 &point);
     glm::vec3 NormalMapping(const glm::vec3 &point, const glm::vec3 &normal);
-    glm::vec3 SampleAreaLight(Ray r);
+    void SetBoundingBox();
+    //glm::vec3 SampleAreaLight(Ray r);
 };
 
 //A mesh just holds a collection of triangles against which one can test intersections.
@@ -38,6 +39,7 @@ public:
     Intersection GetIntersection(Ray r);
     virtual glm::vec2 GetUVCoordinates(const glm::vec3 &point);
     glm::vec3 NormalMapping(const glm::vec3 &point, const glm::vec3 &normal);
+    void SetBoundingBox();
     //glm::vec3 SampleAreaLight(Ray r);
     void SetMaterial(Material *m);
     void create();

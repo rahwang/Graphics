@@ -29,7 +29,8 @@ SOURCES += \
     $$PWD/raytracing/samplers/uniformpixelsampler.cpp \
     $$PWD/scene/materials/phongmaterial.cpp \
     $$PWD/scene/materials/lambertmaterial.cpp \
-    $$PWD/scene/geometry/geometry.cpp
+    $$PWD/scene/geometry/geometry.cpp \
+    $$PWD/scene/geometry/boundingbox.cpp
 
 HEADERS += \
     $$PWD/mainwindow.h \

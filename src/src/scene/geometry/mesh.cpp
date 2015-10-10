@@ -133,6 +133,22 @@ glm::vec3 Triangle::NormalMapping(const glm::vec3 &point, const glm::vec3 &norma
     return new_normal;
 }
 
+void Triangle::SetBoundingBox() {
+    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(points[0], 0));
+    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(points[1], 0));
+    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(points[2], 0));
+
+    float min_x = fmin(fmin(vertex0.x, vertex1.x), vertex2.x);
+    float min_y = fmin(fmin(vertex0.y, vertex1.y), vertex2.y);
+    float min_z = fmin(fmin(vertex0.z, vertex1.z), vertex2.z);
+    float max_x = fmax(fmax(vertex0.x, vertex1.x), vertex2.x);
+    float max_y = fmax(fmax(vertex0.y, vertex1.y), vertex2.y);
+    float max_z = fmax(fmax(vertex0.z, vertex1.z), vertex2.z);
+
+    bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
+    bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
+}
+
 Intersection Mesh::GetIntersection(Ray r)
 {
     // Get ray in local space.
@@ -176,6 +192,9 @@ void Mesh::SetMaterial(Material *m)
     }
 }
 
+void Mesh::SetBoundingBox() {
+    int i = 5;
+}
 
 void Mesh::LoadOBJ(const QStringRef &filename, const QStringRef &local_path)
 {

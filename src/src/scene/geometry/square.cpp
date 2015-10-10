@@ -44,10 +44,13 @@ Intersection SquarePlane::GetIntersection(Ray r)
     return intersection;
 }
 
+// Given an intersection point, return a 2d point on the UV image.
 glm::vec2 SquarePlane::GetUVCoordinates(const glm::vec3 &point) {
     return glm::vec2(point[0] + 0.5f, point[1] + 0.5f);
 }
 
+// Given an intersection point and a normal, return a transformed
+// normal based on normal map image.
 glm::vec3 SquarePlane::NormalMapping(
         const glm::vec3 &point, const glm::vec3 &normal) {
     glm::vec3 tangent(1.0f, 0.0f, 0.0f);
@@ -56,6 +59,24 @@ glm::vec3 SquarePlane::NormalMapping(
     glm::vec3 new_normal = material->GetObjectNormal(
                    uv_coordinates, normal, tangent, bitangent);
     return new_normal;
+}
+
+// Set min and max bounds for a bounding box.
+void SquarePlane::SetBoundingBox() {
+    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, 0, 0));
+    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0, 0));
+    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, 0, 0));
+    glm::vec3 vertex3 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0, 0));
+
+    float min_x = fmin(fmin(vertex0.x, vertex1.x), fmin(vertex2.x, vertex3.x));
+    float min_y = fmin(fmin(vertex0.y, vertex1.y), fmin(vertex2.y, vertex3.y));
+    float min_z = fmin(fmin(vertex0.z, vertex1.z), fmin(vertex2.z, vertex3.z));
+    float max_x = fmax(fmax(vertex0.x, vertex1.x), fmax(vertex2.x, vertex3.x));
+    float max_y = fmax(fmax(vertex0.y, vertex1.y), fmax(vertex2.y, vertex3.y));
+    float max_z = fmax(fmax(vertex0.z, vertex1.z), fmax(vertex2.z, vertex3.z));
+
+    bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
+    bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
 }
 
 void SquarePlane::create()

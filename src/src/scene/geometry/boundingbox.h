@@ -1,18 +1,18 @@
-#ifndef BOUNDINGBOX_H
-#define BOUNDINGBOX_H
+#pragma once
 
+#include <openGL/drawable.h>
 
 class BoundingBox : public Drawable
 {
 public:
     BoundingBox():
-    name("BOUNDING_BOX")
-    {}
+    minimum(), maximum() {}
 
     ~BoundingBox(){}
-    create();
-    drawMode();
+    void create();
+    GLenum drawMode();
     glm::vec3 GetCenter();
-};
 
-#endif // BOUNDINGBOX_H
+    glm::vec3 minimum;
+    glm::vec3 maximum;
+};

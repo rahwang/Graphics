@@ -7,7 +7,7 @@ static const int CUB_VERT_COUNT = 24;
 static const float EPSILON = 0.0001;
 
 bool nearlyEquals(float x, float y) {
-    return abs(x-y) < EPSILON;
+    return std::abs(x-y) < EPSILON;
 }
 
 Intersection Cube::GetIntersection(Ray r)
@@ -63,6 +63,7 @@ Intersection Cube::GetIntersection(Ray r)
     return intersection;
 }
 
+// Given an intersection point, return a 2d point on the UV image.
 glm::vec2 Cube::GetUVCoordinates(const glm::vec3 &point) {
     glm::vec2 result(0);
     // Check which slab hit.
@@ -97,6 +98,8 @@ glm::vec2 Cube::GetUVCoordinates(const glm::vec3 &point) {
     return glm::clamp(result, glm::vec2(0), glm::vec2(1));
 }
 
+// Given an intersection point and a normal, return a transformed
+// normal based on normal map image.
 glm::vec3 Cube::NormalMapping(const glm::vec3 &point, const glm::vec3 &normal)
 {
     // TODO: Find a clean way to do this. Grosss.
@@ -119,6 +122,34 @@ glm::vec3 Cube::NormalMapping(const glm::vec3 &point, const glm::vec3 &normal)
     glm::vec3 new_normal =
             material->GetObjectNormal(GetUVCoordinates(point), normal, tangent, bitangent);
     return new_normal;
+}
+
+// Set min and max bounds for a bounding box.
+void Cube::SetBoundingBox() {
+    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, -0.5, 0));
+    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, -0.5, 0));
+    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, -0.5, 0));
+    glm::vec3 vertex3 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, -0.5, 0));
+    glm::vec3 vertex4 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, 0.5, 0));
+    glm::vec3 vertex5 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0.5, 0));
+    glm::vec3 vertex6 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, 0.5, 0));
+    glm::vec3 vertex7 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0.5, 0));
+
+    float min_x = fmin(fmin(fmin(vertex0.x, vertex1.x), fmin(vertex2.x, vertex3.x)),
+                      fmin(fmin(vertex4.x, vertex5.x), fmin(vertex6.x, vertex7.x)));
+    float min_y = fmin(fmin(fmin(vertex0.y, vertex1.y), fmin(vertex2.y, vertex3.y)),
+                      fmin(fmin(vertex4.y, vertex5.y), fmin(vertex6.y, vertex7.y)));
+    float min_z = fmin(fmin(fmin(vertex0.z, vertex1.z), fmin(vertex2.z, vertex3.z)),
+                      fmin(fmin(vertex4.z, vertex5.z), fmin(vertex6.z, vertex7.z)));
+    float max_x = fmax(fmax(fmax(vertex0.x, vertex1.x), fmax(vertex2.x, vertex3.x)),
+                      fmax(fmax(vertex4.x, vertex5.x), fmax(vertex6.x, vertex7.x)));
+    float max_y = fmax(fmax(fmax(vertex0.y, vertex1.y), fmax(vertex2.y, vertex3.y)),
+                      fmax(fmax(vertex4.y, vertex5.y), fmax(vertex6.y, vertex7.y)));
+    float max_z = fmax(fmax(fmax(vertex0.z, vertex1.z), fmax(vertex2.z, vertex3.z)),
+                      fmax(fmax(vertex4.z, vertex5.z), fmax(vertex6.z, vertex7.z)));
+
+    bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
+    bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
 }
 
 //These are functions that are only defined in this cpp file. They're used for organizational purposes
