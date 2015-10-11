@@ -1,5 +1,6 @@
 #include "mygl.h"
 #include <la.h>
+#include <scene/geometry/boundingbox.h>
 
 #include <iostream>
 #include <QApplication>
@@ -199,6 +200,8 @@ void MyGL::SceneLoadDialog()
     integrator.scene = &scene;
     integrator.intersection_engine = &intersection_engine;
     intersection_engine.scene = &scene;
+    // Create bounding boxes and BVH tree.
+    //intersection_engine.bvh = bvhNode::InitTree(scene.objects);
     update();
 }
 
@@ -214,7 +217,6 @@ void MyGL::RaytraceScene()
 #ifdef TBB
     parallel_for(0, (int)scene.camera.width, 1, [=](unsigned int i)
     {
-        integrator.TraceRay(scene.camera.Raycast(200, 190), 0);
         for(unsigned int j = 0; j < scene.camera.height; j++)
         {
             scene.film.pixels[i][j] =
@@ -222,9 +224,6 @@ void MyGL::RaytraceScene()
         }
     });
 #else
-    integrator.TraceRay(scene.camera.Raycast(200, 190), 0);
-    integrator.TraceRay(scene.camera.Raycast(200, 210), 0);
-
     for(unsigned int i = 0; i < scene.camera.width; i++)
     {
         for(unsigned int j = 0; j < scene.camera.height; j++)

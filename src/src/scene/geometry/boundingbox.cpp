@@ -150,7 +150,7 @@ bvhNode *bvhNode::CreateTree(std::vector<bvhNode> &leaves, int depth, int start_
     }
 
     int dimension = depth % 3;
-    int mid = (end_idx-start_idx)/2;
+    int mid = (end_idx+start_idx)/2;
     //quicksortByDim(objects, dimension, start_idx, end_idx);
     std::nth_element(&leaves[start_idx], &leaves[mid], &leaves[end_idx]+1, ComparePoints(dimension));
 

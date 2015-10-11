@@ -33,8 +33,8 @@ public:
         right = NULL;
     }
 
-    bvhNode *CreateTree(std::vector<bvhNode> &leaves, int depth, int start_idx, int end_idx);
-    bvhNode *InitTree(QList<Geometry*> objects);
+    static bvhNode *CreateTree(std::vector<bvhNode> &leaves, int depth, int start_idx, int end_idx);
+    static bvhNode *InitTree(QList<Geometry*> objects);
 
     BoundingBox bounding_box;
     bvhNode *left;
