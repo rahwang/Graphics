@@ -1,6 +1,5 @@
 #include "mygl.h"
 #include <la.h>
-#include <scene/geometry/boundingbox.h>
 
 #include <iostream>
 #include <QApplication>
@@ -105,7 +104,7 @@ void MyGL::GLDrawScene()
             prog_flat.setModelMatrix(g->transform.T());
             prog_flat.draw(*this, *g);
         }
-        //prog_flat.draw(*this, g->bounding_box);
+        // prog_flat.draw(*this, g->bounding_box);
     }
     for(Geometry *l : scene.lights)
     {
@@ -212,7 +211,7 @@ void MyGL::RaytraceScene()
     {
         return;
     }
-    //#define TBB //Uncomment this line out to render your scene with multiple threads.
+    #define TBB //Uncomment this line out to render your scene with multiple threads.
     //This is useful when debugging your raytracer with breakpoints.
 #ifdef TBB
     parallel_for(0, (int)scene.camera.width, 1, [=](unsigned int i)

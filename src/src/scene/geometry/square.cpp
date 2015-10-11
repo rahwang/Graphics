@@ -33,10 +33,13 @@ Intersection SquarePlane::GetIntersection(Ray r)
         return intersection;
     }
 
-    glm::vec3 new_normal = NormalMapping(point, normal);
+    // TODO: Make this work.
+    //glm::vec3 new_normal = NormalMapping(point, normal);
 
-    intersection.point = PointToWorld(point);
-    intersection.normal = NormalToWorld(new_normal);
+    intersection.point = glm::vec3(transform.T() * glm::vec4(point, 1.0f));
+    intersection.normal =
+            glm::normalize(glm::vec3(transform.invTransT()
+                                     * glm::vec4(normal, 0.0f)));
     intersection.t = glm::length(intersection.point - r.origin);
     intersection.color = material->base_color
             * Material::GetImageColor(GetUVCoordinates(point), material->texture);
@@ -44,7 +47,6 @@ Intersection SquarePlane::GetIntersection(Ray r)
     return intersection;
 }
 
-// Given an intersection point, return a 2d point on the UV image.
 glm::vec2 SquarePlane::GetUVCoordinates(const glm::vec3 &point) {
     return glm::vec2(point[0] + 0.5f, point[1] + 0.5f);
 }

@@ -7,7 +7,7 @@ static const int CUB_VERT_COUNT = 24;
 static const float EPSILON = 0.0001;
 
 bool nearlyEquals(float x, float y) {
-    return std::abs(x-y) < EPSILON;
+    return abs(x-y) < EPSILON;
 }
 
 Intersection Cube::GetIntersection(Ray r)
@@ -54,16 +54,16 @@ Intersection Cube::GetIntersection(Ray r)
     // Now do normal mapping.
     glm::vec3 new_normal = NormalMapping(point, normal);
 
-    intersection.point = PointToWorld(point);
+    intersection.point = glm::vec3(transform.T() *  glm::vec4(point, 1.0f));
     intersection.t = glm::length(intersection.point - r.origin);
-    intersection.normal = NormalToWorld(new_normal);
+    intersection.normal = glm::normalize(glm::vec3(transform.invTransT()
+                                                   * glm::vec4(new_normal, 0.0f)));
     intersection.object_hit = this;
     intersection.color = material->base_color
             * material->GetImageColor(GetUVCoordinates(point), material->texture);
     return intersection;
 }
 
-// Given an intersection point, return a 2d point on the UV image.
 glm::vec2 Cube::GetUVCoordinates(const glm::vec3 &point) {
     glm::vec2 result(0);
     // Check which slab hit.
@@ -137,17 +137,17 @@ void Cube::SetBoundingBox() {
     glm::vec3 vertex7 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0.5, 0));
 
     float min_x = fmin(fmin(fmin(vertex0.x, vertex1.x), fmin(vertex2.x, vertex3.x)),
-                      fmin(fmin(vertex4.x, vertex5.x), fmin(vertex6.x, vertex7.x)));
+                       fmin(fmin(vertex4.x, vertex5.x), fmin(vertex6.x, vertex7.x)));
     float min_y = fmin(fmin(fmin(vertex0.y, vertex1.y), fmin(vertex2.y, vertex3.y)),
-                      fmin(fmin(vertex4.y, vertex5.y), fmin(vertex6.y, vertex7.y)));
+                       fmin(fmin(vertex4.y, vertex5.y), fmin(vertex6.y, vertex7.y)));
     float min_z = fmin(fmin(fmin(vertex0.z, vertex1.z), fmin(vertex2.z, vertex3.z)),
-                      fmin(fmin(vertex4.z, vertex5.z), fmin(vertex6.z, vertex7.z)));
+                       fmin(fmin(vertex4.z, vertex5.z), fmin(vertex6.z, vertex7.z)));
     float max_x = fmax(fmax(fmax(vertex0.x, vertex1.x), fmax(vertex2.x, vertex3.x)),
-                      fmax(fmax(vertex4.x, vertex5.x), fmax(vertex6.x, vertex7.x)));
+                       fmax(fmax(vertex4.x, vertex5.x), fmax(vertex6.x, vertex7.x)));
     float max_y = fmax(fmax(fmax(vertex0.y, vertex1.y), fmax(vertex2.y, vertex3.y)),
-                      fmax(fmax(vertex4.y, vertex5.y), fmax(vertex6.y, vertex7.y)));
+                       fmax(fmax(vertex4.y, vertex5.y), fmax(vertex6.y, vertex7.y)));
     float max_z = fmax(fmax(fmax(vertex0.z, vertex1.z), fmax(vertex2.z, vertex3.z)),
-                      fmax(fmax(vertex4.z, vertex5.z), fmax(vertex6.z, vertex7.z)));
+                       fmax(fmax(vertex4.z, vertex5.z), fmax(vertex6.z, vertex7.z)));
 
     bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
     bounding_box->maximum = glm::vec3(max_x, max_y, max_z);

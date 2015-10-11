@@ -86,8 +86,8 @@ glm::vec3 Integrator::TraceRay(Ray r, unsigned int depth)
             glm::vec3 light_center = glm::vec3(light->transform.T()
                                                * glm::vec4(0.0f,0.0f,0.0f,1.0f));
             Ray ray_to_light = Ray(offset_point, light_center - offset_point);
-            glm::vec3 energy = material->EvaluateReflectedEnergy(intersection, r.direction, ray_to_light.direction);
-            local_illumination = energy * intersection.color;
+            local_illumination = material->EvaluateReflectedEnergy(intersection, r.direction, ray_to_light.direction)
+                    * intersection.color;
 
             if (material->reflectivity > 0) {
                 // Color of the reflected point.

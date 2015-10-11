@@ -53,11 +53,19 @@ Intersection Sphere::GetIntersection(Ray r)
 
     // Calculate intersection point in local space.
     glm::vec3 point = r_local.origin + (r_local.direction * t);
-    // Calculate normal mapped normal.
-    glm::vec3 new_normal = NormalMapping(point, point);
 
-    intersection.point = PointToWorld(point);
-    intersection.normal = NormalToWorld(new_normal);
+    // TODO: Make this work.
+    // Calculate normal mapped normal.
+    //glm::vec3 new_normal = NormalMapping(point, point);
+
+    // Calculate intersection point in world space.
+    glm::vec3 world_point = glm::vec3(transform.T() * glm::vec4(point, 1.0f));
+    // Calculate normal vector in world space.
+    glm::vec3 world_normal = glm::normalize(glm::vec3(transform.invTransT()
+                                                      * glm::vec4(point, 0.0f)));
+
+    intersection.point = world_point;
+    intersection.normal = world_normal;
     intersection.t = glm::length(intersection.point - r.origin);
     intersection.color = material->base_color
             * Material::GetImageColor(GetUVCoordinates(point), material->texture);

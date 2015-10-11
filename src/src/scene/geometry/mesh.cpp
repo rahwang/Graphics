@@ -102,7 +102,6 @@ Intersection Triangle::GetIntersection(Ray r)
             && (sub_area2 >= 0.0f) && (sub_area2 <= 1.0f)) {
 
         // Do normal mapping.
-        //glm::vec3 new_normal = GetNormal(point);
         glm::vec3 new_normal = NormalMapping(point, GetNormal(point));
 
         intersection.point = point;
@@ -170,21 +169,26 @@ Intersection Mesh::GetIntersection(Ray r)
             intersection = current;
         }
     }
-
-    intersection.point = PointToWorld(intersection.point);
-    intersection.normal = NormalToWorld(intersection.normal);
+    intersection.point = glm::vec3(transform.T() * glm::vec4(intersection.point, 1.0f));
+    intersection.normal = glm::normalize(glm::vec3(transform.invTransT()
+                                                   * glm::vec4(intersection.normal, 0.0f)));
     intersection.t = glm::length(intersection.point - r.origin);
     return intersection;
 }
 
-glm::vec2 Mesh::GetUVCoordinates(const glm::vec3 &point)
-{
+glm::vec2 Mesh::GetUVCoordinates(const glm::vec3 &point) {
     return glm::vec2(0);
 }
 
 glm::vec3 Mesh::NormalMapping(const glm::vec3 &point, const glm::vec3 &normal)
 {
     return glm::vec3(0);
+}
+
+void Mesh::SetBoundingBox() {
+    int i = 5;
+    bounding_box->center = glm::vec3(0);
+    bounding_box->object = this;
 }
 
 void Mesh::SetMaterial(Material *m)
@@ -196,11 +200,6 @@ void Mesh::SetMaterial(Material *m)
     }
 }
 
-void Mesh::SetBoundingBox() {
-    int i = 5;
-    bounding_box->center = glm::vec3(0);
-    bounding_box->object = this;
-}
 
 void Mesh::LoadOBJ(const QStringRef &filename, const QStringRef &local_path)
 {

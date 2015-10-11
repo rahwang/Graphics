@@ -7,12 +7,15 @@
 #include <la.h>
 #include <openGL/shaderprogram.h>
 #include <scene/camera.h>
+#include <scene/geometry/boundingbox.h>
 #include <scene/scene.h>
 #include <la.h>
 #include <scene/xmlreader.h>
 #include <raytracing/integrator.h>
 #include <scene/xmlreader.h>
 #include <raytracing/integrator.h>
+
+
 
 class MyGL
     : public GLWidget277

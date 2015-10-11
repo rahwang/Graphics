@@ -11,7 +11,6 @@ Intersection::Intersection():
 IntersectionEngine::IntersectionEngine()
 {
     scene = NULL;
-    bvh = NULL;
 }
 
 // Get nearest intersection.

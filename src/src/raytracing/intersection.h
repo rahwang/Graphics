@@ -1,11 +1,9 @@
 #pragma once
 #include <la.h>
-#include <scene/geometry/boundingbox.h>
 #include <scene/geometry/geometry.h>
 #include <raytracing/ray.h>
 #include <scene/scene.h>
 
-class bvhNode;
 class Material;
 class Geometry;
 class Scene;
@@ -28,7 +26,6 @@ class IntersectionEngine
 public:
     IntersectionEngine();
     Scene *scene;
-    bvhNode *bvh;
 
     // Get first intersection of the ray.
     // use_transparent: consider intersections with transparent objects.

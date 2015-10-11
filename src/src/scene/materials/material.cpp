@@ -14,7 +14,6 @@ Material::Material(const glm::vec3 &color):
     refract_idx_out(0)
 {
     texture = NULL;
-    normal_map = NULL;
 }
 
 glm::vec3 Material::GetImageColor(const glm::vec2 &uv_coord, const QImage* const& image)
