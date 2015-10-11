@@ -14,8 +14,6 @@
 #include <scene/xmlreader.h>
 #include <raytracing/integrator.h>
 
-
-
 class MyGL
     : public GLWidget277
 {

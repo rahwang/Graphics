@@ -104,6 +104,7 @@ void MyGL::GLDrawScene()
             prog_flat.setModelMatrix(g->transform.T());
             prog_flat.draw(*this, *g);
         }
+        //prog_flat.draw(*this, g->bounding_box);
     }
     for(Geometry *l : scene.lights)
     {

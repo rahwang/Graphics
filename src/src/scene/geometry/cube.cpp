@@ -56,7 +56,7 @@ Intersection Cube::GetIntersection(Ray r)
 
     intersection.point = PointToWorld(point);
     intersection.t = glm::length(intersection.point - r.origin);
-    intersection.normal = NormalToWorld(normal);
+    intersection.normal = NormalToWorld(new_normal);
     intersection.object_hit = this;
     intersection.color = material->base_color
             * material->GetImageColor(GetUVCoordinates(point), material->texture);
@@ -126,6 +126,7 @@ glm::vec3 Cube::NormalMapping(const glm::vec3 &point, const glm::vec3 &normal)
 
 // Set min and max bounds for a bounding box.
 void Cube::SetBoundingBox() {
+
     glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, -0.5, 0));
     glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, -0.5, 0));
     glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, -0.5, 0));
@@ -150,6 +151,8 @@ void Cube::SetBoundingBox() {
 
     bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
     bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
+    bounding_box->center = bounding_box->minimum
+            + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
     bounding_box->object = this;
 }
 
