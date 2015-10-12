@@ -23,6 +23,13 @@ bool BoundingBox::GetIntersection(Ray r)
     float t_far = std::numeric_limits<float>::infinity();
     float t_near = -t_far;
 
+    // Check if ray origin is inside the bounding box.
+    if (r.origin[0] > minimum[0] && r.origin[0] < maximum[0]
+            && r.origin[1] > minimum[1] && r.origin[1] < maximum[1]
+            && r.origin[2] > minimum[2] && r.origin[2] < maximum[2]) {
+        return true;
+    }
+
     // TODO: Store normal in bbox structure to save calculation.
     std::vector<glm::vec3> normals;
     // X slab.

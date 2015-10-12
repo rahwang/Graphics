@@ -233,7 +233,7 @@ void MyGL::RaytraceScene()
         }
     });
 #else
-    integrator.TraceRay(scene.camera.Raycast(137.0f, 266.0f), 0);
+    integrator.TraceRay(scene.camera.Raycast(20.0f, 40.0f), 0);
     for(unsigned int i = 0; i < scene.camera.width; i++)
     {
         for(unsigned int j = 0; j < scene.camera.height; j++)
