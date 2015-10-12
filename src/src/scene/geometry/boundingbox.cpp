@@ -69,29 +69,6 @@ void BoundingBox::SetNormals() {
     normals.push_back(glm::normalize(v2));
     normals.push_back(glm::normalize(v1));
     normals.push_back(glm::normalize(v0));
-
-/*
-    // X slab.
-    normal = glm::normalize(glm::cross(v0, v1));
-    if (normal == 0) {
-        normals.push_back(glm::normalize(v2));
-    } else {
-        normals.push_back(normal);
-    }
-    // Y slab.
-    normal = glm::normalize(glm::cross(v0, v2));
-    if (normal == 0) {
-        normals.push_back(glm::normalize(v1));
-    } else {
-        normals.push_back(normal);
-    }
-    // Z slab.
-    normal = glm::normalize(glm::cross(v1, v2));
-    if (normal == 0) {
-        normals.push_back(glm::normalize(v0));
-    } else {
-        normals.push_back(normal);
-    }*/
 }
 
 //These are functions that are only defined in this cpp file. They're used for organizational purposes
@@ -216,13 +193,9 @@ bvhNode *bvhNode::CreateTree(std::vector<bvhNode*> &leaves, int depth, int start
 bvhNode *bvhNode::InitTree(QList<Geometry*> objects) {
     std::vector<bvhNode*> leaves;
     foreach (Geometry *object, objects) {
-        bvhNode *node = new bvhNode();
-        leaves.push_back(node);
-        object->bounding_box = &(node->bounding_box);
-        object->SetBoundingBox();
-        object->bounding_box->create();
+        leaves.push_back(object->SetBoundingBox());
     }
-    return CreateTree(leaves, 0, 0, objects.size()-1);
+    return CreateTree(leaves, 0, 0, leaves.size()-1);
 }
 
 void bvhNode::FlattenTree(bvhNode *root, std::vector<bvhNode*> &nodes) {
@@ -241,7 +214,7 @@ Intersection bvhNode::GetIntersection(Ray r, Camera &camera)
         return intersection;
     }
     if (bounding_box.object) {
-        Intersection current = bounding_box.object->GetIntersection(r);
+        Intersection current = bounding_box.object->GetIntersection(r, camera);
         if (current.object_hit) {
             // Transform point into camera space to check for clipping.
             glm::vec3 world_point = glm::vec3(camera.ViewMatrix()

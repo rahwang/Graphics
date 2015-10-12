@@ -18,12 +18,12 @@ glm::vec2 Sphere::GetUVCoordinates(const glm::vec3 &point) {
     return glm::vec2(U, V);
 }
 
-Intersection Sphere::GetIntersection(Ray r)
+Intersection Sphere::GetIntersection(Ray r, Camera &camera)
 {
     // Get ray in local space.
     Ray r_local = r.GetTransformedCopy(transform.invT());
 
-    Intersection intersection = Intersection();
+    Intersection intersection;
     // Calculate A, B, C for equation At^2 + Bt + C = 0,
     // (Formula derived from substituting the ray equation into the sphere
     // equation.)
@@ -85,7 +85,7 @@ glm::vec3 Sphere::NormalMapping(const glm::vec3 &point, const glm::vec3 &normal)
 }
 
 // Set min and max bounds for the bounding box.
-void Sphere::SetBoundingBox() {
+bvhNode *Sphere::SetBoundingBox() {
     /* TODO: Make this crazy sphere method work
     glm::mat4 S(0.5f, 0, 0, 0,
                 0, 0.5f, 0, 0,
@@ -106,6 +106,8 @@ void Sphere::SetBoundingBox() {
     bounding_box->center = bounding_box->minimum
             + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
     bounding_box->object = this; */
+    bvhNode *node = new bvhNode();
+
     glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f));
     glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, -0.5f, 1.0f));
     glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, -0.5f, -0.5f, 1.0f));
@@ -128,12 +130,16 @@ void Sphere::SetBoundingBox() {
     float max_z = fmax(fmax(fmax(vertex0.z, vertex1.z), fmax(vertex2.z, vertex3.z)),
                        fmax(fmax(vertex4.z, vertex5.z), fmax(vertex6.z, vertex7.z)));
 
+    bounding_box = &(node->bounding_box);
     bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
     bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
     bounding_box->center = bounding_box->minimum
             + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
     bounding_box->object = this;
     bounding_box->SetNormals();
+    bounding_box->create();
+
+    return node;
 }
 
 // These are functions that are only defined in this cpp file. They're used for organizational purposes

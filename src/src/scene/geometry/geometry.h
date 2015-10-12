@@ -4,10 +4,12 @@
 #include <openGL/drawable.h>
 #include <raytracing/ray.h>
 #include <scene/geometry/boundingbox.h>
+#include <scene/camera.h>
 #include <scene/materials/material.h>
 #include <scene/transform.h>
 
 class BoundingBox;
+class bvhNode;
 class Intersection;//Forward declaration because Intersection and Geometry cross-include each other
 class Material;
 
@@ -23,12 +25,12 @@ public:
     }
 
     virtual ~Geometry(){}
-    virtual Intersection GetIntersection(Ray r) = 0;
+    virtual Intersection GetIntersection(Ray r, Camera &camera) = 0;
     virtual void SetMaterial(Material* m){material = m;}
     virtual glm::vec2 GetUVCoordinates(const glm::vec3 &point) = 0;
     //virtual glm::vec3 SampleAreaLight(Ray r) = 0;
     virtual glm::vec3 NormalMapping(const glm::vec3 &point, const glm::vec3 &normal) = 0;
-    virtual void SetBoundingBox() = 0;
+    virtual bvhNode *SetBoundingBox() = 0;
     glm::vec3 PointToWorld(glm::vec3 &point);
     glm::vec3 NormalToWorld(glm::vec3 &normal);
     QString name;//Mainly used for debugging purposes

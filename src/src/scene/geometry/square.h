@@ -5,10 +5,10 @@
 //These attributes can be altered by applying a transformation matrix to the square.
 class SquarePlane : public Geometry
 {
-    Intersection GetIntersection(Ray r);
+    Intersection GetIntersection(Ray r, Camera &camera);
     glm::vec2 GetUVCoordinates(const glm::vec3 &point);
     glm::vec3 NormalMapping(const glm::vec3 &point, const glm::vec3 &normal);
-    void SetBoundingBox();
+    bvhNode *SetBoundingBox();
     //glm::vec3 SampleAreaLight(Ray r);
     void create();
 };

@@ -62,23 +62,25 @@ glm::vec4 Triangle::GetNormal(const glm::vec4 &position)
 }
 
 //HAVE THEM IMPLEMENT THIS
-//The ray in this function is not transformed because it was *already* transformed in Mesh::GetIntersection
-Intersection Triangle::GetIntersection(Ray r)
+Intersection Triangle::GetIntersection(Ray r, Camera &camera)
 {
-    Intersection intersection = Intersection();
+    // Get ray in local space.
+    Ray r_local = r.GetTransformedCopy(transform.invT());
+
+    Intersection intersection;
     // First check for intersection with plane defined by triangle.
     // Using the formula dot(N, (S-R_origin)) / dot(N, R_direction).
 
     // A ray will not intersect with a plane if it's parallel.
     // If parallel, dot(normal, R_direction) will be zero.
-    float denominator = glm::dot(plane_normal, r.direction);
+    float denominator = glm::dot(plane_normal, r_local.direction);
     if (fequal(denominator, 0.0f)) {
         return intersection;
     }
 
     // Calculate t in object space.
     // t = distance along ray where intersection occurs.
-    float t = glm::dot(plane_normal, (points[0] - r.origin))
+    float t = glm::dot(plane_normal, (points[0] - r_local.origin))
             / denominator;
 
     // If t is negative, no intersection.
@@ -86,7 +88,7 @@ Intersection Triangle::GetIntersection(Ray r)
         return intersection;
     }
     // Find intersection point in object space.
-    glm::vec3 point = r.origin + t * r.direction;
+    glm::vec3 point = r_local.origin + t * r_local.direction;
 
     // Check if the point falls within the triangle.
     // True if the areas of the three triangles formed by plane intersection
@@ -102,10 +104,10 @@ Intersection Triangle::GetIntersection(Ray r)
             && (sub_area2 >= 0.0f) && (sub_area2 <= 1.0f)) {
 
         // Do normal mapping.
-        glm::vec3 new_normal = NormalMapping(point, GetNormal(point));
+        //glm::vec3 new_normal = NormalMapping(point, GetNormal(point));
 
         intersection.point = point;
-        intersection.normal = new_normal;
+        intersection.normal = GetNormal(point);
         intersection.t = t;
         intersection.object_hit = this;
         intersection.color = material->base_color
@@ -132,10 +134,12 @@ glm::vec3 Triangle::NormalMapping(const glm::vec3 &point, const glm::vec3 &norma
     return new_normal;
 }
 
-void Triangle::SetBoundingBox() {
-    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(points[0], 0));
-    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(points[1], 0));
-    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(points[2], 0));
+bvhNode *Triangle::SetBoundingBox() {
+    bvhNode *node = new bvhNode();
+
+    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(points[0], 1.0f));
+    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(points[1], 1.0f));
+    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(points[2], 1.0f));
 
     float min_x = fmin(fmin(vertex0.x, vertex1.x), vertex2.x);
     float min_y = fmin(fmin(vertex0.y, vertex1.y), vertex2.y);
@@ -144,31 +148,23 @@ void Triangle::SetBoundingBox() {
     float max_y = fmax(fmax(vertex0.y, vertex1.y), vertex2.y);
     float max_z = fmax(fmax(vertex0.z, vertex1.z), vertex2.z);
 
+    bounding_box = &(node->bounding_box);
     bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
     bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
     bounding_box->center = bounding_box->minimum
             + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
     bounding_box->object = this;
     bounding_box->SetNormals();
+    bounding_box->create();
+
+    return node;
 }
 
-Intersection Mesh::GetIntersection(Ray r)
+Intersection Mesh::GetIntersection(Ray r, Camera &camera)
 {
-    // Get ray in local space.
-    Ray r_local = r.GetTransformedCopy(transform.invT());
+    Intersection intersection;
 
-    Intersection intersection = Intersection();
-    float nearest_t = std::numeric_limits<float>::infinity();
-
-    // Check each triangle in mesh for intersection.
-    foreach(Triangle * triangle, faces) {
-        Intersection current = triangle->GetIntersection(r_local);
-        // As soon as we find an intersection, we're done.
-        if (current.object_hit && (current.t < nearest_t)){
-            nearest_t = current.t;
-            intersection = current;
-        }
-    }
+    intersection = bvh->GetIntersection(r, camera);
     intersection.point = glm::vec3(transform.T() * glm::vec4(intersection.point, 1.0f));
     intersection.normal = glm::normalize(glm::vec3(transform.invTransT()
                                                    * glm::vec4(intersection.normal, 0.0f)));
@@ -185,11 +181,20 @@ glm::vec3 Mesh::NormalMapping(const glm::vec3 &point, const glm::vec3 &normal)
     return glm::vec3(0);
 }
 
-void Mesh::SetBoundingBox() {
-    int i = 5;
-    bounding_box->center = glm::vec3(0);
+bvhNode *Mesh::SetBoundingBox() {
+    std::vector<bvhNode*> leaves;
+    foreach (Triangle *face, faces) {
+        face->transform = transform;
+        leaves.push_back(face->SetBoundingBox());
+    }
+    bvh = bvhNode::CreateTree(leaves, 0, 0, leaves.size()-1);
+
+    bvhNode *node = new bvhNode();
+    node->bounding_box = bvh->bounding_box;
+    bounding_box = &(node->bounding_box);
     bounding_box->object = this;
-    bounding_box->SetNormals();
+
+    return node;
 }
 
 void Mesh::SetMaterial(Material *m)
@@ -200,7 +205,6 @@ void Mesh::SetMaterial(Material *m)
         t->SetMaterial(m);
     }
 }
-
 
 void Mesh::LoadOBJ(const QStringRef &filename, const QStringRef &local_path)
 {

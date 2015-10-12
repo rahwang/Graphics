@@ -1,11 +1,11 @@
 #include <scene/geometry/square.h>
 
-Intersection SquarePlane::GetIntersection(Ray r)
+Intersection SquarePlane::GetIntersection(Ray r, Camera &camera)
 {
     // Get ray in local space.
     Ray r_local = r.GetTransformedCopy(transform.invT());
 
-    Intersection intersection = Intersection();
+    Intersection intersection;
     // We can use the formula dot(N, (S-R_origin)) / dot(N, R_direction).
     // Normal should just be the unit vec in Z direction.
     glm::vec3 normal = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -64,7 +64,9 @@ glm::vec3 SquarePlane::NormalMapping(
 }
 
 // Set min and max bounds for a bounding box.
-void SquarePlane::SetBoundingBox() {
+bvhNode *SquarePlane::SetBoundingBox() {
+    bvhNode *node = new bvhNode();
+
     glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f));
     glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0.0f, 1.0f));
     glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, 0.0f, 1.0f));
@@ -77,12 +79,16 @@ void SquarePlane::SetBoundingBox() {
     float max_y = fmax(fmax(vertex0.y, vertex1.y), fmax(vertex2.y, vertex3.y));
     float max_z = fmax(fmax(vertex0.z, vertex1.z), fmax(vertex2.z, vertex3.z));
 
+    bounding_box = &(node->bounding_box);
     bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
     bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
     bounding_box->center = bounding_box->minimum
             + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
     bounding_box->object = this;
     bounding_box->SetNormals();
+    bounding_box->create();
+
+    return node;
 }
 
 void SquarePlane::create()

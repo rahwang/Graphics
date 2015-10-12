@@ -7,12 +7,12 @@ static const int CUB_VERT_COUNT = 24;
 static const float EPSILON = 0.0001;
 
 bool nearlyEquals(float x, float y) {
-    return abs(x-y) < EPSILON;
+    return std::abs(x-y) < EPSILON;
 }
 
-Intersection Cube::GetIntersection(Ray r)
+Intersection Cube::GetIntersection(Ray r, Camera &camera)
 {
-    Intersection intersection = Intersection();
+    Intersection intersection;
     Ray r_local = r.GetTransformedCopy(transform.invT());
     glm::vec3 normal;
     float t_far = std::numeric_limits<float>::infinity();
@@ -125,7 +125,9 @@ glm::vec3 Cube::NormalMapping(const glm::vec3 &point, const glm::vec3 &normal)
 }
 
 // Set min and max bounds for a bounding box.
-void Cube::SetBoundingBox() {
+bvhNode *Cube::SetBoundingBox() {
+    bvhNode *node = new bvhNode();
+
     glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f));
     glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, -0.5f, 1.0f));
     glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, -0.5f, -0.5f, 1.0f));
@@ -148,12 +150,16 @@ void Cube::SetBoundingBox() {
     float max_z = fmax(fmax(fmax(vertex0.z, vertex1.z), fmax(vertex2.z, vertex3.z)),
                        fmax(fmax(vertex4.z, vertex5.z), fmax(vertex6.z, vertex7.z)));
 
+    bounding_box = &(node->bounding_box);
     bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
     bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
     bounding_box->center = bounding_box->minimum
             + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
     bounding_box->object = this;
     bounding_box->SetNormals();
+    bounding_box->create();
+
+    return node;
 }
 
 //These are functions that are only defined in this cpp file. They're used for organizational purposes

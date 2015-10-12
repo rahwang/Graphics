@@ -7,10 +7,10 @@
 class Cube : public Geometry
 {
 public:
-    Intersection GetIntersection(Ray r);
+    Intersection GetIntersection(Ray r, Camera &camera);
     glm::vec2 GetUVCoordinates(const glm::vec3 &point);
     //glm::vec3 SampleAreaLight(Ray r);
     glm::vec3 NormalMapping(const glm::vec3 &point, const glm::vec3 &normal);
-    void SetBoundingBox();
+    bvhNode *SetBoundingBox();
     void create();
 };
