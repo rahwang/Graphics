@@ -65,10 +65,10 @@ glm::vec3 SquarePlane::NormalMapping(
 
 // Set min and max bounds for a bounding box.
 void SquarePlane::SetBoundingBox() {
-    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, 0, 0));
-    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0, 0));
-    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, 0, 0));
-    glm::vec3 vertex3 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0, 0));
+    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f));
+    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0.0f, 1.0f));
+    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, 0.0f, 1.0f));
+    glm::vec3 vertex3 = glm::vec3(transform.T() * glm::vec4(0.5f, -0.5f, 0.0f, 1.0f));
 
     float min_x = fmin(fmin(vertex0.x, vertex1.x), fmin(vertex2.x, vertex3.x));
     float min_y = fmin(fmin(vertex0.y, vertex1.y), fmin(vertex2.y, vertex3.y));

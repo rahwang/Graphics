@@ -126,15 +126,14 @@ glm::vec3 Cube::NormalMapping(const glm::vec3 &point, const glm::vec3 &normal)
 
 // Set min and max bounds for a bounding box.
 void Cube::SetBoundingBox() {
-
-    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, -0.5, 0));
-    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, -0.5, 0));
-    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, -0.5, 0));
-    glm::vec3 vertex3 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, -0.5, 0));
-    glm::vec3 vertex4 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, 0.5, 0));
-    glm::vec3 vertex5 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0.5, 0));
-    glm::vec3 vertex6 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, 0.5, 0));
-    glm::vec3 vertex7 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0.5, 0));
+    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f));
+    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, -0.5f, 1.0f));
+    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, -0.5f, -0.5f, 1.0f));
+    glm::vec3 vertex3 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, -0.5f, 1.0f));
+    glm::vec3 vertex4 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, 0.5f, 1.0f));
+    glm::vec3 vertex5 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0.5f, 1.0f));
+    glm::vec3 vertex6 = glm::vec3(transform.T() * glm::vec4(0.5f, -0.5f, 0.5f, 1.0f));
+    glm::vec3 vertex7 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
 
     float min_x = fmin(fmin(fmin(vertex0.x, vertex1.x), fmin(vertex2.x, vertex3.x)),
                        fmin(fmin(vertex4.x, vertex5.x), fmin(vertex6.x, vertex7.x)));

@@ -86,6 +86,7 @@ glm::vec3 Sphere::NormalMapping(const glm::vec3 &point, const glm::vec3 &normal)
 
 // Set min and max bounds for the bounding box.
 void Sphere::SetBoundingBox() {
+    /* TODO: Make this crazy sphere method work
     glm::mat4 S(0.5f, 0, 0, 0,
                 0, 0.5f, 0, 0,
                 0, 0, 0.5f, 0,
@@ -99,6 +100,33 @@ void Sphere::SetBoundingBox() {
     float max_y = (R[1][3] + sqrt(pow(R[1][3], 2) - R[3][3] * R[1][1])) / R[3][3];
     float min_x = (R[0][3] - sqrt(pow(R[0][3], 2) - R[3][3] * R[0][0])) / R[3][3];
     float max_x = (R[0][3] + sqrt(pow(R[0][3], 2) - R[3][3] * R[0][0])) / R[3][3];
+
+    bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
+    bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
+    bounding_box->center = bounding_box->minimum
+            + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
+    bounding_box->object = this; */
+    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f));
+    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, -0.5f, 1.0f));
+    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, -0.5f, -0.5f, 1.0f));
+    glm::vec3 vertex3 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, -0.5f, 1.0f));
+    glm::vec3 vertex4 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, 0.5f, 1.0f));
+    glm::vec3 vertex5 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0.5f, 1.0f));
+    glm::vec3 vertex6 = glm::vec3(transform.T() * glm::vec4(0.5f, -0.5f, 0.5f, 1.0f));
+    glm::vec3 vertex7 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+
+    float min_x = fmin(fmin(fmin(vertex0.x, vertex1.x), fmin(vertex2.x, vertex3.x)),
+                       fmin(fmin(vertex4.x, vertex5.x), fmin(vertex6.x, vertex7.x)));
+    float min_y = fmin(fmin(fmin(vertex0.y, vertex1.y), fmin(vertex2.y, vertex3.y)),
+                       fmin(fmin(vertex4.y, vertex5.y), fmin(vertex6.y, vertex7.y)));
+    float min_z = fmin(fmin(fmin(vertex0.z, vertex1.z), fmin(vertex2.z, vertex3.z)),
+                       fmin(fmin(vertex4.z, vertex5.z), fmin(vertex6.z, vertex7.z)));
+    float max_x = fmax(fmax(fmax(vertex0.x, vertex1.x), fmax(vertex2.x, vertex3.x)),
+                       fmax(fmax(vertex4.x, vertex5.x), fmax(vertex6.x, vertex7.x)));
+    float max_y = fmax(fmax(fmax(vertex0.y, vertex1.y), fmax(vertex2.y, vertex3.y)),
+                       fmax(fmax(vertex4.y, vertex5.y), fmax(vertex6.y, vertex7.y)));
+    float max_z = fmax(fmax(fmax(vertex0.z, vertex1.z), fmax(vertex2.z, vertex3.z)),
+                       fmax(fmax(vertex4.z, vertex5.z), fmax(vertex6.z, vertex7.z)));
 
     bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
     bounding_box->maximum = glm::vec3(max_x, max_y, max_z);

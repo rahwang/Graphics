@@ -13,6 +13,7 @@ BoundingBox BoundingBox::Union(const BoundingBox &a, const BoundingBox &b) {
 
     bbox.minimum = glm::vec3(min_x, min_y, min_z);
     bbox.maximum = glm::vec3(max_x, max_y, max_z);
+    bbox.center = bbox.minimum + (bbox.maximum - bbox.minimum)/ 2.0f;
     bbox.object = NULL;
     return bbox;
 }
@@ -44,7 +45,6 @@ void createCubeVertexPositions(std::vector<glm::vec3> &cub_vert_pos, glm::vec3 m
 
 void createCubeIndices(std::vector<GLuint> (&cub_idx))
 {
-
         cub_idx.push_back(0);
         cub_idx.push_back(1);
         cub_idx.push_back(1);
@@ -82,14 +82,16 @@ void BoundingBox::create() {
     createCubeVertexPositions(cub_vert_pos, minimum, maximum);
     createCubeIndices(cub_idx);
 
-    for(int i = 0; i < 24; i++){
-        cub_vert_col[i] = glm::vec3(1, 1, 1);
+    for(int i = 0; i < 8; i++){
+        cub_vert_col.push_back(glm::vec3(0.f, 0.f, 0.f));
     }
+
+    count = cub_idx.size();
 
     bufIdx.create();
     bufIdx.bind();
     bufIdx.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    bufIdx.allocate(cub_idx.data(), cub_idx.size() * sizeof(GLuint));
+    bufIdx.allocate(cub_idx.data(), count * sizeof(GLuint));
 
     bufPos.create();
     bufPos.bind();
@@ -109,15 +111,15 @@ GLenum BoundingBox::drawMode() {
 struct ComparePoints {
     ComparePoints(int d) {dim = d;}
     int dim;
-    bool operator()(const bvhNode &a, const bvhNode &b) const {
-        return a.bounding_box.center[dim] < b.bounding_box.center[dim];
+    bool operator()(bvhNode *a, bvhNode *b) const {
+        return a->bounding_box.center[dim] < b->bounding_box.center[dim];
     }
 };
 
-bvhNode *bvhNode::CreateTree(std::vector<bvhNode> &leaves, int depth, int start_idx, int end_idx) {
+bvhNode *bvhNode::CreateTree(std::vector<bvhNode*> &leaves, int depth, int start_idx, int end_idx) {
     // If leaf node, then simply return bounding box.
     if (end_idx == start_idx) {
-        return &leaves[start_idx];
+        return leaves[start_idx];
     }
 
     int dimension = depth % 3;
@@ -131,17 +133,27 @@ bvhNode *bvhNode::CreateTree(std::vector<bvhNode> &leaves, int depth, int start_
     node->right = CreateTree(leaves, depth+1, mid+1, end_idx);
     node->bounding_box = BoundingBox::Union(node->left->bounding_box,
                                             node->right->bounding_box);
+    node->bounding_box.create();
     return node;
 }
 
 bvhNode *bvhNode::InitTree(QList<Geometry*> objects) {
-    std::vector<bvhNode> leaves;
+    std::vector<bvhNode*> leaves;
     foreach (Geometry *object, objects) {
         bvhNode *node = new bvhNode();
-        leaves.push_back(*node);
-        object->bounding_box = &node->bounding_box;
+        leaves.push_back(node);
+        object->bounding_box = &(node->bounding_box);
         object->SetBoundingBox();
+        object->bounding_box->create();
     }
     return CreateTree(leaves, 0, 0, objects.size()-1);
 }
 
+void bvhNode::FlattenTree(bvhNode *root, std::vector<bvhNode*> &nodes) {
+    if (root == NULL) {
+        return;
+    }
+    nodes.push_back(root);
+    FlattenTree(root->left, nodes);
+    FlattenTree(root->right, nodes);
+}

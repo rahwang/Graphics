@@ -61,6 +61,8 @@ void MyGL::initializeGL()
     integrator.scene = &scene;
     integrator.intersection_engine = &intersection_engine;
     intersection_engine.scene = &scene;
+    // Create bounding boxes and BVH tree.
+    intersection_engine.bvh = bvhNode::InitTree(scene.objects);
     ResizeToSceneCamera();
 }
 
@@ -104,7 +106,15 @@ void MyGL::GLDrawScene()
             prog_flat.setModelMatrix(g->transform.T());
             prog_flat.draw(*this, *g);
         }
-        // prog_flat.draw(*this, g->bounding_box);
+        //prog_flat.setModelMatrix(glm::mat4(1.0f));
+        //prog_flat.draw(*this, *(g->bounding_box));
+    }
+    // Draw bounding boxes.
+    std::vector<bvhNode*> nodes;
+    bvhNode::FlattenTree(intersection_engine.bvh, nodes);
+    for (bvhNode *node : nodes) {
+        prog_flat.setModelMatrix(glm::mat4(1.0f));
+        prog_flat.draw(*this, node->bounding_box);
     }
     for(Geometry *l : scene.lights)
     {
@@ -200,7 +210,7 @@ void MyGL::SceneLoadDialog()
     integrator.intersection_engine = &intersection_engine;
     intersection_engine.scene = &scene;
     // Create bounding boxes and BVH tree.
-    //intersection_engine.bvh = bvhNode::InitTree(scene.objects);
+    intersection_engine.bvh = bvhNode::InitTree(scene.objects);
     update();
 }
 

@@ -8,13 +8,12 @@ class BoundingBox : public Drawable
 {
 public:
     BoundingBox():
-    minimum(), maximum() {
+    center(), minimum(), maximum() {
         object = NULL;
     }
 
-    ~BoundingBox(){}
     void create();
-    GLenum drawMode();
+    virtual GLenum drawMode();
     glm::vec3 GetCenter();
     static BoundingBox Union(const BoundingBox &a, const BoundingBox &b);
 
@@ -31,10 +30,12 @@ public:
     bounding_box() {
         left = NULL;
         right = NULL;
+        dimension = -1;
     }
 
-    static bvhNode *CreateTree(std::vector<bvhNode> &leaves, int depth, int start_idx, int end_idx);
+    static bvhNode *CreateTree(std::vector<bvhNode*> &leaves, int depth, int start_idx, int end_idx);
     static bvhNode *InitTree(QList<Geometry*> objects);
+    static void FlattenTree(bvhNode *root, std::vector<bvhNode*> &nodes);
 
     BoundingBox bounding_box;
     bvhNode *left;
