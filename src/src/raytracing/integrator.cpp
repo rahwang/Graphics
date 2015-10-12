@@ -25,7 +25,7 @@ glm::vec3 Integrator::ShadowTest(glm::vec3 &point, Geometry *light) {
         // If light is obscured, by transparent object, return
         // light color * material color.
         light_color = light->material->base_color
-                * intersection.object_hit->material->base_color;
+                * intersection.color;
     }
     return light_color;
 }
@@ -77,8 +77,16 @@ glm::vec3 Integrator::TraceRay(Ray r, unsigned int depth)
                 Ray refracted_ray(intersection.point + (intersection.normal * OFFSET), exit_direction);
                 local_illumination = intersection.color * TraceRay(refracted_ray, depth + 1);
             }
-            surface_color = material->base_color * local_illumination;
-
+            if (material->reflectivity > 0) {
+                // Color of the reflected point.
+                Ray reflected_ray = Ray(offset_point,
+                                        glm::reflect(r.direction, intersection.normal));
+                glm::vec3 reflected_color = material->base_color * TraceRay(reflected_ray, depth+1);
+                surface_color = (1-reflectivity) * local_illumination
+                                 + reflectivity * reflected_color;
+            } else {
+                surface_color = local_illumination;
+            }
         } else {
             // If the object is opaque.
 
