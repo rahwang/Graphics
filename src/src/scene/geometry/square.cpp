@@ -82,6 +82,7 @@ void SquarePlane::SetBoundingBox() {
     bounding_box->center = bounding_box->minimum
             + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
     bounding_box->object = this;
+    bounding_box->SetNormals();
 }
 
 void SquarePlane::create()

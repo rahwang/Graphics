@@ -15,6 +15,7 @@ BoundingBox BoundingBox::Union(const BoundingBox &a, const BoundingBox &b) {
     bbox.maximum = glm::vec3(max_x, max_y, max_z);
     bbox.center = bbox.minimum + (bbox.maximum - bbox.minimum)/ 2.0f;
     bbox.object = NULL;
+    bbox.SetNormals();
     return bbox;
 }
 
@@ -29,21 +30,6 @@ bool BoundingBox::GetIntersection(Ray r)
             && r.origin[2] > minimum[2] && r.origin[2] < maximum[2]) {
         return true;
     }
-
-    // TODO: Store normal in bbox structure to save calculation.
-    std::vector<glm::vec3> normals;
-    // X slab.
-    glm::vec3 v0 = maximum - glm::vec3(maximum.x, maximum.y, minimum.z);
-    glm::vec3 v1 = maximum - glm::vec3(maximum.x, minimum.y, maximum.z);
-    normals.push_back(glm::cross(v0, v1));
-    // Y slab.
-    v0 = maximum - glm::vec3(minimum.x, maximum.y, maximum.z);
-    v1 = maximum - glm::vec3(maximum.x, minimum.y, maximum.z);
-    normals.push_back(glm::cross(v0, v1));
-    // Z slab.
-    v0 = maximum - glm::vec3(minimum.x, maximum.y, maximum.z);
-    v1 = maximum - glm::vec3(maximum.x, maximum.y, minimum.z);
-    normals.push_back(glm::cross(v0, v1));
 
     //Check each slab.
     for (int i=0; i < 3; ++i) {
@@ -73,6 +59,39 @@ bool BoundingBox::GetIntersection(Ray r)
         return false;
     }
     return true;
+}
+
+void BoundingBox::SetNormals() {
+    glm::vec3 normal;
+    glm::vec3 v0 = maximum - glm::vec3(maximum.x, maximum.y, minimum.z);
+    glm::vec3 v1 = maximum - glm::vec3(maximum.x, minimum.y, maximum.z);
+    glm::vec3 v2 = maximum - glm::vec3(minimum.x, maximum.y, maximum.z);
+    normals.push_back(glm::normalize(v2));
+    normals.push_back(glm::normalize(v1));
+    normals.push_back(glm::normalize(v0));
+
+/*
+    // X slab.
+    normal = glm::normalize(glm::cross(v0, v1));
+    if (normal == 0) {
+        normals.push_back(glm::normalize(v2));
+    } else {
+        normals.push_back(normal);
+    }
+    // Y slab.
+    normal = glm::normalize(glm::cross(v0, v2));
+    if (normal == 0) {
+        normals.push_back(glm::normalize(v1));
+    } else {
+        normals.push_back(normal);
+    }
+    // Z slab.
+    normal = glm::normalize(glm::cross(v1, v2));
+    if (normal == 0) {
+        normals.push_back(glm::normalize(v0));
+    } else {
+        normals.push_back(normal);
+    }*/
 }
 
 //These are functions that are only defined in this cpp file. They're used for organizational purposes

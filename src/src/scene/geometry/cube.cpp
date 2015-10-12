@@ -153,6 +153,7 @@ void Cube::SetBoundingBox() {
     bounding_box->center = bounding_box->minimum
             + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
     bounding_box->object = this;
+    bounding_box->SetNormals();
 }
 
 //These are functions that are only defined in this cpp file. They're used for organizational purposes

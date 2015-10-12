@@ -148,8 +148,8 @@ void Triangle::SetBoundingBox() {
     bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
     bounding_box->center = bounding_box->minimum
             + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
-
     bounding_box->object = this;
+    bounding_box->SetNormals();
 }
 
 Intersection Mesh::GetIntersection(Ray r)
@@ -189,6 +189,7 @@ void Mesh::SetBoundingBox() {
     int i = 5;
     bounding_box->center = glm::vec3(0);
     bounding_box->object = this;
+    bounding_box->SetNormals();
 }
 
 void Mesh::SetMaterial(Material *m)
