@@ -18,6 +18,56 @@ BoundingBox BoundingBox::Union(const BoundingBox &a, const BoundingBox &b) {
     return bbox;
 }
 
+bool BoundingBox::GetIntersection(Ray r)
+{
+    float t_far = std::numeric_limits<float>::infinity();
+    float t_near = -t_far;
+
+    // TODO: Store normal in bbox structure to save calculation.
+    std::vector<glm::vec3> normals;
+    // X slab.
+    glm::vec3 v0 = maximum - glm::vec3(maximum.x, maximum.y, minimum.z);
+    glm::vec3 v1 = maximum - glm::vec3(maximum.x, minimum.y, maximum.z);
+    normals.push_back(glm::cross(v0, v1));
+    // Y slab.
+    v0 = maximum - glm::vec3(minimum.x, maximum.y, maximum.z);
+    v1 = maximum - glm::vec3(maximum.x, minimum.y, maximum.z);
+    normals.push_back(glm::cross(v0, v1));
+    // Z slab.
+    v0 = maximum - glm::vec3(minimum.x, maximum.y, maximum.z);
+    v1 = maximum - glm::vec3(maximum.x, maximum.y, minimum.z);
+    normals.push_back(glm::cross(v0, v1));
+
+    //Check each slab.
+    for (int i=0; i < 3; ++i) {
+        // If parallel to slab.
+        if ((glm::dot(normals[i], r.direction) == 0)
+                && (r.origin[i] < minimum[i] || r.origin[i] > maximum[i])) {
+            return false;
+        }
+        // Calculate t0 and t1 for all the slabs
+        float t0 = (minimum[i] - r.origin[i])/ r.direction[i];
+        float t1 = (maximum[i] - r.origin[i])/ r.direction[i];
+
+        if (t0 > t1){
+            float tmp = t0;
+            t0 = t1;
+            t1 = tmp;
+        }
+        if (t0 > t_near) {
+            t_near = t0;
+        }
+        t_far = (t1 < t_far) ? t1 : t_far;
+    }
+    if(t_near > t_far){
+        return false;
+    }
+    if(t_near < 0.0f){
+        return false;
+    }
+    return true;
+}
+
 //These are functions that are only defined in this cpp file. They're used for organizational purposes
 //when filling the arrays used to hold the vertex and index data.
 void createCubeVertexPositions(std::vector<glm::vec3> &cub_vert_pos, glm::vec3 min, glm::vec3 max)
@@ -156,4 +206,42 @@ void bvhNode::FlattenTree(bvhNode *root, std::vector<bvhNode*> &nodes) {
     nodes.push_back(root);
     FlattenTree(root->left, nodes);
     FlattenTree(root->right, nodes);
+}
+
+Intersection bvhNode::GetIntersection(Ray r, Camera &camera)
+{
+    Intersection intersection;
+    if (!bounding_box.GetIntersection(r)) {
+        return intersection;
+    }
+    if (bounding_box.object) {
+        Intersection current = bounding_box.object->GetIntersection(r);
+        if (current.object_hit) {
+            // Transform point into camera space to check for clipping.
+            glm::vec3 world_point = glm::vec3(camera.ViewMatrix()
+                                              * glm::vec4(current.point, 1.0f));
+            if (world_point.z > camera.near_clip
+                && world_point.z < camera.far_clip) {
+                intersection = current;
+            }
+        }
+        return intersection;
+    }
+
+    Intersection child0, child1;
+    if (left)
+        child0 = left->GetIntersection(r, camera);
+    if (right)
+        child1 = right->GetIntersection(r, camera);
+
+    if (left && child0.object_hit) {
+        intersection = child0;
+        if (child1.object_hit
+                && child1.t < child0.t) {
+            intersection = child1;
+        }
+    } else if (right && child1.object_hit) {
+        intersection = child1;
+    }
+    return intersection;
 }

@@ -221,7 +221,7 @@ void MyGL::RaytraceScene()
     {
         return;
     }
-    #define TBB //Uncomment this line out to render your scene with multiple threads.
+    //#define TBB //Uncomment this line out to render your scene with multiple threads.
     //This is useful when debugging your raytracer with breakpoints.
 #ifdef TBB
     parallel_for(0, (int)scene.camera.width, 1, [=](unsigned int i)
@@ -233,6 +233,7 @@ void MyGL::RaytraceScene()
         }
     });
 #else
+    integrator.TraceRay(scene.camera.Raycast(137.0f, 266.0f), 0);
     for(unsigned int i = 0; i < scene.camera.width; i++)
     {
         for(unsigned int j = 0; j < scene.camera.height; j++)
