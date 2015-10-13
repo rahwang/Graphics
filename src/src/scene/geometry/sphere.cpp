@@ -8,11 +8,12 @@ static const int SPH_IDX_COUNT = 2280;  // 760 tris * 3
 static const int SPH_VERT_COUNT = 382;
 
 glm::vec2 Sphere::GetUVCoordinates(const glm::vec3 &point) {
-    float phi = atan2f(point.z, point.x);
+    glm::vec3 norm_point = glm::normalize(point);
+    float phi = atan2f(norm_point.z, norm_point.x);
     if (phi < 0) {
         phi += 2*M_PI;
     }
-    float theta = glm::acos(point.y);
+    float theta = glm::acos(norm_point.y);
     float U = 1 - (phi/(2*M_PI));
     float V = 1 - (theta/M_PI);
     return glm::vec2(U, V);

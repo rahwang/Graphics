@@ -15,8 +15,6 @@
 #include <scene/xmlreader.h>
 #include <raytracing/integrator.h>
 
-
-
 class MyGL
     : public GLWidget277
 {
@@ -48,6 +46,7 @@ public:
     void GLDrawScene();
     void ResizeToSceneCamera();
 
+    glm::vec3 SampledTraceRay(int x, int y);
     void RaytraceScene();
 
 protected:

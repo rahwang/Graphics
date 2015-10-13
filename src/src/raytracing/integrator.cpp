@@ -12,7 +12,10 @@ Integrator::Integrator():
 // Light feeler test. Check that current light is visible from point.
 // If so, return the color produces by the light.
 // TODO: Special case for lights obscured by transparent objects with stuff behind.
-glm::vec3 Integrator::ShadowTest(glm::vec3 &point, Geometry *light) {
+glm::vec3 Integrator::ShadowTest(glm::vec3 &point, Geometry *light, int depth) {
+    if (depth > max_depth) {
+        return glm::vec3(1, 1, 1);
+    }
     glm::vec3 light_color = glm::vec3(0, 0, 0);
     glm::vec3 light_center = glm::vec3(light->transform.T()
                                        * glm::vec4(0.0f,0.0f,0.0f,1.0f));
@@ -24,8 +27,9 @@ glm::vec3 Integrator::ShadowTest(glm::vec3 &point, Geometry *light) {
     } else if (intersection.object_hit->material->refract_idx_in > 0) {
         // If light is obscured, by transparent object, return
         // light color * material color.
-        light_color = light->material->base_color
-                * intersection.color;
+        //glm::vec3 offset_point = intersection.point + (intersection.normal * OFFSET);
+        //light_color = intersection.color * ShadowTest(offset_point, light, depth+1);
+        light_color = intersection.color;
     }
     return light_color;
 }
@@ -56,7 +60,8 @@ glm::vec3 Integrator::TraceRay(Ray r, unsigned int depth)
     // Calculate surface color * light color.
     foreach(Geometry *light, scene->lights) {
         // Calculate light color.
-        light_color = ShadowTest(offset_point, light);
+        light_color = ShadowTest(offset_point, light, 0);
+//        if (light_color == glm::vec3(0,0,0) && material->refract_idx_in == 0) {
         if (light_color == glm::vec3(0,0,0)) {
             continue;
         }
@@ -68,14 +73,26 @@ glm::vec3 Integrator::TraceRay(Ray r, unsigned int depth)
                 // We are entering an object!
                 float refractive_entry_ratio = material->refract_idx_out / material->refract_idx_in;
                 glm::vec3 refracted_direction = glm::refract(r.direction, intersection.normal, refractive_entry_ratio);
-                Ray refracted_ray(intersection.point - intersection.normal * OFFSET, refracted_direction);
-                local_illumination = intersection.color * TraceRay(refracted_ray, depth + 1);
+                if (refracted_direction == glm::vec3(0.0)) {
+                    Ray reflected_ray = Ray(offset_point,
+                                            glm::reflect(r.direction, intersection.normal));
+                    local_illumination = material->base_color * TraceRay(reflected_ray, depth+1);
+                } else {
+                    Ray refracted_ray(intersection.point - intersection.normal * OFFSET, refracted_direction);
+                    local_illumination = intersection.color * TraceRay(refracted_ray, depth + 1);
+                }
             } else {
                 // We are exiting an object!
                 float refractive_exit_ratio = material->refract_idx_in / material->refract_idx_out;
                 glm::vec3 exit_direction = glm::refract(r.direction, -intersection.normal, refractive_exit_ratio);
-                Ray refracted_ray(intersection.point + (intersection.normal * OFFSET), exit_direction);
-                local_illumination = intersection.color * TraceRay(refracted_ray, depth + 1);
+                if (exit_direction == glm::vec3(0.0)) {
+                    Ray reflected_ray = Ray(offset_point,
+                                            glm::reflect(r.direction, intersection.normal));
+                    local_illumination = material->base_color * TraceRay(reflected_ray, depth+1);
+                } else {
+                    Ray refracted_ray(intersection.point + (intersection.normal * OFFSET), exit_direction);
+                    local_illumination = intersection.color * TraceRay(refracted_ray, depth + 1);
+                }
             }
             if (material->reflectivity > 0) {
                 // Color of the reflected point.
@@ -87,6 +104,8 @@ glm::vec3 Integrator::TraceRay(Ray r, unsigned int depth)
             } else {
                 surface_color = local_illumination;
             }
+            color += surface_color;
+            continue;
         } else {
             // If the object is opaque.
 

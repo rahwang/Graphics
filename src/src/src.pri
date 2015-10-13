@@ -29,7 +29,8 @@ SOURCES += \
     $$PWD/raytracing/samplers/uniformpixelsampler.cpp \
     $$PWD/scene/materials/phongmaterial.cpp \
     $$PWD/scene/materials/lambertmaterial.cpp \
-    $$PWD/scene/geometry/boundingbox.cpp
+    $$PWD/scene/geometry/boundingbox.cpp \
+    $$PWD/raytracing/samplers/randompixelsampler.cpp
 
 HEADERS += \
     $$PWD/mainwindow.h \
@@ -64,4 +65,5 @@ HEADERS += \
     $$PWD/raytracing/samplers/uniformpixelsampler.h \
     $$PWD/scene/materials/lambertmaterial.h \
     $$PWD/scene/materials/phongmaterial.h \
-    $$PWD/scene/geometry/boundingbox.h
+    $$PWD/scene/geometry/boundingbox.h \
+    $$PWD/raytracing/samplers/randompixelsampler.h

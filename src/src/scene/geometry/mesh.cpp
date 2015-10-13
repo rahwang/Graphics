@@ -191,6 +191,8 @@ bvhNode *Mesh::SetBoundingBox() {
 
     bvhNode *node = new bvhNode();
     node->bounding_box = bvh->bounding_box;
+    node->left = bvh->left;
+    node->right = bvh->right;
     bounding_box = &(node->bounding_box);
     bounding_box->object = this;
 

@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <QApplication>
+#include <QDebug>
+#include <QElapsedTimer>
 #include <QKeyEvent>
 #include <QXmlStreamReader>
 #include <QFileDialog>
@@ -214,6 +216,16 @@ void MyGL::SceneLoadDialog()
     update();
 }
 
+glm::vec3 MyGL::SampledTraceRay(int x, int y) {
+    QList<glm::vec2> samples = scene.pixel_sampler->GetSamples(x, y);
+
+    glm::vec3 color(0.0f);
+    for (glm::vec2 sample : samples) {
+        color += integrator.TraceRay(scene.camera.Raycast(sample[0], sample[1]), 0);
+    }
+    return color / float(samples.size());
+}
+
 void MyGL::RaytraceScene()
 {
     QString filepath = QFileDialog::getSaveFileName(0, QString("Save Image"), QString("../rendered_images"), tr("*.bmp"));
@@ -221,27 +233,28 @@ void MyGL::RaytraceScene()
     {
         return;
     }
-    //#define TBB //Uncomment this line out to render your scene with multiple threads.
+    QElapsedTimer timer;
+    qint64 nanoSec;
+    timer.start();
+    #define TBB //Uncomment this line out to render your scene with multiple threads.
     //This is useful when debugging your raytracer with breakpoints.
 #ifdef TBB
     parallel_for(0, (int)scene.camera.width, 1, [=](unsigned int i)
     {
         for(unsigned int j = 0; j < scene.camera.height; j++)
         {
-            scene.film.pixels[i][j] =
-                    integrator.TraceRay(scene.camera.Raycast(float(i), float(j)), 0);
+            scene.film.pixels[i][j] = SampledTraceRay(i, j);
         }
     });
 #else
-    integrator.TraceRay(scene.camera.Raycast(325.0f, 350.0f), 0);
     for(unsigned int i = 0; i < scene.camera.width; i++)
     {
-        for(unsigned int j = 0; j < scene.camera.height; j++)
-        {
-            scene.film.pixels[i][j] =
-                    integrator.TraceRay(scene.camera.Raycast(float(i), float(j)), 0);
+        for(unsigned int j = 0; j < scene.camera.height; j++) {
+            scene.film.pixels[i][j] = SampledTraceRay(i, j);
         }
     }
 #endif
+    nanoSec = timer.nsecsElapsed();
+    std::cout << nanoSec / pow(10, 9) << "\n";
     scene.film.WriteImage(filepath);
 }
