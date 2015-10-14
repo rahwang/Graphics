@@ -16,7 +16,7 @@ IntersectionEngine::IntersectionEngine()
 
 // Get nearest intersection.
 // If ignoreTransparent is set to true, ignores transparent objects.
-Intersection IntersectionEngine::GetIntersection(Ray r, bool ignore_transparent, bool clip)
+Intersection IntersectionEngine::GetIntersection(Ray r)
 {
     return bvh->GetIntersection(r, scene->camera);
 }

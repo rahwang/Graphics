@@ -42,6 +42,7 @@ public:
 
     static bvhNode *CreateTree(std::vector<bvhNode*> &leaves, int depth, int start_idx, int end_idx);
     static bvhNode *InitTree(QList<Geometry*> objects);
+    static void DeleteTree(bvhNode * root);
     static void FlattenTree(bvhNode *root, std::vector<bvhNode*> &nodes);
     Intersection GetIntersection(Ray r, Camera &camera);
 

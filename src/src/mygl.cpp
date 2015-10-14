@@ -212,6 +212,7 @@ void MyGL::SceneLoadDialog()
     integrator.intersection_engine = &intersection_engine;
     intersection_engine.scene = &scene;
     // Create bounding boxes and BVH tree.
+    bvhNode::DeleteTree(intersection_engine.bvh);
     intersection_engine.bvh = bvhNode::InitTree(scene.objects);
     update();
 }

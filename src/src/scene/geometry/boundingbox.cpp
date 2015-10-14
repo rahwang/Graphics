@@ -244,3 +244,13 @@ Intersection bvhNode::GetIntersection(Ray r, Camera &camera)
     }
     return intersection;
 }
+
+void bvhNode::DeleteTree(bvhNode * root) {
+    if (root == NULL) {
+        return;
+    }
+
+    DeleteTree(root->left);
+    DeleteTree(root->right);
+    delete root;
+}

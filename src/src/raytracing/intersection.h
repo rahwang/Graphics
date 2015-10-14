@@ -33,5 +33,5 @@ public:
     // Get first intersection of the ray.
     // use_transparent: consider intersections with transparent objects.
     // clip: ignore intersections falling outside of the frustrum.
-    Intersection GetIntersection(Ray r, bool ignore_transparent=false, bool clip=true);
+    Intersection GetIntersection(Ray r);
 };
