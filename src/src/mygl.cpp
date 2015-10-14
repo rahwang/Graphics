@@ -236,7 +236,7 @@ void MyGL::RaytraceScene()
     QElapsedTimer timer;
     qint64 nanoSec;
     timer.start();
-    #define TBB //Uncomment this line out to render your scene with multiple threads.
+    // #define TBB //Uncomment this line out to render your scene with multiple threads.
     //This is useful when debugging your raytracer with breakpoints.
 #ifdef TBB
     parallel_for(0, (int)scene.camera.width, 1, [=](unsigned int i)

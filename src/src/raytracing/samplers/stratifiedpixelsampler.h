@@ -7,6 +7,7 @@ class StratifiedPixelSampler : public PixelSampler
 public:
     StratifiedPixelSampler();
     StratifiedPixelSampler(int samples);
+    void InitializeTile();
     virtual QList<glm::vec2> GetSamples(int x, int y);
 
 protected:
