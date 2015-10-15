@@ -22,6 +22,7 @@ public:
     bool GetIntersection(Ray r);
     static BoundingBox Union(const BoundingBox &a, const BoundingBox &b);
     void SetNormals();
+    int MaximumExtent() const;
 
     glm::vec3 center;
     glm::vec3 minimum;

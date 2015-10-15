@@ -2,6 +2,17 @@
 #include <la.h>
 #include <iostream>
 
+int BoundingBox::MaximumExtent() const {
+    glm::vec3 diagonal = maximum - minimum;
+    if (diagonal.x > diagonal.y && diagonal.x > diagonal.z) {
+        return 0;
+    } else if (diagonal.y > diagonal.z) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
 BoundingBox BoundingBox::Union(const BoundingBox &a, const BoundingBox &b) {
     BoundingBox bbox;
     float min_x = fmin(a.minimum.x, b.minimum.x);
@@ -175,9 +186,15 @@ bvhNode *bvhNode::CreateTree(std::vector<bvhNode*> &leaves, int depth, int start
         return leaves[start_idx];
     }
 
-    int dimension = depth % 3;
+    // Pick best dimension.
+    // TODO: implement SAH heuristic once I finish animation hw.
+    BoundingBox centroidBounds;
+    for (int i=start_idx; i < end_idx; i++) {
+        centroidBounds = BoundingBox::Union(centroidBounds, leaves[i]->bounding_box);
+    }
+    int dimension = centroidBounds.MaximumExtent();
+
     int mid = (end_idx+start_idx)/2;
-    //quicksortByDim(objects, dimension, start_idx, end_idx);
     std::nth_element(&leaves[start_idx], &leaves[mid], &leaves[end_idx]+1, ComparePoints(dimension));
 
     bvhNode *node = new bvhNode();
