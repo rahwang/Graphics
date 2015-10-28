@@ -11,7 +11,7 @@
 class XMLReader
 {
 public:
-    void LoadSceneFromFile(QFile &file, const QStringRef &local_path, Scene &scene, DirectLightingIntegrator &DirectLightingIntegrator);
+    void LoadSceneFromFile(QFile &file, const QStringRef &local_path, Scene &scene, DirectLightingIntegrator &integrator);
     Geometry* LoadGeometry(QXmlStreamReader &xml_reader, QMap<QString, QList<Geometry*>> &map, const QStringRef &local_path);
     Material* LoadMaterial(QXmlStreamReader &xml_reader, const QStringRef &local_path, QMap<QString, QList<Material*>> &map);
     Camera LoadCamera(QXmlStreamReader &xml_reader);

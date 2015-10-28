@@ -27,5 +27,5 @@ protected:
     unsigned int max_depth;
     Film* film;
     Camera* camera;
-    DirectLightingIntegrator* DirectLightingIntegrator;
+    DirectLightingIntegrator* integrator;
 };

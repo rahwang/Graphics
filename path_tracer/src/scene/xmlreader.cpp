@@ -12,7 +12,7 @@
 #include <scene/materials/bxdfs/lambertBxDF.h>
 #include <QImage>
 
-void XMLReader::LoadSceneFromFile(QFile &file, const QStringRef &local_path, Scene &scene, DirectLightingIntegrator &DirectLightingIntegrator)
+void XMLReader::LoadSceneFromFile(QFile &file, const QStringRef &local_path, Scene &scene, DirectLightingIntegrator &integrator)
 {
     if(file.open(QIODevice::ReadOnly))
     {
@@ -60,7 +60,7 @@ void XMLReader::LoadSceneFromFile(QFile &file, const QStringRef &local_path, Sce
                 }
                 else if(QString::compare(tag, QString("DirectLightingIntegrator")) == 0)
                 {
-                    DirectLightingIntegrator = LoadDirectLightingIntegrator(xml_reader);
+                    integrator = LoadDirectLightingIntegrator(xml_reader);
                 }
                 else if(QString::compare(tag, QString("pixelSampleLength"), Qt::CaseInsensitive) == 0)
                 {

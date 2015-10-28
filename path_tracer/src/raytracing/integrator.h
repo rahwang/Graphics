@@ -29,6 +29,7 @@ protected:
 
 class DirectLightingIntegrator : Integrator
 {
+public:
     DirectLightingIntegrator();
     DirectLightingIntegrator(Scene *s);
     glm::vec3 TraceRay(Ray r, unsigned int depth);
