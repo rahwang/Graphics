@@ -12,7 +12,7 @@
 #include <scene/materials/bxdfs/lambertBxDF.h>
 #include <QImage>
 
-void XMLReader::LoadSceneFromFile(QFile &file, const QStringRef &local_path, Scene &scene, Integrator &integrator)
+void XMLReader::LoadSceneFromFile(QFile &file, const QStringRef &local_path, Scene &scene, DirectLightingIntegrator &DirectLightingIntegrator)
 {
     if(file.open(QIODevice::ReadOnly))
     {
@@ -58,9 +58,9 @@ void XMLReader::LoadSceneFromFile(QFile &file, const QStringRef &local_path, Sce
                     }
                     scene.bxdfs.append(bxdf);
                 }
-                else if(QString::compare(tag, QString("integrator")) == 0)
+                else if(QString::compare(tag, QString("DirectLightingIntegrator")) == 0)
                 {
-                    integrator = LoadIntegrator(xml_reader);
+                    DirectLightingIntegrator = LoadDirectLightingIntegrator(xml_reader);
                 }
                 else if(QString::compare(tag, QString("pixelSampleLength"), Qt::CaseInsensitive) == 0)
                 {
@@ -381,16 +381,16 @@ Transform XMLReader::LoadTransform(QXmlStreamReader &xml_reader)
     return Transform(t, r, s);
 }
 
-Integrator XMLReader::LoadIntegrator(QXmlStreamReader &xml_reader)
+DirectLightingIntegrator XMLReader::LoadDirectLightingIntegrator(QXmlStreamReader &xml_reader)
 {
-    Integrator result;
+    DirectLightingIntegrator result;
 
-    //First check what type of integrator we're supposed to load
+    //First check what type of DirectLightingIntegrator we're supposed to load
     QXmlStreamAttributes attribs(xml_reader.attributes());
     QStringRef type = attribs.value(QString(), QString("type"));
     bool is_mesh = false;
 
-    while(!xml_reader.isEndElement() || QStringRef::compare(xml_reader.name(), QString("integrator")) != 0)
+    while(!xml_reader.isEndElement() || QStringRef::compare(xml_reader.name(), QString("DirectLightingIntegrator")) != 0)
     {
         xml_reader.readNext();
 

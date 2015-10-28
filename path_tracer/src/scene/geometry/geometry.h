@@ -2,6 +2,7 @@
 
 #include <scene/materials/material.h>
 #include <raytracing/intersection.h>
+#include <raytracing/intersectionengine.h>
 #include <openGL/drawable.h>
 #include <raytracing/ray.h>
 #include <scene/transform.h>
@@ -25,6 +26,9 @@ public:
     virtual void SetMaterial(Material* m){material = m;}
     virtual glm::vec2 GetUVCoordinates(const glm::vec3 &point) = 0;
     virtual glm::vec3 ComputeNormal(const glm::vec3 &P) = 0;
+    virtual void ComputeTangents(const glm::vec3 &normal, glm::vec3 &tangent, glm::vec3 &bitangent) = 0;
+    virtual Intersection SampleLight(const IntersectionEngine *intersection_engine,
+                                   const glm::vec3 &origin, const float x, const float y) = 0;
 
     //Returns the solid-angle weighted probability density function given a point we're trying to illuminate and
     //a ray going towards the Geometry
@@ -35,7 +39,6 @@ public:
     //Remember that a Geometry's Transform's scale is applied before its rotation and translation,
     //so you'll never have a skewed shape
     virtual void ComputeArea() = 0;
-
 
 //Member variables
     QString name;//Mainly used for debugging purposes

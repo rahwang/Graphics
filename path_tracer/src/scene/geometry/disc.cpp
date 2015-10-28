@@ -2,8 +2,19 @@
 
 void Disc::ComputeArea()
 {
-    //TODO
-    area = 0;
+    float radius1 = glm::length(glm::vec3(transform.T() * glm::vec4(1, 0, 0, 0)));
+    float radius2 = glm::length(glm::vec3(transform.T() * glm::vec4(0, 1, 0, 0)));
+    area = radius1 * radius2 * M_PI;
+}
+
+Intersection Disc::SampleLight(const IntersectionEngine *intersection_engine, const glm::vec3 &origin, const float x, const float y)
+{
+    double theta = y * 2 * M_PI;
+    glm::vec3 point(sqrt(x) * cos(theta), sqrt(x) * sin(theta), 0);
+    glm::vec3 world_point = glm::vec3(transform.T() * glm::vec4(point, 1));
+    Ray r(origin, world_point-origin);
+
+    return GetIntersection(r);
 }
 
 Intersection Disc::GetIntersection(Ray r)
@@ -24,7 +35,12 @@ Intersection Disc::GetIntersection(Ray r)
         result.object_hit = this;
         result.t = glm::distance(result.point, r.origin);
         result.texture_color = Material::GetImageColorInterp(GetUVCoordinates(glm::vec3(P)), material->texture);
-        //TODO: Store the tangent and bitangent
+        // Store the tangent and bitangent
+        glm::vec3 tangent;
+        glm::vec3 bitangent;
+        ComputeTangents(ComputeNormal(glm::vec3(P)), tangent, bitangent);
+        result.tangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(tangent, 1)));
+        result.bitangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(bitangent, 1)));
         return result;
     }
     return result;
@@ -38,6 +54,13 @@ glm::vec2 Disc::GetUVCoordinates(const glm::vec3 &point)
 glm::vec3 Disc::ComputeNormal(const glm::vec3 &P)
 {
     return glm::vec3(0,0,1);
+}
+
+void Disc::ComputeTangents(const glm::vec3 &normal,
+                     glm::vec3 &tangent, glm::vec3 &bitangent)
+{
+    tangent = glm::vec3(1.0f, 0.0f, 0.0f);
+    bitangent = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
 void Disc::create()

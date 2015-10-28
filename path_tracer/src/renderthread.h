@@ -3,7 +3,7 @@
 #include <QThread>
 #include <raytracing/film.h>
 #include <scene/scene.h>
-#include <raytracing/integrator.h>
+#include <raytracing/Integrator.h>
 
 glm::vec3 ComponentMult(const glm::vec3 &a, const glm::vec3 &b);
 
@@ -13,7 +13,7 @@ public:
     RenderThread(unsigned int xstart, unsigned int xend,
             unsigned int ystart, unsigned int yend,
             unsigned int samplesSqrt, unsigned int depth,
-            Film* f, Camera* c, Integrator* i);
+            Film* f, Camera* c, DirectLightingIntegrator* i);
 
 protected:
     //This overrides the functionality of QThread::run
@@ -27,5 +27,5 @@ protected:
     unsigned int max_depth;
     Film* film;
     Camera* camera;
-    Integrator* integrator;
+    DirectLightingIntegrator* DirectLightingIntegrator;
 };

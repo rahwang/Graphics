@@ -12,6 +12,9 @@ public:
     Intersection GetIntersection(Ray r);
     virtual glm::vec2 GetUVCoordinates(const glm::vec3 &point);
     virtual glm::vec3 ComputeNormal(const glm::vec3 &P);
+    virtual void ComputeTangents(const glm::vec3 &normal, glm::vec3 &tangent, glm::vec3 &bitangent);
+    virtual Intersection SampleLight(const IntersectionEngine *intersection_engine,
+                                     const glm::vec3 &origin, const float x, const float y);
 
     virtual void ComputeArea();
 
@@ -39,6 +42,9 @@ public:
     void LoadOBJ(const QStringRef &filename, const QStringRef &local_path);
     virtual glm::vec2 GetUVCoordinates(const glm::vec3 &point);
     virtual glm::vec3 ComputeNormal(const glm::vec3 &P);
+    virtual void ComputeTangents(const glm::vec3 &normal, glm::vec3 &tangent, glm::vec3 &bitangent);
+    virtual Intersection SampleLight(const IntersectionEngine *intersection_engine,
+                                     const glm::vec3 &origin, const float x, const float y);
 
     virtual void ComputeArea();
 

@@ -17,6 +17,11 @@ void Sphere::ComputeArea()
 glm::vec3 Sphere::ComputeNormal(const glm::vec3 &P)
 {}
 
+Intersection Sphere::SampleLight(const IntersectionEngine *intersection_engine, const glm::vec3 &origin, const float x, const float y)
+{
+    return Intersection();
+}
+
 Intersection Sphere::GetIntersection(Ray r)
 {
     //Transform the ray
@@ -46,10 +51,23 @@ Intersection Sphere::GetIntersection(Ray r)
         result.t = glm::distance(result.point, r.origin);
         result.texture_color = Material::GetImageColorInterp(uv, material->texture);
         result.object_hit = this;
-        //TODO: Store the tangent and bitangent
+        // Store the tangent and bitangent
+        glm::vec3 tangent;
+        glm::vec3 bitangent;
+        ComputeTangents(glm::vec3(P), tangent, bitangent);
+        result.tangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(tangent, 1)));
+        result.bitangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(bitangent, 1)));
+
         return result;
     }
     return result;
+}
+
+void Sphere::ComputeTangents(const glm::vec3 &normal,
+                     glm::vec3 &tangent, glm::vec3 &bitangent)
+{
+    tangent = glm::vec3(0.0f, 1.0f, 0.0f);
+    bitangent = glm::vec3(glm::cross(normal, tangent));
 }
 
 glm::vec2 Sphere::GetUVCoordinates(const glm::vec3 &point)

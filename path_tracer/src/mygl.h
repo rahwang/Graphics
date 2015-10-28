@@ -10,9 +10,8 @@
 #include <scene/scene.h>
 #include <la.h>
 #include <scene/xmlreader.h>
-#include <raytracing/integrator.h>
 #include <scene/xmlreader.h>
-#include <raytracing/integrator.h>
+#include <raytracing/Integrator.h>
 
 
 
@@ -32,7 +31,7 @@ private:
 
     Scene scene;
     XMLReader xml_reader;
-    Integrator integrator;
+    DirectLightingIntegrator DirectLightingIntegrator;
     IntersectionEngine intersection_engine;
 
 public:

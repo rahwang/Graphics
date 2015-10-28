@@ -10,4 +10,7 @@ float Geometry::RayPDF(const Intersection &isx, const Ray &ray)
         return 0;
     }
     //Add more here
+    float theta = glm::dot(isx.normal, -ray.direction);
+    ComputeArea();
+    return pow(glm::length(ray.direction), 2) / (theta * area);
 }

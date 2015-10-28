@@ -15,6 +15,17 @@ void Mesh::ComputeArea()
     area = 0;
 }
 
+Intersection Triangle::SampleLight(const IntersectionEngine *intersection_engine, const glm::vec3 &origin, const float x, const float y)
+{
+    return Intersection();
+}
+
+Intersection Mesh::SampleLight(const IntersectionEngine *intersection_engine,
+                               const glm::vec3 &origin, const float x, const float y)
+{
+    return Intersection();
+}
+
 Triangle::Triangle(const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3):
     Triangle(p1, p2, p3, glm::vec3(1), glm::vec3(1), glm::vec3(1), glm::vec2(0), glm::vec2(0), glm::vec2(0))
 {
@@ -70,6 +81,26 @@ glm::vec3 Triangle::ComputeNormal(const glm::vec3 &P)
 glm::vec3 Mesh::ComputeNormal(const glm::vec3 &P)
 {}
 
+void Triangle::ComputeTangents(const glm::vec3 &normal,
+                     glm::vec3 &tangent, glm::vec3 &bitangent)
+{
+    glm::vec3 delta_pos0 = points[1] - points[0];
+    glm::vec3 delta_pos1 = points[2] - points[0];
+    glm::vec2 delta_uvs0 = uvs[1] - uvs[0];
+    glm::vec2 delta_uvs1 = uvs[2] - uvs[0];
+    tangent = (delta_uvs1.y * delta_pos0 - delta_uvs0.y * delta_pos1)
+            / (delta_uvs1.y * delta_uvs0.x - delta_uvs0.y * delta_uvs1.x);
+    if (delta_uvs1.y != 0) {
+        bitangent = (delta_pos1 - delta_uvs1.x * tangent) / delta_uvs1.y;
+    } else {
+        bitangent = (delta_pos0 - delta_uvs0.x * tangent) / delta_uvs0.y;
+    }
+}
+
+void Mesh::ComputeTangents(const glm::vec3 &normal,
+                     glm::vec3 &tangent, glm::vec3 &bitangent)
+{}
+
 //HAVE THEM IMPLEMENT THIS
 //The ray in this function is not transformed because it was *already* transformed in Mesh::GetIntersection
 Intersection Triangle::GetIntersection(Ray r){
@@ -89,7 +120,12 @@ Intersection Triangle::GetIntersection(Ray r){
         result.t = t;
         result.texture_color = Material::GetImageColorInterp(GetUVCoordinates(glm::vec3(P)), material->texture);
         result.object_hit = this;
-        //TODO: Store the tangent and bitangent
+        // Store the tangent and bitangent
+        glm::vec3 tangent;
+        glm::vec3 bitangent;
+        ComputeTangents(plane_normal, tangent, bitangent);
+        result.tangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(tangent, 1)));
+        result.bitangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(bitangent, 1)));
     }
     return result;
 }
@@ -111,7 +147,7 @@ Intersection Mesh::GetIntersection(Ray r){
         closest.normal = glm::normalize(glm::vec3(transform.invTransT() * tri->GetNormal(P)));
         closest.object_hit = this;
         closest.t = glm::distance(closest.point, r.origin);//The t used for the closest triangle test was in object space
-        //TODO: Store the tangent and bitangent
+        // Store the tangent and bitangent
     }
     return closest;
 }

@@ -23,7 +23,7 @@ SOURCES += \
     $$PWD/scene/materials/material.cpp \
     $$PWD/raytracing/film.cpp \
     $$PWD/scene/xmlreader.cpp \
-    $$PWD/raytracing/integrator.cpp \
+    $$PWD/raytracing/DirectLightingIntegrator.cpp \
     $$PWD/cameracontrolshelp.cpp \
     $$PWD/raytracing/samplers/stratifiedpixelsampler.cpp \
     $$PWD/raytracing/samplers/uniformpixelsampler.cpp \
@@ -60,7 +60,7 @@ HEADERS += \
     $$PWD/scene/materials/material.h \
     $$PWD/raytracing/film.h \
     $$PWD/scene/xmlreader.h \
-    $$PWD/raytracing/integrator.h \
+    $$PWD/raytracing/DirectLightingIntegrator.h \
     $$PWD/cameracontrolshelp.h \
     $$PWD/raytracing/samplers/pixelsampler.h \
     $$PWD/raytracing/samplers/stratifiedpixelsampler.h \

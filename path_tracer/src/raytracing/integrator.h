@@ -26,3 +26,17 @@ public:
 protected:
     unsigned int max_depth;//Default value is 5.
 };
+
+class DirectLightingIntegrator : Integrator
+{
+    DirectLightingIntegrator();
+    DirectLightingIntegrator(Scene *s);
+    glm::vec3 TraceRay(Ray r, unsigned int depth);
+    void SetDepth(unsigned int depth);
+
+    Scene* scene;
+    IntersectionEngine* intersection_engine;
+
+protected:
+    unsigned int max_depth;//Default value is 5.
+};

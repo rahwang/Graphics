@@ -11,6 +11,11 @@ void Cube::ComputeArea()
     area = 0;
 }
 
+Intersection Cube::SampleLight(const IntersectionEngine *intersection_engine, const glm::vec3 &origin, const float x, const float y)
+{
+    return Intersection();
+}
+
 glm::vec4 GetCubeNormal(const glm::vec4& P)
 {
     int idx = 0;
@@ -80,12 +85,37 @@ Intersection Cube::GetIntersection(Ray r)
         result.object_hit = this;
         result.t = glm::distance(result.point, r.origin);
         result.texture_color = Material::GetImageColorInterp(GetUVCoordinates(glm::vec3(P)), material->texture);
-        //TODO: Store the tangent and bitangent
+        // Store the tangent and bitangent
+        glm::vec3 tangent;
+        glm::vec3 bitangent;
+        ComputeTangents(glm::vec3(GetCubeNormal(P)), tangent, bitangent);
+        result.tangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(tangent, 1)));
+        result.bitangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(bitangent, 1)));
+
         return result;
     }
     else{
         return result;
     }
+}
+
+void Cube::ComputeTangents(const glm::vec3 &normal,
+                     glm::vec3 &tangent, glm::vec3 &bitangent)
+{
+    if (normal == glm::vec3(-1.f, 0.f, 0.f)) {
+        tangent = glm::vec3(0.f, 0.f, 1.f);
+    } else if (normal == glm::vec3(1.f, 0.f, 0.f)) {
+        tangent = glm::vec3(0.f, 0.f, -1.f);
+    } else if (normal == glm::vec3(0.f, -1.f, 0.f)) {
+        tangent = glm::vec3(1.f, 0.f, 0.f);
+    } else if (normal == glm::vec3(0.f, 1.f, 0.f)) {
+        tangent = glm::vec3(-1.f, 0.f, 1.f);
+    } else if (normal == glm::vec3(0.f, 0.f, -1.f)) {
+        tangent = glm::vec3(-1.f, 0.f, 0.f);
+    } else if (normal == glm::vec3(0.f, 0.f, 1.f)) {
+        tangent = glm::vec3(1.f, 0.f, 0.f);
+    }
+    bitangent = glm::cross(normal, tangent);
 }
 
 glm::vec2 Cube::GetUVCoordinates(const glm::vec3 &point)
