@@ -68,5 +68,5 @@ glm::vec3 DirectLightingIntegrator::TraceRay(Ray r, unsigned int depth) {
             light_accum += (1.0f/num_samples) * energy * light_energy * cosine_component / light_pdf;
         }
     }
-    return (light_accum / float(scene->lights.size())) * intersection.object_hit->material->base_color;
+    return (light_accum / float(scene->lights.size()));
 }
