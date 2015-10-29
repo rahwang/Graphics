@@ -103,7 +103,7 @@ void Mesh::ComputeTangents(const glm::vec3 &normal,
 
 //HAVE THEM IMPLEMENT THIS
 //The ray in this function is not transformed because it was *already* transformed in Mesh::GetIntersection
-Intersection Triangle::GetIntersection(Ray r){
+Intersection Triangle::GetIntersection(Ray r) {
     //1. Ray-plane intersection
     Intersection result;
     float t =  glm::dot(plane_normal, (points[0] - r.origin)) / glm::dot(plane_normal, r.direction);
@@ -130,7 +130,7 @@ Intersection Triangle::GetIntersection(Ray r){
     return result;
 }
 
-Intersection Mesh::GetIntersection(Ray r){
+Intersection Mesh::GetIntersection(Ray r) {
     Ray r_loc = r.GetTransformedCopy(transform.invT());
     Intersection closest;
     for(int i = 0; i < faces.size(); i++){

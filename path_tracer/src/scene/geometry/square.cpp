@@ -55,7 +55,8 @@ Intersection SquarePlane::SampleLight(const IntersectionEngine *intersection_eng
     glm::vec3 world_point = glm::vec3(transform.T() * glm::vec4(point, 1));
     Ray r(origin, world_point-origin);
 
-    return GetIntersection(r);
+    Intersection result = intersection_engine->GetIntersection(r);
+    return result;
 }
 
 void SquarePlane::ComputeTangents(const glm::vec3 &normal,

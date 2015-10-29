@@ -17,7 +17,7 @@ IntersectionEngine::IntersectionEngine()
     scene = NULL;
 }
 
-Intersection IntersectionEngine::GetIntersection(Ray r)
+Intersection IntersectionEngine::GetIntersection(Ray r) const
 {
     Intersection nearest;
     for(Geometry* g : scene->objects)

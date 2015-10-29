@@ -15,6 +15,6 @@ public:
     IntersectionEngine();
     Scene *scene;
 
-    Intersection GetIntersection(Ray r);
+    Intersection GetIntersection(Ray r) const;
     QList<Intersection> GetAllIntersections(Ray r);
 };

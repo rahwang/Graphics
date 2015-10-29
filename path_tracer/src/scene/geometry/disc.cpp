@@ -14,7 +14,8 @@ Intersection Disc::SampleLight(const IntersectionEngine *intersection_engine, co
     glm::vec3 world_point = glm::vec3(transform.T() * glm::vec4(point, 1));
     Ray r(origin, world_point-origin);
 
-    return GetIntersection(r);
+    Intersection result = intersection_engine->GetIntersection(r);
+    return result;
 }
 
 Intersection Disc::GetIntersection(Ray r)
