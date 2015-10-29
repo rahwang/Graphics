@@ -74,41 +74,22 @@ glm::vec3 Material::GetImageColorInterp(const glm::vec2 &uv_coord, const QImage*
 
         glm::vec2 floors = glm::vec2(floor(X), floor(Y));
         glm::vec2 ceils = glm::vec2(ceil(X), ceil(Y));
-        ceils = glm::min(ceils, glm::vec2(image->width()-1, image->height()-1));
-        QColor qll = image->pixel(floors.x, floors.y); glm::vec3 ll(qll.red(), qll.green(), qll.blue());
-        QColor qlr = image->pixel(ceils.x, floors.y); glm::vec3 lr(qlr.red(), qlr.green(), qlr.blue());
-        QColor qul = image->pixel(floors.x, ceils.y); glm::vec3 ul(qul.red(), qul.green(), qul.blue());
-        QColor qur = image->pixel(ceils.x, ceils.y); glm::vec3 ur(qur.red(), qur.green(), qur.blue());
+        if(ceils.x>0.0&&ceils.y>0.0&&floors.x>0.0&&floors.y>0.0) {
+            ceils = glm::min(ceils, glm::vec2(image->width()-1, image->height()-1));
+            QColor qll = image->pixel(floors.x, floors.y); glm::vec3 ll(qll.red(), qll.green(), qll.blue());
+            QColor qlr = image->pixel(ceils.x, floors.y); glm::vec3 lr(qlr.red(), qlr.green(), qlr.blue());
+            QColor qul = image->pixel(floors.x, ceils.y); glm::vec3 ul(qul.red(), qul.green(), qul.blue());
+            QColor qur = image->pixel(ceils.x, ceils.y); glm::vec3 ur(qur.red(), qur.green(), qur.blue());
 
-        float distX = (X - floors.x);
-        glm::vec3 color_low = ll * (1-distX) + lr * distX;
-        glm::vec3 color_high = ul * (1-distX) + ur * distX;
+            float distX = (X - floors.x);
+            glm::vec3 color_low = ll * (1-distX) + lr * distX;
+            glm::vec3 color_high = ul * (1-distX) + ur * distX;
 
-        float distY = (Y - floors.y);
+            float distY = (Y - floors.y);
 
-        glm::vec3 result = (color_low * (1 - distY) + color_high * distY)/255.0f;
+            glm::vec3 result = (color_low * (1 - distY) + color_high * distY)/255.0f;
 
-        return result;
-
-
-        glm::vec2 XY(X,Y);
-        //Want floor and ceil of both X and Y
-        //Do square interp of <X,Y>
-
-        float dist_ll = glm::distance(XY, floors);
-        float dist_lr = glm::distance(XY, glm::vec2(ceils.x, floors.y));
-        float dist_ul = glm::distance(XY, glm::vec2(floors.x, ceils.y));
-        float dist_ur = glm::distance(XY, ceils);
-        float sum = dist_ll + dist_lr + dist_ul + dist_ur;
-
-        float llc = (1 - dist_ll/sum);
-        float lrc = (1 - dist_lr/sum);
-        float ulc = (1 - dist_ul/sum);
-        float urc = (1 - dist_ur/sum);
-
-        float checksum = llc + lrc + ulc + urc;
-
-        glm::vec3 final_color = llc * ll + lrc * lr + ulc * ul + urc * ur;
-        return final_color/255.0f;
+            return result;
+        }
     }
 }

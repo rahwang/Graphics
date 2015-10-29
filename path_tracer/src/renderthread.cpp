@@ -10,6 +10,7 @@ void RenderThread::run()
     unsigned int seed = (((x_start << 16 | x_end) ^ x_start) * ((y_start << 16 | y_end) ^ y_start));
     StratifiedPixelSampler pixel_sampler(samples_sqrt, seed);
 
+    integrator->TraceRay(camera->Raycast(70.0f, 270.0f), 0);
     for(unsigned int Y = y_start; Y < y_end; Y++)
     {
         for(unsigned int X = x_start; X < x_end; X++)

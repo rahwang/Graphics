@@ -124,8 +124,8 @@ Intersection Triangle::GetIntersection(Ray r) {
         glm::vec3 tangent;
         glm::vec3 bitangent;
         ComputeTangents(plane_normal, tangent, bitangent);
-        result.tangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(tangent, 1)));
-        result.bitangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(bitangent, 1)));
+        result.tangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(tangent, 0)));
+        result.bitangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(bitangent, 0)));
     }
     return result;
 }

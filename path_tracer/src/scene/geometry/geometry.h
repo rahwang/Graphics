@@ -32,7 +32,7 @@ public:
 
     //Returns the solid-angle weighted probability density function given a point we're trying to illuminate and
     //a ray going towards the Geometry
-    virtual float RayPDF(const Intersection &isx, const Ray &ray);
+    virtual float RayPDF(const Intersection &isx, const Ray &ray, const glm::vec3 surface_point);
 
     //This is called by the XML Reader after it's populated the scene's list of geometry
     //Computes the surface area of the Geometry in world space
