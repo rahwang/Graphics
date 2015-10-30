@@ -11,7 +11,13 @@ static const int SPH_VERT_COUNT = 382;
 void Sphere::ComputeArea()
 {
     //Extra credit to implement this
-    area = 0;
+    float radius1 = glm::length(glm::vec3(transform.T() * glm::vec4(1, 0, 0, 0)));
+    float radius2 = glm::length(glm::vec3(transform.T() * glm::vec4(0, 1, 0, 0)));
+    float radius3 = glm::length(glm::vec3(transform.T() * glm::vec4(0, 0, 1, 0)));
+    area = 4 * M_PI
+            * pow(pow(radius1*radius2, 1.6)
+                  + pow(radius1*radius3, 1.6)
+                  + pow(radius3*radius2, 1.6) / 3, (1/1.6));
 }
 
 glm::vec3 Sphere::ComputeNormal(const glm::vec3 &P)

@@ -8,7 +8,10 @@ static const int CUB_VERT_COUNT = 24;
 void Cube::ComputeArea()
 {
     //Extra credit to implement this
-    area = 0;
+    float side1 = glm::length(glm::vec3(transform.T() * glm::vec4(1, 0, 0, 0)));
+    float side2 = glm::length(glm::vec3(transform.T() * glm::vec4(0, 1, 0, 0)));
+    float side3 = glm::length(glm::vec3(transform.T() * glm::vec4(0, 0, 1, 0)));
+    area = side1 * side2 * side3;
 }
 
 Intersection Cube::SampleLight(const IntersectionEngine *intersection_engine, const glm::vec3 &origin, const float x, const float y)

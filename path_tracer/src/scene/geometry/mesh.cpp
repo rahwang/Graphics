@@ -6,13 +6,18 @@
 void Triangle::ComputeArea()
 {
     //Extra credit to implement this
-    area = 0;
+    glm::vec3 AB = points[1] - points[0];
+    glm::vec3 AC = points[2] - points[0];
+    area = glm::length(glm::cross(AB, AC)) / 2.0f;
 }
 
 void Mesh::ComputeArea()
 {
     //Extra credit to implement this
-    area = 0;
+    for (Geometry *face : faces) {
+        face->ComputeArea();
+        area += face->area;
+    }
 }
 
 Intersection Triangle::SampleLight(const IntersectionEngine *intersection_engine, const glm::vec3 &origin, const float x, const float y)
