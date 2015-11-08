@@ -51,22 +51,21 @@ glm::vec3 DirectLightingIntegrator::TraceRay(Ray r, unsigned int depth) {
 
     // Sample lights.
     glm::vec3 light_accum(0);
-    for (Geometry *light : scene->lights) {
-        int num_samples = 5;
-        for (int i=0; i<num_samples; ++i) {
-            float x = float(rand()) / float(RAND_MAX);
-            float y = float(rand()) / float(RAND_MAX);
-            Intersection light_intersection = light->SampleLight(intersection_engine, offset_point, x, y);
-            if (light_intersection.object_hit != light) {
-                continue;
-            }
-            Ray ray_to_light(offset_point, glm::normalize(light_intersection.point - offset_point));
-            float light_pdf = light->RayPDF(light_intersection, ray_to_light, offset_point);
-            glm::vec3 energy = intersection.object_hit->material->EvaluateScatteredEnergy(intersection, r.direction, ray_to_light.direction);
-            glm::vec3 light_energy = light_intersection.object_hit->material->EvaluateScatteredEnergy(light_intersection, glm::vec3(0), -ray_to_light.direction);
-            float cosine_component = glm::abs(glm::dot(ray_to_light.direction, intersection.normal));
-            light_accum += (1.0f/num_samples) * energy * light_energy * cosine_component / light_pdf;
+    Geometry *light = scene->lights.at(rand() % scene->lights.size());
+    int num_samples = 5;
+    for (int i=0; i<num_samples; ++i) {
+        float x = float(rand()) / float(RAND_MAX);
+        float y = float(rand()) / float(RAND_MAX);
+        Intersection light_intersection = light->SampleLight(intersection_engine, offset_point, x, y);
+        if (light_intersection.object_hit != light) {
+            continue;
         }
+        Ray ray_to_light(offset_point, glm::normalize(light_intersection.point - offset_point));
+        float light_pdf = light->RayPDF(light_intersection, ray_to_light, offset_point);
+        glm::vec3 energy = intersection.object_hit->material->EvaluateScatteredEnergy(intersection, r.direction, ray_to_light.direction);
+        glm::vec3 light_energy = light_intersection.object_hit->material->EvaluateScatteredEnergy(light_intersection, glm::vec3(0), -ray_to_light.direction);
+        float cosine_component = glm::abs(glm::dot(ray_to_light.direction, intersection.normal));
+        light_accum += (1.0f/num_samples) * energy * light_energy * cosine_component / light_pdf;
     }
-    return (light_accum / float(scene->lights.size()));
+    return light_accum;
 }

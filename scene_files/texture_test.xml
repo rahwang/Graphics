@@ -54,13 +54,14 @@
 		<material>white_diffuse</material>
 	</geometry>
 
-	<geometry type="sphere" name="Light Source">
-		<transform>
-			<translate>0 4 5</translate>
-			<scale>0.5 0.5 0.5</scale>
-		</transform>
-		<material>emissive_material</material>
-	</geometry>
+    <geometry type="square" name="Light Source">
+        <transform>
+            <translate>0 4.5 0</translate>
+            <rotate>90 0 0</rotate>
+            <scale>3 3 3</scale>
+        </transform>
+        <material>emissive_material</material>
+    </geometry>
    
    <geometry type="obj" name="OBJ Mesh">
        <filename>dodecahedron.obj</filename>
@@ -88,54 +89,40 @@
        <material>textured_diffuse</material>
    </geometry>
    
-	<material type="lambert" name="white_diffuse">
-		<baseColor>1 1 1</baseColor>
-	</material>
-
-	<material type="lambert" name="red_diffuse">
-		<baseColor>1 0 0</baseColor>
-	</material>
-
-	<material type="lambert" name="green_diffuse">
-		<baseColor>0 1 0</baseColor>
-	</material>
-
-	<material type="lambert" name="yellow_diffuse">
-		<baseColor>1 1 0.25</baseColor>
-	</material>
-
-	<material type="phong" name="purple_specular" specularPower="10" specularColor="1 0 0">
-		<baseColor>0.75 0 0.75</baseColor>
-	</material>
-
-	<material type="phong" name="mirrored_specular" specularPower="10" specularColor="1 1 1">
-		<baseColor>1 1 1</baseColor>
-		<reflectivity>1</reflectivity>
-	</material>
-
-	<material type="phong" name="mirrored_specular2" specularPower="10" specularColor="1 0 1">
-		<baseColor>0.25 0.5 1</baseColor>
-		<reflectivity>1</reflectivity>
-	</material>
-
-	<material type="phong" name="refractive_specular" specularPower="10" specularColor="1 1 1">
-		<baseColor>1 1 1</baseColor>
-		<iorIn>1.33</iorIn>
-		<iorOut>1</iorOut>
-	</material>
-
-	<material type="lambert" name="textured_diffuse">
-		<baseColor>1 1 1</baseColor>
-        <texture>tex_nor_maps/165.jpg</texture>
-		<normalMap>tex_nor_maps/165_norm.jpg</normalMap>
-	</material>
-
-	<material type="lambert" name="emissive_material">
-		<baseColor>1 1 1</baseColor>
-		<emissive>true</emissive>
-	</material>
+   <material type="default" name="white_diffuse">
+       <baseColor>1 1 1</baseColor>
+       <bxdf>lambert1</bxdf>
+   </material>
+   
+   <material type="default" name="red_diffuse">
+       <baseColor>1 0 0</baseColor>
+       <bxdf>lambert1</bxdf>
+   </material>
+   
+   <material type="default" name="green_diffuse">
+       <baseColor>0 1 0</baseColor>
+       <bxdf>lambert1</bxdf>
+   </material>
+   
+   <material type="default" name="yellow_diffuse">
+       <baseColor>1 1 0.25</baseColor>
+       <bxdf>lambert1</bxdf>
+   </material>
+   
+   <material type="default" name="textured_diffuse">
+       <baseColor>1 1 1</baseColor>
+       <texture>tex_nor_maps/165.jpg</texture>
+       <normalMap>tex_nor_maps/165_norm.jpg</normalMap>
+       <bxdf>lambert1</bxdf>
+   </material>
+   
+   <material type="light" name="emissive_material" intensity="50">
+       <baseColor>1 1 1</baseColor>
+   </material>
 
 	<integrator type="raytrace">
 		<maxDepth>5</maxDepth>
 	</integrator>
+    
+    <pixelSampleLength>1</pixelSampleLength>
 </scene>
