@@ -67,6 +67,5 @@ glm::vec3 LambertBxDF::SampleAndEvaluateScatteredEnergy(const glm::vec3 &wo, glm
 }
 
 float LambertBxDF::PDF(const glm::vec3 &wo, const glm::vec3 &wi) const {
-    //return glm::dot(wi, glm::vec3(0, 0, 1)) / M_PI;
     return wi.z * INV_PI;
 }

@@ -100,7 +100,8 @@ glm::vec3 DirectLightingIntegrator::SampleLightPdf(Ray r, Intersection intersect
 
     float weight = pow(light_pdf, 2) / (pow(light_pdf, 2) + pow(bxdf_pdf, 2));
 
-    glm::vec3 total_energy = energy * light_energy * cosine_component * weight/ light_pdf;
+    glm::vec3 total_energy = energy * light_energy * cosine_component * weight * float(scene->lights.size())
+                             / light_pdf;
     return total_energy;
 }
 
@@ -166,8 +167,8 @@ glm::vec3 DirectLightingIntegrator::TraceRay(Ray r, unsigned int depth) {
     glm::vec3 light_sample_value = SampleLightPdf(r, intersection);
     //light_sample_value = glm::vec3(0);
     // Calculate light using sample generated from bxdf.
-    glm::vec3 brdf_sample_value = SampleBxdfPdf(r, intersection);
-    //glm::vec3 brdf_sample_value = glm::vec3(0);
+    //glm::vec3 brdf_sample_value = SampleBxdfPdf(r, intersection);
+    glm::vec3 brdf_sample_value = glm::vec3(0);
 
     return light_sample_value + brdf_sample_value;
 }

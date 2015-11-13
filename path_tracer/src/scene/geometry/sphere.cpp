@@ -43,13 +43,10 @@ Intersection Sphere::SampleLight(const IntersectionEngine *intersection_engine,
         glm::vec3 T = glm::normalize(glm::cross(glm::vec3(0,1,0), glm::vec3(normalL)));
         glm::vec3 B = glm::cross(glm::vec3(normalL), T);
 
-        Intersection result;
-        result.point = glm::vec3(transform.T() * pointL);
-        result.normal = glm::normalize(glm::vec3(transform.invTransT() * normalL));
-        result.texture_color = color;
-        result.tangent = glm::normalize(glm::vec3(transform.T() * glm::vec4(T, 0)));
-        result.bitangent = glm::normalize(glm::vec3(transform.T() * glm::vec4(B, 0)));
-        result.object_hit = this;
+        glm::vec3 world_point = glm::vec3(transform.T() * pointL);
+        Ray ray_to_light(origin, world_point-origin);
+        Intersection result = intersection_engine->GetIntersection(ray_to_light);
+
         return result;
 }
 
