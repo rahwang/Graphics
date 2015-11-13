@@ -7,10 +7,12 @@ void Disc::ComputeArea()
     area = radius1 * radius2 * M_PI;
 }
 
-Intersection Disc::SampleLight(const IntersectionEngine *intersection_engine, const glm::vec3 &origin, const float x, const float y)
+Intersection Disc::SampleLight(const IntersectionEngine *intersection_engine,
+                               const glm::vec3 &origin, const float rand1, const float rand2,
+                               const glm::vec3 &normal)
 {
-    double theta = y * 2 * M_PI;
-    glm::vec3 point(sqrt(x) * cos(theta), sqrt(x) * sin(theta), 0);
+    double theta = rand2 * 2 * M_PI;
+    glm::vec3 point(sqrt(rand1) * cos(theta), sqrt(rand1) * sin(theta), 0);
     glm::vec3 world_point = glm::vec3(transform.T() * glm::vec4(point, 1));
     Ray r(origin, world_point-origin);
 
@@ -40,8 +42,8 @@ Intersection Disc::GetIntersection(Ray r)
         glm::vec3 tangent;
         glm::vec3 bitangent;
         ComputeTangents(ComputeNormal(glm::vec3(P)), tangent, bitangent);
-        result.tangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(tangent, 0)));
-        result.bitangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(bitangent, 0)));
+        result.tangent = glm::normalize(glm::vec3(transform.T() * glm::vec4(tangent, 0)));
+        result.bitangent = glm::normalize(glm::vec3(transform.T() * glm::vec4(bitangent, 0)));
         return result;
     }
     return result;

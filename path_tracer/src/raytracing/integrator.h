@@ -27,7 +27,7 @@ protected:
     unsigned int max_depth;//Default value is 5.
 };
 
-class DirectLightingIntegrator : Integrator
+class DirectLightingIntegrator : public Integrator
 {
 public:
     DirectLightingIntegrator();

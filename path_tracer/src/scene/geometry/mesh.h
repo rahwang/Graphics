@@ -14,7 +14,8 @@ public:
     virtual glm::vec3 ComputeNormal(const glm::vec3 &P);
     virtual void ComputeTangents(const glm::vec3 &normal, glm::vec3 &tangent, glm::vec3 &bitangent);
     virtual Intersection SampleLight(const IntersectionEngine *intersection_engine,
-                                     const glm::vec3 &origin, const float x, const float y);
+                                     const glm::vec3 &origin, const float rand1, const float rand2,
+                                     const glm::vec3 &normal);
 
     virtual void ComputeArea();
 
@@ -44,7 +45,8 @@ public:
     virtual glm::vec3 ComputeNormal(const glm::vec3 &P);
     virtual void ComputeTangents(const glm::vec3 &normal, glm::vec3 &tangent, glm::vec3 &bitangent);
     virtual Intersection SampleLight(const IntersectionEngine *intersection_engine,
-                                     const glm::vec3 &origin, const float x, const float y);
+                                     const glm::vec3 &origin, const float rand1, const float rand2,
+                                     const glm::vec3 &normal);
 
     virtual void ComputeArea();
 

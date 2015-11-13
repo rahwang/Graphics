@@ -29,8 +29,8 @@ Intersection SquarePlane::GetIntersection(Ray r)
         glm::vec3 tangent;
         glm::vec3 bitangent;
         ComputeTangents(ComputeNormal(glm::vec3(P)), tangent, bitangent);
-        result.tangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(tangent, 0)));
-        result.bitangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(bitangent, 0)));
+        result.tangent = glm::normalize(glm::vec3(transform.T() * glm::vec4(tangent, 0)));
+        result.bitangent = glm::normalize(glm::vec3(transform.T() * glm::vec4(bitangent, 0)));
 
         return result;
     }
@@ -49,9 +49,10 @@ glm::vec3 SquarePlane::ComputeNormal(const glm::vec3 &P)
 }
 
 Intersection SquarePlane::SampleLight(const IntersectionEngine *intersection_engine,
-                                      const glm::vec3 &origin, const float x, const float y)
+                                      const glm::vec3 &origin, const float rand1, const float rand2,
+                                      const glm::vec3 &normal)
 {
-    glm::vec3 point(x-0.5, y-0.5, 0);
+    glm::vec3 point(rand1-0.5, rand2-0.5, 0);
     glm::vec3 world_point = glm::vec3(transform.T() * glm::vec4(point, 1));
     Ray r(origin, world_point-origin);
 

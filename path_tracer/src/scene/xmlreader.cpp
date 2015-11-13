@@ -10,9 +10,12 @@
 #include <raytracing/samplers/uniformpixelsampler.h>
 #include <raytracing/samplers/stratifiedpixelsampler.h>
 #include <scene/materials/bxdfs/lambertBxDF.h>
+#include <scene/materials/bxdfs/specularreflectionbxdf.h>
+#include <scene/materials/bxdfs/blinnmicrofacetbxdf.h>
+#include <scene/materials/weightedmaterial.h>
 #include <QImage>
 
-void XMLReader::LoadSceneFromFile(QFile &file, const QStringRef &local_path, Scene &scene, DirectLightingIntegrator &integrator)
+void XMLReader::LoadSceneFromFile(QFile &file, const QStringRef &local_path, Scene &scene, Integrator &integrator)
 {
     if(file.open(QIODevice::ReadOnly))
     {
@@ -58,9 +61,9 @@ void XMLReader::LoadSceneFromFile(QFile &file, const QStringRef &local_path, Sce
                     }
                     scene.bxdfs.append(bxdf);
                 }
-                else if(QString::compare(tag, QString("DirectLightingIntegrator")) == 0)
+                else if(QString::compare(tag, QString("integrator")) == 0)
                 {
-                    integrator = LoadDirectLightingIntegrator(xml_reader);
+                    integrator = LoadIntegrator(xml_reader);
                 }
                 else if(QString::compare(tag, QString("pixelSampleLength"), Qt::CaseInsensitive) == 0)
                 {
@@ -189,6 +192,7 @@ Geometry* XMLReader::LoadGeometry(QXmlStreamReader &xml_reader, QMap<QString, QL
 Material* XMLReader::LoadMaterial(QXmlStreamReader &xml_reader, const QStringRef &local_path, QMap<QString, QList<Material *> > &map)
 {
     Material* result;
+    bool weighted_material = false;
     //First check what type of material we're supposed to load
     QXmlStreamAttributes attribs(xml_reader.attributes());
     QStringRef type = attribs.value(QString(), QString("type"));
@@ -205,6 +209,12 @@ Material* XMLReader::LoadMaterial(QXmlStreamReader &xml_reader, const QStringRef
         {
             result->intensity = intensity.toFloat();
         }
+    }
+    else if(QStringRef::compare(type, QString("weighted")) == 0)
+    {
+        result = new WeightedMaterial();
+        weighted_material = true;
+        //weights are handled below
     }
     else
     {
@@ -248,6 +258,16 @@ Material* XMLReader::LoadMaterial(QXmlStreamReader &xml_reader, const QStringRef
         else if(QString::compare(tag, QString("normalMap")) == 0)
         {
             result->normal_map = LoadTextureFile(xml_reader, local_path);
+        }
+        else if(QString::compare(tag, QString("weight")) == 0 && weighted_material)
+        {
+            xml_reader.readNext();
+            float weight;
+            if(xml_reader.isCharacters())
+            {
+                weight = xml_reader.text().toFloat();
+            }
+            ((WeightedMaterial*)result)->bxdf_weights.append(weight);
         }
     }
     return result;
@@ -381,16 +401,16 @@ Transform XMLReader::LoadTransform(QXmlStreamReader &xml_reader)
     return Transform(t, r, s);
 }
 
-DirectLightingIntegrator XMLReader::LoadDirectLightingIntegrator(QXmlStreamReader &xml_reader)
+Integrator XMLReader::LoadIntegrator(QXmlStreamReader &xml_reader)
 {
-    DirectLightingIntegrator result;
+    Integrator result;
 
-    //First check what type of DirectLightingIntegrator we're supposed to load
+    //First check what type of integrator we're supposed to load
     QXmlStreamAttributes attribs(xml_reader.attributes());
     QStringRef type = attribs.value(QString(), QString("type"));
     bool is_mesh = false;
 
-    while(!xml_reader.isEndElement() || QStringRef::compare(xml_reader.name(), QString("DirectLightingIntegrator")) != 0)
+    while(!xml_reader.isEndElement() || QStringRef::compare(xml_reader.name(), QString("integrator")) != 0)
     {
         xml_reader.readNext();
 
@@ -451,6 +471,32 @@ BxDF* XMLReader::LoadBxDF(QXmlStreamReader &xml_reader)
             diffuseColor = ToVec3(color);
         }
         result = new LambertBxDF(diffuseColor);
+    }
+    else if(QStringRef::compare(type, QString("specularReflection")) == 0)
+    {
+        glm::vec3 refl_color(0.5f);
+        QStringRef color = attribs.value(QString(), QString("reflectionColor"));
+        if(QStringRef::compare(color, QString("")) != 0)
+        {
+            refl_color = ToVec3(color);
+        }
+        result = new SpecularReflectionBxDF(refl_color);
+    }
+    else if(QStringRef::compare(type, QString("blinnMicrofacet")) == 0)
+    {
+        glm::vec3 refl_color(0.5f);
+        QStringRef color = attribs.value(QString(), QString("reflectionColor"));
+        if(QStringRef::compare(color, QString("")) != 0)
+        {
+            refl_color = ToVec3(color);
+        }
+        result = new BlinnMicrofacetBxDF(refl_color);
+
+        QStringRef exponent = attribs.value(QString(), QString("exponent"));
+        if(QStringRef::compare(exponent, QString("")) != 0)
+        {
+            ((BlinnMicrofacetBxDF*)result)->exponent = exponent.toFloat();
+        }
     }
     else
     {

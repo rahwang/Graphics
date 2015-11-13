@@ -28,11 +28,12 @@ public:
     virtual glm::vec3 ComputeNormal(const glm::vec3 &P) = 0;
     virtual void ComputeTangents(const glm::vec3 &normal, glm::vec3 &tangent, glm::vec3 &bitangent) = 0;
     virtual Intersection SampleLight(const IntersectionEngine *intersection_engine,
-                                   const glm::vec3 &origin, const float x, const float y) = 0;
+                                   const glm::vec3 &origin, const float rand1, const float rand2,
+                                   const glm::vec3 &normal) = 0;
 
     //Returns the solid-angle weighted probability density function given a point we're trying to illuminate and
     //a ray going towards the Geometry
-    virtual float RayPDF(const Intersection &isx, const Ray &ray, const glm::vec3 surface_point);
+    virtual float RayPDF(const Intersection &isx, const Ray &ray, const Intersection &light_intersection);
 
     //This is called by the XML Reader after it's populated the scene's list of geometry
     //Computes the surface area of the Geometry in world space

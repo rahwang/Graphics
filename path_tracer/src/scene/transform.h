@@ -14,6 +14,7 @@ public:
     const glm::mat4 &invTransT();
 
     const glm::vec3 &position();
+    const glm::vec3 getScale();
 
 private:
     glm::vec3 translation;

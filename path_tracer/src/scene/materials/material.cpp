@@ -26,10 +26,12 @@ glm::vec3 Material::EvaluateScatteredEnergy(const Intersection &isx, const glm::
 
 glm::vec3 Material::SampleAndEvaluateScatteredEnergy(const Intersection &isx, const glm::vec3 &woW, glm::vec3 &wiW_ret, float &pdf_ret, BxDFType flags) const
 {
-    //TODO
-    wiW_ret = glm::vec3(0);
-    pdf_ret = 0.0f;
-    return glm::vec3(0);
+    float x = float(rand()) / float(RAND_MAX);
+    float y = float(rand()) / float(RAND_MAX);
+
+    BxDF *bxdf = bxdfs.at(rand() % bxdfs.size());
+    return bxdf->SampleAndEvaluateScatteredEnergy(woW, wiW_ret, x, y, pdf_ret)
+            * base_color * isx.texture_color;
 }
 
 glm::vec3 Material::EvaluateHemisphereScatteredEnergy(const Intersection &isx, const glm::vec3 &wo, int num_samples, BxDFType flags) const

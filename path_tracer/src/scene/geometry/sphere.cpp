@@ -8,24 +8,62 @@
 static const int SPH_IDX_COUNT = 2280;  // 760 tris * 3
 static const int SPH_VERT_COUNT = 382;
 
+float UniformConePdf(float cosThetaMax)
+{
+    return 1.f / (2.f * PI * (1.f - cosThetaMax));
+}
+
 void Sphere::ComputeArea()
 {
-    //Extra credit to implement this
-    float radius1 = glm::length(glm::vec3(transform.T() * glm::vec4(1, 0, 0, 0)));
-    float radius2 = glm::length(glm::vec3(transform.T() * glm::vec4(0, 1, 0, 0)));
-    float radius3 = glm::length(glm::vec3(transform.T() * glm::vec4(0, 0, 1, 0)));
-    area = 4 * M_PI
-            * pow(pow(radius1*radius2, 1.6)
-                  + pow(radius1*radius3, 1.6)
-                  + pow(radius3*radius2, 1.6) / 3, (1/1.6));
+    glm::vec3 scale = transform.getScale();
+    float a = scale.x*0.5f; float b = scale.y*0.5f; float c = scale.z*0.5f;
+    area = 4*PI*glm::pow((glm::pow(a*b, 1.6f) + glm::pow(a*c, 1.6f) + glm::pow(b*c, 1.6f))/3.0f, 1/1.6f);
 }
 
 glm::vec3 Sphere::ComputeNormal(const glm::vec3 &P)
 {}
 
-Intersection Sphere::SampleLight(const IntersectionEngine *intersection_engine, const glm::vec3 &origin, const float x, const float y)
+Intersection Sphere::SampleLight(const IntersectionEngine *intersection_engine,
+                                 const glm::vec3 &origin, const float rand1, float rand2, const glm::vec3 &normal)
 {
-    return Intersection();
+    float z = 1.f - 2.f * rand1;
+        float r = glm::sqrt(glm::max(0.f, 1.f - z*z));
+        float phi = 2.f * PI * rand2;
+        float x = r * glm::cos(phi);
+        float y = r * glm::sin(phi);
+        glm::vec3 normal3 = glm::normalize(glm::vec3(x,y,z));
+        if(glm::dot(normal, normal3) > 0)
+        {
+            normal3 = -normal3;
+        }
+        glm::vec4 pointL(x/2, y/2, z/2, 1);
+        glm::vec4 normalL(normal3,0);
+        glm::vec2 uv = this->GetUVCoordinates(glm::vec3(pointL));
+        glm::vec3 color = Material::GetImageColor(uv, this->material->texture);
+        glm::vec3 T = glm::normalize(glm::cross(glm::vec3(0,1,0), glm::vec3(normalL)));
+        glm::vec3 B = glm::cross(glm::vec3(normalL), T);
+
+        Intersection result;
+        result.point = glm::vec3(transform.T() * pointL);
+        result.normal = glm::normalize(glm::vec3(transform.invTransT() * normalL));
+        result.texture_color = color;
+        result.tangent = glm::normalize(glm::vec3(transform.T() * glm::vec4(T, 0)));
+        result.bitangent = glm::normalize(glm::vec3(transform.T() * glm::vec4(B, 0)));
+        result.object_hit = this;
+        return result;
+}
+
+float Sphere::RayPDF(const Intersection &isx, const Ray &ray, const Intersection &light_intersection) {
+    glm::vec3 Pcenter = transform.position();
+    float radius = 0.5f*(transform.getScale().x + transform.getScale().y + transform.getScale().z)/3.0f;
+    // Return uniform weight if point inside sphere
+    if (glm::distance2(isx.point, Pcenter) - radius*radius < 1e-4f)
+        return Geometry::RayPDF(isx, ray, light_intersection);
+
+    // Compute general sphere weight
+    float sinThetaMax2 = radius*radius / glm::distance2(isx.point, Pcenter);
+    float cosThetaMax = glm::sqrt(fmax(0.f, 1.f - sinThetaMax2));
+    return UniformConePdf(cosThetaMax);
 }
 
 Intersection Sphere::GetIntersection(Ray r)

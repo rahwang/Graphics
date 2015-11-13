@@ -14,7 +14,9 @@ void Cube::ComputeArea()
     area = side1 * side2 * side3;
 }
 
-Intersection Cube::SampleLight(const IntersectionEngine *intersection_engine, const glm::vec3 &origin, const float x, const float y)
+Intersection Cube::SampleLight(const IntersectionEngine *intersection_engine,
+                               const glm::vec3 &origin, const float rand1, const float rand2,
+                               const glm::vec3 &normal)
 {
     return Intersection();
 }
@@ -92,8 +94,8 @@ Intersection Cube::GetIntersection(Ray r)
         glm::vec3 tangent;
         glm::vec3 bitangent;
         ComputeTangents(glm::vec3(GetCubeNormal(P)), tangent, bitangent);
-        result.tangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(tangent, 0)));
-        result.bitangent = glm::normalize(glm::vec3(transform.invTransT() * glm::vec4(bitangent, 0)));
+        result.tangent = glm::normalize(glm::vec3(transform.T() * glm::vec4(tangent, 0)));
+        result.bitangent = glm::normalize(glm::vec3(transform.T() * glm::vec4(bitangent, 0)));
 
         return result;
     }

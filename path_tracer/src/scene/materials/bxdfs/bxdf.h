@@ -49,6 +49,14 @@ public:
     //it MUST also override the functionality of PDF in order to keep the two paired together and consistent.
     //The default implementation returns the cosine weight of wi relative to the "default" surface normal
     virtual float PDF(const glm::vec3 &wo, const glm::vec3 &wi) const;
+
+    // Are these two vectors on the same half of a sphere?
+    float SameHemisphere(const glm::vec3 &v1, const glm::vec3 &v2) const;
+
+    // Transform spherical angles into vector.
+    glm::vec3 SphericalDirection(float sin_theta, float cos_theta, float phi) const;
+
+    float FresnelTerm(float cosi) const;
 //Member variables
     BxDFType type;
     QString name;

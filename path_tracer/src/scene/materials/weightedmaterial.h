@@ -18,6 +18,8 @@ public:
 
     //Given an intersection with some Geometry, generate a world-space wi then evaluate the scattered energy along the world-space wo.
     virtual glm::vec3 SampleAndEvaluateScatteredEnergy(const Intersection &isx, const glm::vec3 &woW, glm::vec3 &wiW_ret, float &pdf_ret, BxDFType flags = BSDF_ALL) const;
-//Members
+
+    BxDF *chooseWeightedBxDF() const;
+    //Members
     QList<float> bxdf_weights;
 };

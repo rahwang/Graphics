@@ -21,6 +21,7 @@ SOURCES += \
     $$PWD/scene/geometry/square.cpp \
     $$PWD/tinyobj/tiny_obj_loader.cc \
     $$PWD/scene/materials/material.cpp \
+    $$PWD/scene/materials/weightedmaterial.cpp \
     $$PWD/raytracing/film.cpp \
     $$PWD/scene/xmlreader.cpp \
     $$PWD/raytracing/integrator.cpp \
@@ -28,8 +29,10 @@ SOURCES += \
     $$PWD/raytracing/samplers/stratifiedpixelsampler.cpp \
     $$PWD/raytracing/samplers/uniformpixelsampler.cpp \
     $$PWD/scene/geometry/disc.cpp \
+    $$PWD/scene/materials/bxdfs/blinnmicrofacetbxdf.cpp \
     $$PWD/scene/materials/bxdfs/lambertBxDF.cpp \
     $$PWD/scene/materials/bxdfs/bxdf.cpp \
+    $$PWD/scene/materials/bxdfs/specularreflectionbxdf.cpp \
     $$PWD/scene/materials/lightmaterial.cpp \
     $$PWD/renderthread.cpp \
     $$PWD/scene/geometry/geometry.cpp \
@@ -58,6 +61,7 @@ HEADERS += \
     $$PWD/scene/geometry/square.h \
     $$PWD/tinyobj/tiny_obj_loader.h \
     $$PWD/scene/materials/material.h \
+    $$PWD/scene/materials/weightedmaterial.h \
     $$PWD/raytracing/film.h \
     $$PWD/scene/xmlreader.h \
     $$PWD/raytracing/integrator.h \
@@ -66,8 +70,10 @@ HEADERS += \
     $$PWD/raytracing/samplers/stratifiedpixelsampler.h \
     $$PWD/raytracing/samplers/uniformpixelsampler.h \
     $$PWD/scene/geometry/disc.h \
+    $$PWD/scene/materials/bxdfs/blinnmicrofacetbxdf.h \
     $$PWD/scene/materials/bxdfs/lambertBxDF.h \
     $$PWD/scene/materials/bxdfs/bxdf.h \
+    $$PWD/scene/materials/bxdfs/specularreflectionbxdf.h \
     $$PWD/scene/materials/lightmaterial.h \
     $$PWD/renderthread.h \
     $$PWD/raytracing/intersectionengine.h
