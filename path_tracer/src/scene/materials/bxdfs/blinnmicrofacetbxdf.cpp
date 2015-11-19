@@ -2,7 +2,6 @@
 
 glm::vec3 BlinnMicrofacetBxDF::EvaluateScatteredEnergy(const glm::vec3 &wo, const glm::vec3 &wi) const
 {
-    glm::vec3 normal = glm::vec3(0, 0, 1);
     glm::vec3 half_angle = glm::normalize(wo + wi);
     float cos_theta_out = glm::abs(wo.z);
     float cos_theta_in = glm::abs(wi.z);
@@ -19,10 +18,11 @@ glm::vec3 BlinnMicrofacetBxDF::EvaluateScatteredEnergy(const glm::vec3 &wo, cons
     float distribution_term = (exponent + 2)/(2 * M_PI) * pow(fabs(half_angle.z), exponent);
 
     // Geometric term.
-    float masking_term = (2 * glm::dot(normal, half_angle) * glm::dot(normal, wo))
-            / glm::dot(wo, half_angle);
-    float shadowing_term = (2 * glm::dot(normal, half_angle) * glm::dot(normal, wi))
-            / glm::dot(wo, half_angle);
+    float nDotHalf = fabs(half_angle.z);
+    float nDotWo = fabs(wo.z);
+    float nDotWi = fabs(wi.z);
+    float masking_term = (2 * nDotHalf * nDotWo) / nDotWo;
+    float shadowing_term = (2 * nDotHalf * nDotWi) / nDotWo;
     float geo_term = fmin(1, fmin(masking_term, shadowing_term));
 
     return reflection_color * distribution_term * geo_term * fresnel

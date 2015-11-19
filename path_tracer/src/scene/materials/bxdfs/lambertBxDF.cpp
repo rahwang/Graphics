@@ -59,7 +59,6 @@ glm::vec3 LambertBxDF::EvaluateHemisphereScatteredEnergy(const glm::vec3 &wo, in
 
 glm::vec3 LambertBxDF::SampleAndEvaluateScatteredEnergy(const glm::vec3 &wo, glm::vec3 &wi_ret, float rand1, float rand2, float &pdf_ret) const
 {
-    float x, y;
     ConcentricSampleDisk(rand1, rand2, wi_ret.x, wi_ret.y);
     wi_ret.z = sqrt(fmaxf(0.f, 1.f - wi_ret.x * wi_ret.x - wi_ret.y * wi_ret.y));
     pdf_ret = PDF(wo, wi_ret);

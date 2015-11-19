@@ -40,7 +40,7 @@ float BxDF::FresnelTerm(float cosi) const {
 
     float ei = incident_media_ior;
     float et = transmitted_media_ior;
-    if (!(cos > 0)) {
+    if (!(cosi > 0)) {
         std::swap(ei, et);
     }
 
@@ -52,7 +52,7 @@ float BxDF::FresnelTerm(float cosi) const {
 
     float cost = sqrt(fmax(0.f, 1.f - sint*sint));
 
-    cosi = fabs(cosi);
+    cosi = fabsf(cosi);
     float r_parallel = (et * cosi - ei * cost)
                      / (et * cosi + ei * cost);
     float r_perpendicular = (ei * cosi - et * cost)

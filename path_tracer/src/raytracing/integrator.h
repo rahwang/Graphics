@@ -32,8 +32,10 @@ class DirectLightingIntegrator : public Integrator
 public:
     DirectLightingIntegrator();
     DirectLightingIntegrator(Scene *s);
-    glm::vec3 SampleLightPdf(Ray r, Intersection intersection);
-    glm::vec3 SampleBxdfPdf(Ray r, Intersection intersection);
+    glm::vec3 ComputeDirectLighting(Ray r, const Intersection &intersection);
+    glm::vec3 TraceRayTotalLighting(Ray r, unsigned int depth);
+    glm::vec3 SampleLightPdf(Ray r, Intersection intersection, Geometry *light);
+    glm::vec3 SampleBxdfPdf(Ray r, Intersection intersection, Geometry *light);
     glm::vec3 TraceRay(Ray r, unsigned int depth);
     void SetDepth(unsigned int depth);
 

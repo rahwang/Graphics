@@ -54,11 +54,11 @@ float Sphere::RayPDF(const Intersection &isx, const Ray &ray, const Intersection
     glm::vec3 Pcenter = transform.position();
     float radius = 0.5f*(transform.getScale().x + transform.getScale().y + transform.getScale().z)/3.0f;
     // Return uniform weight if point inside sphere
-    if (glm::distance2(isx.point, Pcenter) - radius*radius < 1e-4f)
+    if (glm::distance2(light_intersection.point, Pcenter) - radius*radius < 1e-4f)
         return Geometry::RayPDF(isx, ray, light_intersection);
 
     // Compute general sphere weight
-    float sinThetaMax2 = radius*radius / glm::distance2(isx.point, Pcenter);
+    float sinThetaMax2 = radius*radius / glm::distance2(light_intersection.point, Pcenter);
     float cosThetaMax = glm::sqrt(fmax(0.f, 1.f - sinThetaMax2));
     return UniformConePdf(cosThetaMax);
 }
@@ -69,9 +69,9 @@ Intersection Sphere::GetIntersection(Ray r)
     Ray r_loc = r.GetTransformedCopy(transform.invT());
     Intersection result;
 
-    float A = pow(r_loc.direction[0], 2) + pow(r_loc.direction[1], 2) + pow(r_loc.direction[2], 2);
+    float A = pow(r_loc.direction[0], 2.0f) + pow(r_loc.direction[1], 2.0f) + pow(r_loc.direction[2], 2.0f);
     float B = 2*(r_loc.direction[0]*r_loc.origin[0] + r_loc.direction[1] * r_loc.origin[1] + r_loc.direction[2] * r_loc.origin[2]);
-    float C = pow(r_loc.origin[0], 2) + pow(r_loc.origin[1], 2) + pow(r_loc.origin[2], 2) - 0.25f;//Radius is 0.5f
+    float C = pow(r_loc.origin[0], 2.0f) + pow(r_loc.origin[1], 2.0f) + pow(r_loc.origin[2], 2.0f) - 0.25f;//Radius is 0.5f
     float discriminant = B*B - 4*A*C;
     //If the discriminant is negative, then there is no real root
     if(discriminant < 0){

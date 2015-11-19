@@ -12,5 +12,5 @@ float Geometry::RayPDF(const Intersection &isx, const Ray &ray, const Intersecti
     //Add more here
     float theta = glm::dot(light_intersection.normal, -ray.direction);
     ComputeArea();
-    return pow(glm::length(light_intersection.point-isx.point), 2.0f) / (theta * area);
+    return pow(glm::length(light_intersection.point-ray.origin), 2.0f) / (theta * area);
 }
