@@ -6,7 +6,7 @@ glm::vec3 BlinnMicrofacetBxDF::EvaluateScatteredEnergy(const glm::vec3 &wo, cons
     float cos_theta_out = glm::abs(wo.z);
     float cos_theta_in = glm::abs(wi.z);
 
-    if (cos_theta_in == 0.f || cos_theta_out == 0.f) {
+    if (fequal(cos_theta_in, 0.f) || fequal(cos_theta_out, 0.f)) {
         return glm::vec3(0);
     }
 
@@ -15,7 +15,7 @@ glm::vec3 BlinnMicrofacetBxDF::EvaluateScatteredEnergy(const glm::vec3 &wo, cons
     float fresnel = FresnelTerm(cosi);
 
     // Distribution term.
-    float distribution_term = (exponent + 2)/(2 * M_PI) * pow(fabs(half_angle.z), exponent);
+    float distribution_term = (exponent + 2.f)/(2.f * M_PI) * pow(fabs(half_angle.z), exponent);
 
     // Geometric term.
     float nDotHalf = fabs(half_angle.z);

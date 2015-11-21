@@ -21,7 +21,7 @@ glm::vec3 SpecularReflectionBxDF::SampleAndEvaluateScatteredEnergy(const glm::ve
 }
 
 float SpecularReflectionBxDF::PDF(const glm::vec3 &wo, const glm::vec3 &wi) const {
-    if (glm::vec3(-wo.x, -wo.y, wo.z) == wi) {
+    if (fequal(-wo.x, wi.x), fequal(-wo.y, wi.y), fequal(wo.z, wo.z)) {
         return 1;
     }
     return 0;

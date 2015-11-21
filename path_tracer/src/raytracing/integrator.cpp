@@ -120,7 +120,7 @@ glm::vec3 DirectLightingIntegrator::SampleBxdfPdf(Ray r, Intersection intersecti
     glm::vec3 energy = intersection.object_hit->material->SampleAndEvaluateScatteredEnergy(
                 intersection, worldToObjectSpace(-r.direction, intersection), bxdf_ray_direction, bxdf_pdf);
 
-    if (!(bxdf_pdf > 0 && energy != glm::vec3(0))) {
+    if (!(bxdf_pdf > 0 && (!fequal(energy.x, 0.f) && !fequal(energy.y, 0.f) && !fequal(energy.z, 0.f)))) {
         return glm::vec3(0);
     }
 
@@ -237,6 +237,10 @@ glm::vec3 DirectLightingIntegrator::TraceRayTotalLighting(Ray r, unsigned int de
                     intersection, worldToObjectSpace(-current_ray.direction, current_intersection),
                     new_direction, pdf);
 
+        if (!(pdf > 0 && (!fequal(energy.x, 0.f) && !fequal(energy.y, 0.f) && !fequal(energy.z, 0.f)))) {
+            return light_accum;
+        }
+
         // Ray may or may not be to light.
         offset_point = current_intersection.point + (current_intersection.normal * OFFSET);
         Ray bounced_ray(offset_point, objectToWorldSpace(new_direction, current_intersection));
@@ -254,7 +258,7 @@ glm::vec3 DirectLightingIntegrator::TraceRayTotalLighting(Ray r, unsigned int de
         float cosine_component = glm::abs(glm::dot(bounced_ray.direction, current_intersection.normal));
 
         // LTE term for this iteration;
-        glm::vec3 lte_term = energy * cosine_component  / pdf;
+        glm::vec3 lte_term = energy * cosine_component / pdf;
 
         // Terminate if russian roulette murders ray.
         //if ((bounces > 2) && (throughput < (float(rand()) / float(RAND_MAX)))) {
