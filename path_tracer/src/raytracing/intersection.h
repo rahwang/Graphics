@@ -1,7 +1,9 @@
 #pragma once
 #include <la.h>
 #include <scene/geometry/geometry.h>
+#include <scene/geometry/boundingbox.h>
 
+class bvhNode;
 class Geometry;
 class Material;
 

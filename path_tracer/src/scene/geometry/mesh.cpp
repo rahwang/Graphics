@@ -111,7 +111,7 @@ void Mesh::ComputeTangents(const glm::vec3 &normal,
 
 //HAVE THEM IMPLEMENT THIS
 //The ray in this function is not transformed because it was *already* transformed in Mesh::GetIntersection
-Intersection Triangle::GetIntersection(Ray r) {
+Intersection Triangle::GetIntersection(Ray r, Camera &camera) {
     //1. Ray-plane intersection
     Intersection result;
     float t =  glm::dot(plane_normal, (points[0] - r.origin)) / glm::dot(plane_normal, r.direction);
@@ -138,11 +138,39 @@ Intersection Triangle::GetIntersection(Ray r) {
     return result;
 }
 
-Intersection Mesh::GetIntersection(Ray r) {
+
+bvhNode *Triangle::SetBoundingBox() {
+    bvhNode *node = new bvhNode();
+
+    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(points[0], 1.0f));
+    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(points[1], 1.0f));
+    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(points[2], 1.0f));
+
+    float min_x = fmin(fmin(vertex0.x, vertex1.x), vertex2.x);
+    float min_y = fmin(fmin(vertex0.y, vertex1.y), vertex2.y);
+    float min_z = fmin(fmin(vertex0.z, vertex1.z), vertex2.z);
+    float max_x = fmax(fmax(vertex0.x, vertex1.x), vertex2.x);
+    float max_y = fmax(fmax(vertex0.y, vertex1.y), vertex2.y);
+    float max_z = fmax(fmax(vertex0.z, vertex1.z), vertex2.z);
+
+    bounding_box = &(node->bounding_box);
+    bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
+    bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
+    bounding_box->center = bounding_box->minimum
+            + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
+    bounding_box->object = this;
+    bounding_box->SetNormals();
+    bounding_box->create();
+
+    return node;
+}
+
+
+Intersection Mesh::GetIntersection(Ray r, Camera &camera) {
     Ray r_loc = r.GetTransformedCopy(transform.invT());
     Intersection closest;
     for(int i = 0; i < faces.size(); i++){
-        Intersection isx = faces[i]->GetIntersection(r_loc);
+        Intersection isx = faces[i]->GetIntersection(r_loc, camera);
         if(isx.object_hit != NULL && isx.t > 0 && (isx.t < closest.t || closest.t < 0)){
             closest = isx;
         }
@@ -160,6 +188,7 @@ Intersection Mesh::GetIntersection(Ray r) {
     return closest;
 }
 
+
 void Mesh::SetMaterial(Material *m)
 {
     this->material = m;
@@ -168,6 +197,7 @@ void Mesh::SetMaterial(Material *m)
         t->SetMaterial(m);
     }
 }
+
 
 glm::vec2 Mesh::GetUVCoordinates(const glm::vec3 &point)
 {
@@ -183,6 +213,26 @@ glm::vec2 Triangle::GetUVCoordinates(const glm::vec3 &point)
     float A2 = Area(points[0], points[1], point);
     return uvs[0] * A0/A + uvs[1] * A1/A + uvs[2] * A2/A;
 }
+
+
+bvhNode *Mesh::SetBoundingBox() {
+    std::vector<bvhNode*> leaves;
+    foreach (Triangle *face, faces) {
+        face->transform = transform;
+        leaves.push_back(face->SetBoundingBox());
+    }
+    bvh = bvhNode::CreateTree(leaves, 0, 0, leaves.size()-1);
+
+    bvhNode *node = new bvhNode();
+    node->bounding_box = bvh->bounding_box;
+    node->left = bvh->left;
+    node->right = bvh->right;
+    bounding_box = &(node->bounding_box);
+    bounding_box->object = this;
+
+    return node;
+}
+
 
 void Mesh::LoadOBJ(const QStringRef &filename, const QStringRef &local_path)
 {

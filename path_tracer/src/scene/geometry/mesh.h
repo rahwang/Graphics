@@ -9,13 +9,14 @@ public:
     Triangle(const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3);
     Triangle(const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3, const glm::vec3 &n1, const glm::vec3 &n2, const glm::vec3 &n3);
     Triangle(const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3, const glm::vec3 &n1, const glm::vec3 &n2, const glm::vec3 &n3, const glm::vec2 &t1, const glm::vec2 &t2, const glm::vec2 &t3);
-    Intersection GetIntersection(Ray r);
+    Intersection GetIntersection(Ray r, Camera &camera);
     virtual glm::vec2 GetUVCoordinates(const glm::vec3 &point);
     virtual glm::vec3 ComputeNormal(const glm::vec3 &P);
     virtual void ComputeTangents(const glm::vec3 &normal, glm::vec3 &tangent, glm::vec3 &bitangent);
     virtual Intersection SampleLight(const IntersectionEngine *intersection_engine,
                                      const glm::vec3 &origin, const float rand1, const float rand2,
                                      const glm::vec3 &normal);
+    bvhNode *SetBoundingBox();
 
     virtual void ComputeArea();
 
@@ -37,7 +38,7 @@ public:
 class Mesh : public Geometry
 {
 public:
-    Intersection GetIntersection(Ray r);
+    Intersection GetIntersection(Ray r, Camera &camera);
     void SetMaterial(Material *m);
     void create();
     void LoadOBJ(const QStringRef &filename, const QStringRef &local_path);
@@ -47,9 +48,10 @@ public:
     virtual Intersection SampleLight(const IntersectionEngine *intersection_engine,
                                      const glm::vec3 &origin, const float rand1, const float rand2,
                                      const glm::vec3 &normal);
-
+    bvhNode *SetBoundingBox();
     virtual void ComputeArea();
 
 private:
     QList<Triangle*> faces;
+    bvhNode *bvh;
 };

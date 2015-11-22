@@ -14,12 +14,14 @@ void Cube::ComputeArea()
     area = side1 * side2 * side3;
 }
 
+
 Intersection Cube::SampleLight(const IntersectionEngine *intersection_engine,
                                const glm::vec3 &origin, const float rand1, const float rand2,
                                const glm::vec3 &normal)
 {
     return Intersection();
 }
+
 
 glm::vec4 GetCubeNormal(const glm::vec4& P)
 {
@@ -36,10 +38,12 @@ glm::vec4 GetCubeNormal(const glm::vec4& P)
     return N;
 }
 
+
 glm::vec3 Cube::ComputeNormal(const glm::vec3 &P)
 {return glm::vec3(0);}
 
-Intersection Cube::GetIntersection(Ray r)
+
+Intersection Cube::GetIntersection(Ray r, Camera &camera)
 {
     //Transform the ray
     Ray r_loc = r.GetTransformedCopy(transform.invT());
@@ -104,6 +108,7 @@ Intersection Cube::GetIntersection(Ray r)
     }
 }
 
+
 void Cube::ComputeTangents(const glm::vec3 &normal,
                      glm::vec3 &tangent, glm::vec3 &bitangent)
 {
@@ -122,6 +127,7 @@ void Cube::ComputeTangents(const glm::vec3 &normal,
     }
     bitangent = glm::cross(normal, tangent);
 }
+
 
 glm::vec2 Cube::GetUVCoordinates(const glm::vec3 &point)
 {
@@ -168,6 +174,46 @@ glm::vec2 Cube::GetUVCoordinates(const glm::vec3 &point)
     }
     return UV;
 }
+
+
+// Set min and max bounds for a bounding box.
+bvhNode *Cube::SetBoundingBox() {
+    bvhNode *node = new bvhNode();
+
+    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f));
+    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, -0.5f, 1.0f));
+    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, -0.5f, -0.5f, 1.0f));
+    glm::vec3 vertex3 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, -0.5f, 1.0f));
+    glm::vec3 vertex4 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, 0.5f, 1.0f));
+    glm::vec3 vertex5 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0.5f, 1.0f));
+    glm::vec3 vertex6 = glm::vec3(transform.T() * glm::vec4(0.5f, -0.5f, 0.5f, 1.0f));
+    glm::vec3 vertex7 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+
+    float min_x = fmin(fmin(fmin(vertex0.x, vertex1.x), fmin(vertex2.x, vertex3.x)),
+                       fmin(fmin(vertex4.x, vertex5.x), fmin(vertex6.x, vertex7.x)));
+    float min_y = fmin(fmin(fmin(vertex0.y, vertex1.y), fmin(vertex2.y, vertex3.y)),
+                       fmin(fmin(vertex4.y, vertex5.y), fmin(vertex6.y, vertex7.y)));
+    float min_z = fmin(fmin(fmin(vertex0.z, vertex1.z), fmin(vertex2.z, vertex3.z)),
+                       fmin(fmin(vertex4.z, vertex5.z), fmin(vertex6.z, vertex7.z)));
+    float max_x = fmax(fmax(fmax(vertex0.x, vertex1.x), fmax(vertex2.x, vertex3.x)),
+                       fmax(fmax(vertex4.x, vertex5.x), fmax(vertex6.x, vertex7.x)));
+    float max_y = fmax(fmax(fmax(vertex0.y, vertex1.y), fmax(vertex2.y, vertex3.y)),
+                       fmax(fmax(vertex4.y, vertex5.y), fmax(vertex6.y, vertex7.y)));
+    float max_z = fmax(fmax(fmax(vertex0.z, vertex1.z), fmax(vertex2.z, vertex3.z)),
+                       fmax(fmax(vertex4.z, vertex5.z), fmax(vertex6.z, vertex7.z)));
+
+    bounding_box = &(node->bounding_box);
+    bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
+    bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
+    bounding_box->center = bounding_box->minimum
+            + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
+    bounding_box->object = this;
+    bounding_box->SetNormals();
+    bounding_box->create();
+
+    return node;
+}
+
 
 //These are functions that are only defined in this cpp file. They're used for organizational purposes
 //when filling the arrays used to hold the vertex and index data.

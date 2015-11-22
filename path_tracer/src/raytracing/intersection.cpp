@@ -15,8 +15,10 @@ Intersection::Intersection():
 IntersectionEngine::IntersectionEngine()
 {
     scene = NULL;
+    bvh = NULL;
 }
 
+/*
 Intersection IntersectionEngine::GetIntersection(Ray r) const
 {
     Intersection nearest;
@@ -29,19 +31,25 @@ Intersection IntersectionEngine::GetIntersection(Ray r) const
         }
     }
     return nearest;
+} */
+Intersection IntersectionEngine::GetIntersection(Ray r) const
+{
+    return bvh->GetIntersection(r, scene->camera);
 }
+
 
 bool IntersectionComp(const Intersection &lhs, const Intersection &rhs)
 {
     return lhs.t < rhs.t;
 }
 
+// TODO: Make this work properly.
 QList<Intersection> IntersectionEngine::GetAllIntersections(Ray r)
 {
     QList<Intersection> result;
     for(Geometry* g : scene->objects)
     {
-        Intersection isx = g->GetIntersection(r);
+        Intersection isx = g->GetIntersection(r, camera);
         if(isx.t > 0)
         {
             result.append(isx);

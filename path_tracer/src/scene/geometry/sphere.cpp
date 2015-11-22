@@ -13,6 +13,7 @@ float UniformConePdf(float cosThetaMax)
     return 1.f / (2.f * PI * (1.f - cosThetaMax));
 }
 
+
 void Sphere::ComputeArea()
 {
     glm::vec3 scale = transform.getScale();
@@ -20,8 +21,10 @@ void Sphere::ComputeArea()
     area = 4*PI*glm::pow((glm::pow(a*b, 1.6f) + glm::pow(a*c, 1.6f) + glm::pow(b*c, 1.6f))/3.0f, 1/1.6f);
 }
 
+
 glm::vec3 Sphere::ComputeNormal(const glm::vec3 &P)
 {}
+
 
 Intersection Sphere::SampleLight(const IntersectionEngine *intersection_engine,
                                  const glm::vec3 &origin, const float rand1, float rand2, const glm::vec3 &normal)
@@ -50,6 +53,7 @@ Intersection Sphere::SampleLight(const IntersectionEngine *intersection_engine,
         return result;
 }
 
+
 float Sphere::RayPDF(const Intersection &isx, const Ray &ray, const Intersection &light_intersection) {
     glm::vec3 Pcenter = transform.position();
     float radius = 0.5f*(transform.getScale().x + transform.getScale().y + transform.getScale().z)/3.0f;
@@ -63,7 +67,8 @@ float Sphere::RayPDF(const Intersection &isx, const Ray &ray, const Intersection
     return UniformConePdf(cosThetaMax);
 }
 
-Intersection Sphere::GetIntersection(Ray r)
+
+Intersection Sphere::GetIntersection(Ray r, Camera &camera)
 {
     //Transform the ray
     Ray r_loc = r.GetTransformedCopy(transform.invT());
@@ -104,12 +109,14 @@ Intersection Sphere::GetIntersection(Ray r)
     return result;
 }
 
+
 void Sphere::ComputeTangents(const glm::vec3 &normal,
                      glm::vec3 &tangent, glm::vec3 &bitangent)
 {
     tangent = glm::vec3(0.0f, 1.0f, 0.0f);
     bitangent = glm::vec3(glm::cross(normal, tangent));
 }
+
 
 glm::vec2 Sphere::GetUVCoordinates(const glm::vec3 &point)
 {
@@ -122,6 +129,7 @@ glm::vec2 Sphere::GetUVCoordinates(const glm::vec3 &point)
     float theta = glm::acos(p.y);
     return glm::vec2(1 - phi/TWO_PI, 1 - theta / PI);
 }
+
 
 // These are functions that are only defined in this cpp file. They're used for organizational purposes
 // when filling the arrays used to hold the vertex and index data.
@@ -211,6 +219,44 @@ void createSphereIndices(GLuint (&sph_idx)[SPH_IDX_COUNT])
     sph_idx[2279] = 361;
     index += 3;
 }
+
+bvhNode *Sphere::SetBoundingBox() {
+    bvhNode *node = new bvhNode();
+
+   glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f));
+   glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, -0.5f, 1.0f));
+   glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, -0.5f, -0.5f, 1.0f));
+   glm::vec3 vertex3 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, -0.5f, 1.0f));
+   glm::vec3 vertex4 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, 0.5f, 1.0f));
+   glm::vec3 vertex5 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0.5f, 1.0f));
+   glm::vec3 vertex6 = glm::vec3(transform.T() * glm::vec4(0.5f, -0.5f, 0.5f, 1.0f));
+   glm::vec3 vertex7 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+
+   float min_x = fmin(fmin(fmin(vertex0.x, vertex1.x), fmin(vertex2.x, vertex3.x)),
+                      fmin(fmin(vertex4.x, vertex5.x), fmin(vertex6.x, vertex7.x)));
+   float min_y = fmin(fmin(fmin(vertex0.y, vertex1.y), fmin(vertex2.y, vertex3.y)),
+                      fmin(fmin(vertex4.y, vertex5.y), fmin(vertex6.y, vertex7.y)));
+   float min_z = fmin(fmin(fmin(vertex0.z, vertex1.z), fmin(vertex2.z, vertex3.z)),
+                      fmin(fmin(vertex4.z, vertex5.z), fmin(vertex6.z, vertex7.z)));
+   float max_x = fmax(fmax(fmax(vertex0.x, vertex1.x), fmax(vertex2.x, vertex3.x)),
+                      fmax(fmax(vertex4.x, vertex5.x), fmax(vertex6.x, vertex7.x)));
+   float max_y = fmax(fmax(fmax(vertex0.y, vertex1.y), fmax(vertex2.y, vertex3.y)),
+                      fmax(fmax(vertex4.y, vertex5.y), fmax(vertex6.y, vertex7.y)));
+   float max_z = fmax(fmax(fmax(vertex0.z, vertex1.z), fmax(vertex2.z, vertex3.z)),
+                      fmax(fmax(vertex4.z, vertex5.z), fmax(vertex6.z, vertex7.z)));
+
+   bounding_box = &(node->bounding_box);
+   bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
+   bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
+   bounding_box->center = bounding_box->minimum
+           + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
+   bounding_box->object = this;
+   bounding_box->SetNormals();
+   bounding_box->create();
+
+   return node;
+}
+
 
 void Sphere::create()
 {

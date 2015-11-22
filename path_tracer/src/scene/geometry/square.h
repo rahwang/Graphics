@@ -6,14 +6,14 @@
 class SquarePlane : public Geometry
 {
 public:
-    Intersection GetIntersection(Ray r);
+    Intersection GetIntersection(Ray r, Camera &camera);
     virtual glm::vec2 GetUVCoordinates(const glm::vec3 &point);
     virtual glm::vec3 ComputeNormal(const glm::vec3 &P);
     virtual void ComputeTangents(const glm::vec3 &normal, glm::vec3 &tangent, glm::vec3 &bitangent);
     virtual Intersection SampleLight(const IntersectionEngine *intersection_engine,
                                      const glm::vec3 &origin, const float rand1, const float rand2,
                                      const glm::vec3 &normal);
-
+    bvhNode *SetBoundingBox();
     void create();
 
     virtual void ComputeArea();

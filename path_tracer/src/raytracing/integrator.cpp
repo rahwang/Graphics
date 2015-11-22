@@ -267,7 +267,7 @@ glm::vec3 DirectLightingIntegrator::TraceRayTotalLighting(Ray r, unsigned int de
         }
 
         throughput *= fmax(fmax(lte_term.x, lte_term.y), lte_term.z);
-        multiplier *= lte_term;
+        multiplier *= 0.5;
         current_ray = bounced_ray;
         current_intersection = bounce_intersection;
         bounces++;

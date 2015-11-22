@@ -8,7 +8,8 @@ void SquarePlane::ComputeArea()
     area = side1 * side2;
 }
 
-Intersection SquarePlane::GetIntersection(Ray r)
+
+Intersection SquarePlane::GetIntersection(Ray r, Camera &camera)
 {
     //Transform the ray
     Ray r_loc = r.GetTransformedCopy(transform.invT());
@@ -43,10 +44,12 @@ glm::vec2 SquarePlane::GetUVCoordinates(const glm::vec3 &point)
     return glm::vec2(point.x + 0.5f, point.y + 0.5f);
 }
 
+
 glm::vec3 SquarePlane::ComputeNormal(const glm::vec3 &P)
 {
         return glm::vec3(0,0,1);
 }
+
 
 Intersection SquarePlane::SampleLight(const IntersectionEngine *intersection_engine,
                                       const glm::vec3 &origin, const float rand1, const float rand2,
@@ -60,12 +63,43 @@ Intersection SquarePlane::SampleLight(const IntersectionEngine *intersection_eng
     return result;
 }
 
+
 void SquarePlane::ComputeTangents(const glm::vec3 &normal,
                      glm::vec3 &tangent, glm::vec3 &bitangent)
 {
     tangent = glm::vec3(1.0f, 0.0f, 0.0f);
     bitangent = glm::vec3(0.0f, 1.0f, 0.0f);
 }
+
+
+// Set min and max bounds for a bounding box.
+bvhNode *SquarePlane::SetBoundingBox() {
+    bvhNode *node = new bvhNode();
+
+    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f));
+    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0.0f, 1.0f));
+    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, 0.0f, 1.0f));
+    glm::vec3 vertex3 = glm::vec3(transform.T() * glm::vec4(0.5f, -0.5f, 0.0f, 1.0f));
+
+    float min_x = fmin(fmin(vertex0.x, vertex1.x), fmin(vertex2.x, vertex3.x));
+    float min_y = fmin(fmin(vertex0.y, vertex1.y), fmin(vertex2.y, vertex3.y));
+    float min_z = fmin(fmin(vertex0.z, vertex1.z), fmin(vertex2.z, vertex3.z));
+    float max_x = fmax(fmax(vertex0.x, vertex1.x), fmax(vertex2.x, vertex3.x));
+    float max_y = fmax(fmax(vertex0.y, vertex1.y), fmax(vertex2.y, vertex3.y));
+    float max_z = fmax(fmax(vertex0.z, vertex1.z), fmax(vertex2.z, vertex3.z));
+
+    bounding_box = &(node->bounding_box);
+    bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
+    bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
+    bounding_box->center = bounding_box->minimum
+            + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
+    bounding_box->object = this;
+    bounding_box->SetNormals();
+    bounding_box->create();
+
+    return node;
+}
+
 
 void SquarePlane::create()
 {

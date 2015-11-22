@@ -20,7 +20,7 @@ Intersection Disc::SampleLight(const IntersectionEngine *intersection_engine,
     return result;
 }
 
-Intersection Disc::GetIntersection(Ray r)
+Intersection Disc::GetIntersection(Ray r, Camera &camera)
 {
     //Transform the ray
     Ray r_loc = r.GetTransformedCopy(transform.invT());
@@ -65,6 +65,36 @@ void Disc::ComputeTangents(const glm::vec3 &normal,
     tangent = glm::vec3(1.0f, 0.0f, 0.0f);
     bitangent = glm::vec3(0.0f, 1.0f, 0.0f);
 }
+
+
+// Set min and max bounds for a bounding box.
+bvhNode *Disc::SetBoundingBox() {
+    bvhNode *node = new bvhNode();
+
+    glm::vec3 vertex0 = glm::vec3(transform.T() * glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f));
+    glm::vec3 vertex1 = glm::vec3(transform.T() * glm::vec4(-0.5f, 0.5f, 0.0f, 1.0f));
+    glm::vec3 vertex2 = glm::vec3(transform.T() * glm::vec4(0.5f, 0.5f, 0.0f, 1.0f));
+    glm::vec3 vertex3 = glm::vec3(transform.T() * glm::vec4(0.5f, -0.5f, 0.0f, 1.0f));
+
+    float min_x = fmin(fmin(vertex0.x, vertex1.x), fmin(vertex2.x, vertex3.x));
+    float min_y = fmin(fmin(vertex0.y, vertex1.y), fmin(vertex2.y, vertex3.y));
+    float min_z = fmin(fmin(vertex0.z, vertex1.z), fmin(vertex2.z, vertex3.z));
+    float max_x = fmax(fmax(vertex0.x, vertex1.x), fmax(vertex2.x, vertex3.x));
+    float max_y = fmax(fmax(vertex0.y, vertex1.y), fmax(vertex2.y, vertex3.y));
+    float max_z = fmax(fmax(vertex0.z, vertex1.z), fmax(vertex2.z, vertex3.z));
+
+    bounding_box = &(node->bounding_box);
+    bounding_box->minimum = glm::vec3(min_x, min_y, min_z);
+    bounding_box->maximum = glm::vec3(max_x, max_y, max_z);
+    bounding_box->center = bounding_box->minimum
+            + (bounding_box->maximum - bounding_box->minimum)/ 2.0f;
+    bounding_box->object = this;
+    bounding_box->SetNormals();
+    bounding_box->create();
+
+    return node;
+}
+
 
 void Disc::create()
 {
