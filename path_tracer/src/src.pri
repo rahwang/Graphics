@@ -36,7 +36,9 @@ SOURCES += \
     $$PWD/scene/materials/lightmaterial.cpp \
     $$PWD/renderthread.cpp \
     $$PWD/scene/geometry/geometry.cpp \
-    $$PWD/scene/geometry/boundingbox.cpp
+    $$PWD/scene/geometry/boundingbox.cpp \
+    $$PWD/raytracing/totallightingintegrator.cpp \
+    $$PWD/raytracing/directlightingintegrator.cpp
 
 HEADERS += \
     $$PWD/mainwindow.h \
@@ -78,4 +80,9 @@ HEADERS += \
     $$PWD/scene/materials/lightmaterial.h \
     $$PWD/renderthread.h \
     $$PWD/raytracing/intersectionengine.h \
-    $$PWD/scene/geometry/boundingbox.h
+    $$PWD/scene/geometry/boundingbox.h \
+    $$PWD/raytracing/totallightingintegrator.h \
+    $$PWD/raytracing/directlightingintegrator.h \
+    $$PWD/helpers.h
+
+DISTFILES +=

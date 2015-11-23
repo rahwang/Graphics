@@ -1,7 +1,7 @@
 #include <renderthread.h>
 #include <raytracing/samplers/stratifiedpixelsampler.h>
 
-RenderThread::RenderThread(unsigned int xstart, unsigned int xend, unsigned int ystart, unsigned int yend, unsigned int samplesSqrt, unsigned int depth, Film *f, Camera *c, DirectLightingIntegrator *i)
+RenderThread::RenderThread(unsigned int xstart, unsigned int xend, unsigned int ystart, unsigned int yend, unsigned int samplesSqrt, unsigned int depth, Film *f, Camera *c, TotalLightingIntegrator *i)
     : x_start(xstart), x_end(xend), y_start(ystart), y_end(yend), samples_sqrt(samplesSqrt), max_depth(depth), film(f), camera(c), integrator(i)
 {}
 
@@ -20,7 +20,7 @@ void RenderThread::run()
             for(int i = 0; i < samples.size(); i++)
             {
                 Ray ray = camera->Raycast(samples[i]);
-                pixel_color += integrator->TraceRayTotalLighting(ray, 0);
+                pixel_color += integrator->TraceRay(ray, 0);
             }
             pixel_color /= samples.size();
             film->pixels[X][Y] = pixel_color;

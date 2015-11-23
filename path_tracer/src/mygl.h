@@ -12,8 +12,8 @@
 #include <scene/xmlreader.h>
 #include <scene/xmlreader.h>
 #include <raytracing/Integrator.h>
-
-
+#include <raytracing/directlightingintegrator.h>
+#include <raytracing/totallightingintegrator.h>
 
 class MyGL
     : public GLWidget277
@@ -31,7 +31,7 @@ private:
 
     Scene scene;
     XMLReader xml_reader;
-    DirectLightingIntegrator integrator;
+    TotalLightingIntegrator integrator;
     IntersectionEngine intersection_engine;
 
 public:

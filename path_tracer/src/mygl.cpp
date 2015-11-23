@@ -182,7 +182,7 @@ void MyGL::SceneLoadDialog()
     QStringRef local_path = filepath.leftRef(i+1);
     //Reset all of our objects
     scene.Clear();
-    integrator = DirectLightingIntegrator();
+    integrator = TotalLightingIntegrator();
     intersection_engine = IntersectionEngine();
     //Load new objects based on the XML file chosen.
     xml_reader.LoadSceneFromFile(file, local_path, scene, integrator);
