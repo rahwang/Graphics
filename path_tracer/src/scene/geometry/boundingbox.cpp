@@ -147,7 +147,7 @@ void BoundingBox::create() {
     createCubeIndices(cub_idx);
 
     for(int i = 0; i < 8; i++){
-        cub_vert_col.push_back(glm::vec3(0.f, 0.f, 0.f));
+        cub_vert_col.push_back(glm::vec3(1.f,0,1.f));
     }
 
     count = cub_idx.size();

@@ -60,6 +60,7 @@ void MyGL::initializeGL()
     integrator.scene = &scene;
     integrator.intersection_engine = &intersection_engine;
     intersection_engine.scene = &scene;
+    intersection_engine.bvh = bvhNode::InitTree(scene.objects);
     ResizeToSceneCamera();
 }
 
@@ -113,6 +114,16 @@ void MyGL::GLDrawScene()
     prog_flat.draw(*this, scene.camera);
 
     //Recursively traverse the BVH hierarchy stored in the intersection engine and draw each node
+    //Recursively traverse the BVH hierarchy stored in the intersection engine and draw each node
+    // Break BVHTree into a list of nodes
+    std::vector<bvhNode*> nodes;
+    bvhNode::FlattenTree(intersection_engine.bvh, nodes);
+
+    // Draw bounding boxes
+    prog_flat.setModelMatrix(glm::mat4(1.0f));
+    for (bvhNode* n: nodes) {
+        prog_flat.draw(*this, n->bounding_box);
+    }
 }
 
 void MyGL::ResizeToSceneCamera()
