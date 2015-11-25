@@ -15,6 +15,10 @@
 #include <raytracing/directlightingintegrator.h>
 #include <raytracing/totallightingintegrator.h>
 
+// Uncomment corresponding section to build with specified integrator type
+#define ALL_LIGHTING
+//#define DIRECT_LIGHTING
+
 class MyGL
     : public GLWidget277
 {
@@ -31,7 +35,13 @@ private:
 
     Scene scene;
     XMLReader xml_reader;
+#if defined(ALL_LIGHTING)
     TotalLightingIntegrator integrator;
+#elif defined(DIRECT_LIGHTING)
+    DirectLightingIntegrator integrator;
+#else
+    Integrator integrator;
+#endif
     IntersectionEngine intersection_engine;
 
 public:
