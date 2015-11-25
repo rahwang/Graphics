@@ -81,16 +81,42 @@ glm::mat4 Camera::getViewProj()
     return glm::perspective(fovy * DEG2RAD, width / (float)height, near_clip, far_clip) * glm::lookAt(eye, ref, up);
 }
 
-//glm::mat4 Camera::ViewMatrix()
-//{
-//    glm::vec4 r1 =
-//    glm::mat4 O = ;
-//}
+glm::mat4 Camera::ViewMatrix()
+{
+    // View matrix = O * T
+    glm::mat4 orientation_mat = glm::mat4(
+                right.x, up.x, look.x, 0.f,
+                right.y, up.y, look.y, 0.f,
+                right.z, up.z, look.z, 0.f,
+                0.f, 0.f, 0.f, 1.f
+                );
 
-//glm::mat4 Camera::PerspectiveProjectionMatrix()
-//{
-//    ;
-//}
+    glm::mat4 translation_mat = glm::mat4(
+                1.f, 0.f, 0.f, 0.f,
+                0.f, 1.f, 0.f, 0.f,
+                0.f, 0.f, 1.f, 0.f,
+                -eye.x, -eye.y, -eye.z, 1.f
+                );
+
+    return orientation_mat * translation_mat;
+}
+
+glm::mat4 Camera::PerspectiveProjectionMatrix()
+{
+    // Compute top, bottom, left, right based on near, far, fovy, and aspect
+    float top = near_clip * glm::tan(glm::radians(fovy) / 2);
+    float bottom = -top;
+    float right = top * aspect;
+    float left = -right;
+
+    // Build mat4 by columns
+    return glm::mat4(
+                (2 * near_clip) / (right - left), 0.f, 0.f, 0.f,
+                0.f, (2 * near_clip) / (top - bottom), 0.f, 0.f,
+                -(right + left) / (right - left), - (top + bottom) / (top - bottom), far_clip / (far_clip - near_clip), 1.f,
+                0.f, 0.f, - (far_clip * near_clip)  / (far_clip - near_clip), 0.f
+                );
+}
 
 void Camera::RotateAboutUp(float deg)
 {
