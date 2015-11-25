@@ -2,11 +2,12 @@
 
 TotalLightingIntegrator::TotalLightingIntegrator()
 {
-
+    scene = NULL;
+    intersection_engine = NULL;
 }
 
 
-glm::vec3 TraceRay(Ray r, unsigned int depth)
+glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth)
 {
     glm::vec3 color = glm::vec3(0.0f);
     // If recursion depth max hit, return black.

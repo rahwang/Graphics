@@ -189,6 +189,7 @@ void MyGL::SceneLoadDialog()
     integrator.scene = &scene;
     integrator.intersection_engine = &intersection_engine;
     intersection_engine.scene = &scene;
+    intersection_engine.bvh = bvhNode::InitTree(scene.objects);
     ResizeToSceneCamera();
     update();
 }

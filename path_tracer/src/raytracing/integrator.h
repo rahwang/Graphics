@@ -4,6 +4,7 @@
 #include <raytracing/intersection.h>
 #include <raytracing/intersectionengine.h>
 #include <scene/scene.h>
+#include <helpers.h>
 
 class Scene;
 

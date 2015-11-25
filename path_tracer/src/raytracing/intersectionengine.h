@@ -14,9 +14,9 @@ class IntersectionEngine
 {
 public:
     IntersectionEngine();
-    Scene *scene;
-    bvhNode *bvh;
-
     Intersection GetIntersection(Ray r) const;
     QList<Intersection> GetAllIntersections(Ray r);
+
+    Scene *scene;
+    bvhNode *bvh;
 };

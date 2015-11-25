@@ -1,6 +1,13 @@
 #pragma once
 #include <la.h>
 
+const float OFFSET = 0.001f;
+
+inline glm::vec3 ComponentMult(const glm::vec3 &a, const glm::vec3 &b)
+{
+    return glm::vec3(a.x * b.x, a.y * b.y, a.z * b.z);
+}
+
 inline glm::vec3 worldToObjectSpace(glm::vec3 world_ray_direction, Intersection intersection) {
     glm::vec3 normal = intersection.normal;
     glm::vec3 tangent = intersection.tangent;

@@ -1,13 +1,10 @@
 #include "directlightingintegrator.h"
 
-DirectLightingIntegrator::DirectLightingIntegrator():
-    max_depth(5)
+DirectLightingIntegrator::DirectLightingIntegrator()
 {
     scene = NULL;
     intersection_engine = NULL;
 }
-
-
 
 
 // Helper function for computing the light enegry at a point using a ray generated to a random point on random light.
@@ -136,7 +133,6 @@ glm::vec3 DirectLightingIntegrator::TraceRay(Ray r, unsigned int depth) {
     }
 
     Intersection intersection = intersection_engine->GetIntersection(r);
-    glm::vec3 offset_point = intersection.point + (intersection.normal * OFFSET);
     // If no object intersected or the object is in shadow, return black.
     if (!intersection.object_hit) {
         return color;

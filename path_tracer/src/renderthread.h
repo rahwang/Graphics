@@ -7,8 +7,6 @@
 #include <raytracing/directlightingintegrator.h>
 #include <raytracing/totallightingintegrator.h>
 
-glm::vec3 ComponentMult(const glm::vec3 &a, const glm::vec3 &b);
-
 class RenderThread : public QThread
 {
 public:
