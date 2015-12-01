@@ -1,4 +1,6 @@
 #pragma once
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <scene/materials/bxdfs/bxdf.h>
 
 class LambertBxDF : public BxDF

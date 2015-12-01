@@ -3,7 +3,7 @@
 glm::vec3 SpecularReflectionBxDF::EvaluateScatteredEnergy(const glm::vec3 &wo, const glm::vec3 &wi) const
 {
     float cosi = glm::dot(wo, glm::normalize(wo + wi));
-    return reflection_color * FresnelTerm(cosi) / glm::abs(wi.z);
+    return reflection_color * FresnelTerm(cosi, 1.0f, 1.0f) / glm::abs(wi.z);
 }
 
 glm::vec3 SpecularReflectionBxDF::EvaluateHemisphereScatteredEnergy(const glm::vec3 &wo, int num_samples, const glm::vec2 *samples) const

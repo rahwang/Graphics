@@ -14,7 +14,15 @@ glm::vec3 DirectLightingIntegrator::SampleLightPdf(Ray r, Intersection intersect
     // Get an intersection with the chosen light.
     float x = float(rand()) / float(RAND_MAX);
     float y = float(rand()) / float(RAND_MAX);
-    glm::vec3 offset_point = intersection.point + (intersection.normal * OFFSET);
+    glm::vec3 offset_point;// = intersection.point + (intersection.normal * OFFSET);
+    glm::vec3 wo = worldToObjectSpace(-r.direction, intersection);
+    bool entering = wo.z > 0.0f;
+    if(!entering){
+        offset_point = intersection.point - (intersection.normal * OFFSET);
+    }
+    else{
+        offset_point = intersection.point + (intersection.normal * OFFSET);
+    }
     Intersection light_intersection = light->SampleLight(intersection_engine, offset_point, x, y, intersection.normal);
 
     // If we don't intersect with the chosen light, return black.
@@ -77,7 +85,15 @@ glm::vec3 DirectLightingIntegrator::SampleBxdfPdf(Ray r, Intersection intersecti
 
     // Create ray from bxdf_ray_direction;
     // Ray may or may not be to light.
-    glm::vec3 offset_point = intersection.point + (intersection.normal * OFFSET);
+    glm::vec3 offset_point;// = intersection.point + (intersection.normal * OFFSET);
+    glm::vec3 wo = worldToObjectSpace(-r.direction, intersection);
+    bool entering = wo.z > 0.0f;
+    if(!entering){
+        offset_point = intersection.point - (intersection.normal * OFFSET);
+    }
+    else{
+        offset_point = intersection.point + (intersection.normal * OFFSET);
+    }
     Ray ray_to_light(offset_point, objectToWorldSpace(bxdf_ray_direction, intersection)); // ray_to_light = Wi
 
     // Get intersection with new ray.

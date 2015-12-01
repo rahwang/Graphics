@@ -1,4 +1,5 @@
 #include <renderthread.h>
+#include <QOpenGLFramebufferObject>
 #include <raytracing/samplers/stratifiedpixelsampler.h>
 
 RenderThread::RenderThread(unsigned int xstart, unsigned int xend, unsigned int ystart, unsigned int yend, unsigned int samplesSqrt, unsigned int depth, Film *f, Camera *c, Integrator *i)
@@ -23,6 +24,8 @@ void RenderThread::run()
                 pixel_color += integrator->TraceRay(ray, 0);
             }
             pixel_color /= samples.size();
+//            GLuint FrameBuffer = 0;
+//            QOpenGLFramebufferObject();
             film->pixels[X][Y] = pixel_color;
         }
     }

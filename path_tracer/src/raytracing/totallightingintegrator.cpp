@@ -52,7 +52,16 @@ glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth)
         }
 
         // Ray may or may not be to light.
-        offset_point = current_intersection.point + (current_intersection.normal * OFFSET);
+        glm::vec3 offset_point;// = current_intersection.point + (current_intersection.normal * OFFSET);
+        glm::vec3 wo = worldToObjectSpace(-current_ray.direction, current_intersection);
+        bool entering = wo.z > 0.0f;
+        if(!entering){
+            offset_point = current_intersection.point - (current_intersection.normal * OFFSET);
+        }
+        else{
+            offset_point = current_intersection.point + (current_intersection.normal * OFFSET);
+        }
+
         Ray bounced_ray(offset_point, objectToWorldSpace(new_direction, current_intersection));
 
         // Get intersection with bounced ray.
@@ -71,8 +80,8 @@ glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth)
         glm::vec3 lte_term = energy * cosine_component / pdf;
 
         // Terminate if russian roulette murders ray.
-        //if ((bounces > 2) && (throughput < (float(rand()) / float(RAND_MAX)))) {
-        if (bounces > 5) {
+        if ((bounces > 2) && (throughput < (float(rand()) / float(RAND_MAX)))) {
+//        if (bounces > 5) {
             break;
         }
 

@@ -222,7 +222,7 @@ void MyGL::RaytraceScene()
         return;
     }
 
-#define MULTITHREADED
+//#define MULTITHREADED
 #ifdef MULTITHREADED
     //Set up 16 (max) threads
     unsigned int width = scene.camera.width;
@@ -282,15 +282,13 @@ void MyGL::RaytraceScene()
     delete [] render_threads;
 
 #else
-    integrator.TraceRayTotalLighting(scene.camera.Raycast(100.f, 41.0f), 0);
-    integrator.TraceRayTotalLighting(scene.camera.Raycast(100.f, 41.0f), 0);
-    integrator.TraceRayTotalLighting(scene.camera.Raycast(100.f, 41.0f), 0);
     StratifiedPixelSampler pixel_sampler(scene.sqrt_samples,0);
     for(unsigned int i = 0; i < scene.camera.width; i++)
     {
         for(unsigned int j = 0; j < scene.camera.height; j++)
         {
-            QList<glm::vec2> sample_points = pixel_sampler.GetSamples(440, 370);
+//            QList<glm::vec2> sample_points = pixel_sampler.GetSamples(i, j);
+            QList<glm::vec2> sample_points = pixel_sampler.GetSamples(280, 190);
             glm::vec3 accum_color;
             for(int a = 0; a < sample_points.size(); a++)
             {
