@@ -288,7 +288,7 @@ void MyGL::RaytraceScene()
         for(unsigned int j = 0; j < scene.camera.height; j++)
         {
 //            QList<glm::vec2> sample_points = pixel_sampler.GetSamples(i, j);
-            QList<glm::vec2> sample_points = pixel_sampler.GetSamples(280, 190);
+            QList<glm::vec2> sample_points = pixel_sampler.GetSamples(295, 225);
             glm::vec3 accum_color;
             for(int a = 0; a < sample_points.size(); a++)
             {

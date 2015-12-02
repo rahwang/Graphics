@@ -37,7 +37,7 @@ public:
     //Note that this is a STATIC function, so you don't need to call it from an instance of Material
     static glm::vec3 GetImageColor(const glm::vec2 &uv_coord, const QImage * const &image);
     static glm::vec3 GetImageColorInterp(const glm::vec2 &uv_coord, const QImage * const &image);
-
+    bool isTransmissive();
 //Member Variables
     QString name;           //The name given in the scene XML file
     QList<BxDF*> bxdfs;     //The set of BxDFs to which this Material can refer when computing the color at a given intersection.

@@ -39,7 +39,8 @@ glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth)
     while (true) {
 
         // Direct component.
-        light_accum += multiplier * ComputeDirectLighting(current_ray, current_intersection);
+        glm::vec3 direct_lighting = ComputeDirectLighting(current_ray, current_intersection);
+        light_accum += multiplier * direct_lighting;
 
         glm::vec3 new_direction;
         float pdf;
@@ -47,22 +48,29 @@ glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth)
                     intersection, worldToObjectSpace(-current_ray.direction, current_intersection),
                     new_direction, pdf);
 
-        if (!(pdf > 0 && (!fequal(energy.x, 0.f) && !fequal(energy.y, 0.f) && !fequal(energy.z, 0.f)))) {
+        if (fequal(pdf, 0.f) || (fequal(energy.x, 0.f) && fequal(energy.y, 0.f) && fequal(energy.z, 0.f))) {
             return light_accum;
         }
 
         // Ray may or may not be to light.
         glm::vec3 offset_point;// = current_intersection.point + (current_intersection.normal * OFFSET);
-        glm::vec3 wo = worldToObjectSpace(-current_ray.direction, current_intersection);
-        bool entering = wo.z > 0.0f;
-        if(!entering){
-            offset_point = current_intersection.point - (current_intersection.normal * OFFSET);
+        glm::vec3 wo_L = worldToObjectSpace(-current_ray.direction, current_intersection);
+        bool entering = wo_L.z > 0.0f;
+        if(bounces == 0){
+            offset_point = current_intersection.point + (current_intersection.normal) * OFFSET;
         }
         else{
-            offset_point = current_intersection.point + (current_intersection.normal * OFFSET);
+            offset_point = current_intersection.point + (current_ray.direction) * OFFSET;
         }
+//        if(!entering){
+//            offset_point = current_intersection.point - (current_intersection.normal * OFFSET);
+//        }
+//        else{
+//            offset_point = current_intersection.point + (current_intersection.normal * OFFSET);
+//        }
 
-        Ray bounced_ray(offset_point, objectToWorldSpace(new_direction, current_intersection));
+        glm::vec3 wi_W = objectToWorldSpace(new_direction, current_intersection);
+        Ray bounced_ray(offset_point, wi_W);
 
         // Get intersection with bounced ray.
         Intersection bounce_intersection = intersection_engine->GetIntersection(bounced_ray);

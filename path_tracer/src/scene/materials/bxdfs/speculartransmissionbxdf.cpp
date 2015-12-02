@@ -3,7 +3,7 @@
 glm::vec3 SpecularTransmissionBxDF::EvaluateScatteredEnergy(const glm::vec3 &wo, const glm::vec3 &wi) const
 {
     float ei = eta_i, eo = eta_o;
-    bool entering = wo.z > 0.0f;
+    bool entering = glm::dot(wo, glm::vec3(0.0f, 0.0f, 1.0f)) > 0.0f;
     if(!entering){
         std::swap(ei, eo);
     }
@@ -24,7 +24,8 @@ glm::vec3 SpecularTransmissionBxDF::SampleAndEvaluateScatteredEnergy(const glm::
     // and the reflection of wo is just pi radians about the normal
     //figure out which eta is incident and which is transmitted
     float ei = eta_i, eo = eta_o;
-    bool entering = wo.z > 0.0f;
+
+    bool entering = glm::dot(wo, glm::vec3(0.0f, 0.0f, 1.0f)) > 0.0f;
     if(!entering){
         std::swap(ei, eo);
     }

@@ -34,6 +34,15 @@ glm::vec3 Material::SampleAndEvaluateScatteredEnergy(const Intersection &isx, co
             * base_color * isx.texture_color;
 }
 
+bool Material::isTransmissive(){
+    for(BxDF* b : this->bxdfs){
+        if(b->type & BSDF_TRANSMISSION){
+            return true;
+        }
+    }
+    return false;
+}
+
 glm::vec3 Material::EvaluateHemisphereScatteredEnergy(const Intersection &isx, const glm::vec3 &wo, int num_samples, BxDFType flags) const
 {
     //TODO
