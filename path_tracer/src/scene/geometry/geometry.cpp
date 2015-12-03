@@ -14,3 +14,8 @@ float Geometry::RayPDF(const Intersection &isx, const Ray &ray, const Intersecti
     ComputeArea();
     return pow(glm::length(light_intersection.point-ray.origin), 2.0f) / (theta * area);
 }
+
+float Geometry::NoiseDensity(const glm::vec3 voxel, float noise) {
+    float scale = 1.0f;
+    return noise * scale + (1.0f - (voxel / (voxel - bounding_box->center)).length()) * scale;
+}

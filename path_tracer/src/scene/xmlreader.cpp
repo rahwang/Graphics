@@ -13,6 +13,7 @@
 #include <scene/materials/bxdfs/specularreflectionbxdf.h>
 #include <scene/materials/bxdfs/blinnmicrofacetbxdf.h>
 #include <scene/materials/weightedmaterial.h>
+#include <scene/materials/volumetricmaterial.h>
 #include <QImage>
 
 void XMLReader::LoadSceneFromFile(QFile &file, const QStringRef &local_path, Scene &scene, Integrator &integrator)
@@ -215,6 +216,10 @@ Material* XMLReader::LoadMaterial(QXmlStreamReader &xml_reader, const QStringRef
         result = new WeightedMaterial();
         weighted_material = true;
         //weights are handled below
+    }
+    else if(QStringRef::compare(type, QString("volumetric")) == 0)
+    {
+        result = new VolumetricMaterial();
     }
     else
     {

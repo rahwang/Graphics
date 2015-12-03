@@ -144,6 +144,13 @@ glm::vec3 DirectLightingIntegrator::TraceRay(Ray r, unsigned int depth) {
                 *intersection.object_hit->material->EvaluateScatteredEnergy(intersection, glm::vec3(0), -r.direction);
     }
 
+    if (intersection.object_hit->material->is_volumetric) {
+        // Begin sampling volumetric material
+        return intersection.object_hit->material->SampleVolume(intersection, r)
+                 * intersection.object_hit->material->base_color;
+        //return intersection.object_hit->material->base_color;
+    }
+
     return ComputeDirectLighting(r, intersection);
 }
 
