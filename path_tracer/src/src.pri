@@ -39,6 +39,7 @@ SOURCES += \
     $$PWD/scene/geometry/boundingbox.cpp \
     $$PWD/raytracing/totallightingintegrator.cpp \
     $$PWD/raytracing/directlightingintegrator.cpp
+    $$PWD/raytracing/kdtree.cpp \
 
 HEADERS += \
     $$PWD/mainwindow.h \
@@ -84,5 +85,6 @@ HEADERS += \
     $$PWD/raytracing/totallightingintegrator.h \
     $$PWD/raytracing/directlightingintegrator.h \
     $$PWD/helpers.h
+    $$PWD/raytracing/kdtree.h \
 
 DISTFILES +=
