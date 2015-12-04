@@ -31,10 +31,10 @@ public:
     int Search(const glm::vec3 &position, int node_idx) const;
 
     // Search for nearest neighbors
-    void LookUp(
-            const glm::vec3& position,
+    void LookUp(const glm::vec3& position,
             int& neighbor_num,
-            float& max_dist_squared,
+            int &start_idx,
+            float& max_dist,
             std::vector<NodeData>& out_neighbors) const;
 
 private:

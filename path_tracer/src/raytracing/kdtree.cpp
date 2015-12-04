@@ -112,21 +112,57 @@ int get_insert_idx(float curr_distance, const std::vector<float> &distances) {
 void KdTree::LookUp(
         const glm::vec3& position,
         int& neighbor_num,
-        float& max_dist_squared,
+        int& start_idx,
+        float& max_dist,
         std::vector<NodeData>& out_neighbors) const {
 
     // Vector containing k best distance.
     std::vector<float> distances;
     // Vector containing k best nodes (index parallel to "distances").
-    std::vector<int> nodes;
+    std::vector<int> node_indicies;
 
     // Begin by searching for appropriate place in the tree.
-    int start_idx = Search(position, 0);
+    int curr_idx = Search(position, start_idx);
 
     // Get distance from position.
-    distances.push_back((data_nodes(start_idx).position - position).length());
-    nodes.push_back(start_idx);
+    distances.push_back((data_nodes(curr_idx).position - position).length());
+    node_indicies.push_back(curr_idx);
 
+    while (curr_index != 0) {
+        // Get parent.
+        KdNode *parent = kd_nodes[kd_nodes[curr_idx]->parent];
 
+        // Check if parent should be inserted into candidate list.
+        float tmp_distance = (data_nodes[kd_nodes[curr_idx]->parent].position - position).length();
+        float insert_idx = get_insert_idx(distance, distances);
+        if (insert_idx < neighbor_num) {
+            // If the distance should be inserted before index k, it belongs in the list.
+            distances.insert(insert_idx, 1, tmp_distance);
+            node_indicies.insert(insert_idx, 1, kd_nodes[curr_idx]->parent);
+            distances.pop_back();
+            node_indicies.pop_back();
+        }
+
+        // Check if the sphere of radius position to kth candidate intersects the split plane.
+        // If the plane intersects or we have less than k candidates, traverse other subtree.
+        if (distances.back() > (parent->split_pos - position[parent->split_axis])
+                || distances.size() < neighbor_num) {
+            // Check whether should go down left or right subtree
+            if (curr_idx == parent->left) {
+                // Go right.
+                LookUp(position, neighbor_num, parent->right, max_dist, out_neighbors);
+            } else {
+                // Go left.
+                LookUp(position, neighbor_num, parent->left, max_dist, out_neighbors);
+            }
+        }
+        curr_idx = kd_nodes[curr_idx]->parent;
+    }
+
+    // Fill out vector with actual data nodes based on indicies in "nodes" vector.
+    for (int idx : node_indicies) {
+        out_neighbors.push_back(data_nodes[idx]);
+    }
+    return;
 }
 
