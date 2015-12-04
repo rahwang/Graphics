@@ -18,10 +18,8 @@ template <typename NodeData>
 KdTree<NodeData>::KdTree(std::vector<NodeData*>& data)
 {
     next_free_index = 1;
-    kd_nodes = std::vector<KdNode*>();
-    kd_nodes.resize(data.size());
-    data_nodes = std::vector<NodeData*>();
-    data_nodes.resize(data.size());
+    kd_nodes = std::vector<KdNode*>(data.size());
+    data_nodes = std::vector<NodeData*>(data.size());
 
     CreateTreeRecursive(data, 0, 0, data.size());
 }

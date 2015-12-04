@@ -1,6 +1,7 @@
 #include <scene/materials/material.h>
 #include <QColor>
 #include <math.h>
+#include <helpers.h>
 
 Material::Material() :
     Material(glm::vec3(0.5f, 0.5f, 0.5f))
@@ -30,8 +31,15 @@ glm::vec3 Material::SampleAndEvaluateScatteredEnergy(const Intersection &isx, co
     float y = float(rand()) / float(RAND_MAX);
 
     BxDF *bxdf = bxdfs.at(rand() % bxdfs.size());
-    return bxdf->SampleAndEvaluateScatteredEnergy(woW, wiW_ret, x, y, pdf_ret)
-            * base_color * isx.texture_color;
+    glm::vec3 woL = worldToObjectSpace(woW, isx);
+    glm::vec3 wiL_ret;
+    glm::vec3 energy =
+            base_color *
+            isx.texture_color *
+            bxdf->SampleAndEvaluateScatteredEnergy(woL, wiL_ret, x, y, pdf_ret);
+
+    wiW_ret = objectToWorldSpace(wiL_ret, isx);
+    return energy;
 }
 
 glm::vec3 Material::EvaluateHemisphereScatteredEnergy(const Intersection &isx, const glm::vec3 &wo, int num_samples, BxDFType flags) const
