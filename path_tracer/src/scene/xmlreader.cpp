@@ -355,6 +355,24 @@ Camera XMLReader::LoadCamera(QXmlStreamReader &xml_reader)
             }
             xml_reader.readNext();
         }
+        else if(QString::compare(tag, QString("lensRadius")) == 0)
+        {
+            xml_reader.readNext();
+            if(xml_reader.isCharacters())
+            {
+                result.lens_radius = xml_reader.text().toFloat();
+            }
+            xml_reader.readNext();
+        }
+        else if(QString::compare(tag, QString("focalDistance")) == 0)
+        {
+            xml_reader.readNext();
+            if(xml_reader.isCharacters())
+            {
+                result.focal_distance = xml_reader.text().toFloat();
+            }
+            xml_reader.readNext();
+        }
     }
     result.RecomputeAttributes();
     return result;
