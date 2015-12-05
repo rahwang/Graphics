@@ -5,18 +5,20 @@
 
 struct KdNode
 {
-    void init(float p, int a)
+    void init(float p, int a, int parent)
     {
         split_axis = p;
         split_pos = a;
-        left = 0;
+        left = -1;
         right = -1;
+        parent = -1;
     }
 
     float split_pos;
     int split_axis;
     int left;
     int right;
+    int parent;
 };
 
 template <typename NodeData>
@@ -25,11 +27,14 @@ class KdTree
 public:
     KdTree(std::vector<NodeData *> &data);
 
+    // Search return index of the leaf node where given point should be inserted.
+    int Search(const glm::vec3 &position, int node_idx) const;
+
     // Search for nearest neighbors
-    void LookUp(
-            const glm::vec3& position,
+    void LookUp(const glm::vec3& position,
             int& neighbor_num,
-            float& max_dist_squared,
+            int &start_idx,
+            float& max_dist,
             std::vector<NodeData>& out_neighbors) const;
 
 private:
