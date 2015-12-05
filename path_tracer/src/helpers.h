@@ -1,5 +1,6 @@
 #pragma once
 #include <la.h>
+#include <raytracing/intersection.h>
 
 const float OFFSET = 0.001f;
 

@@ -2,7 +2,7 @@
 
 #include <la.h>
 #include <iostream>
-
+#include <helpers.h>
 
 Camera::Camera():
     Camera(400, 400)
@@ -22,6 +22,8 @@ Camera::Camera(unsigned int w, unsigned int h, const glm::vec3 &e, const glm::ve
     height(h),
     near_clip(0.1f),
     far_clip(1000),
+    lens_radius(0.f),
+    focal_distance(-10.f),
     eye(e),
     ref(r),
     world_up(worldUp)
@@ -35,6 +37,8 @@ Camera::Camera(const Camera &c):
     height(c.height),
     near_clip(c.near_clip),
     far_clip(c.far_clip),
+    lens_radius(c.lens_radius),
+    focal_distance(c.focal_distance),
     aspect(c.aspect),
     eye(c.eye),
     ref(c.ref),
@@ -51,6 +55,8 @@ void Camera::CopyAttributes(const Camera &c)
     fovy = c.fovy;
     near_clip = c.near_clip;
     far_clip = c.far_clip;
+    lens_radius = c.lens_radius;
+    focal_distance = c.focal_distance;
     eye = c.eye;
     ref = c.ref;
     look = c.look;
@@ -173,6 +179,28 @@ Ray Camera::RaycastNDC(float ndc_x, float ndc_y)
 {
     glm::vec3 P = ref + ndc_x*H + ndc_y*V;
     Ray result(eye, P - eye);
+
+    // Modified for Depth of field
+    if (lens_radius > 0.f) {
+
+        // Sample point on lens, takes a (u,v) sample position and map
+        // it to a 2D disk centered at the origin (0,0), then scale by the
+        // lens radius
+        float lens_u, lens_v;
+        float r1 = float(rand()) / float(RAND_MAX);
+        float r2 = float(rand()) / float(RAND_MAX);
+        ConcentricSampleDisk(r1, r2, lens_u, lens_v);
+        lens_u *= lens_radius;
+        lens_v *= lens_radius;
+
+        // Compute point on plane of focus
+        float ft = focal_distance / result.direction.z;
+        glm::vec3 point_of_focus = result.origin + ft * result.direction;
+
+        // Update ray for effect of lens
+        result.origin = glm::vec3(result.origin.x + lens_u, result.origin.y + lens_v, result.origin.z);
+        result.direction = glm::normalize(point_of_focus - result.origin);
+    }
     return result;
 }
 
