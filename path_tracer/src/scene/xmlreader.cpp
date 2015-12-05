@@ -12,6 +12,7 @@
 #include <scene/materials/bxdfs/lambertBxDF.h>
 #include <scene/materials/bxdfs/specularreflectionbxdf.h>
 #include <scene/materials/bxdfs/blinnmicrofacetbxdf.h>
+#include <scene/materials/bxdfs/anisotropicbxdf.h>
 #include <scene/materials/weightedmaterial.h>
 #include <QImage>
 
@@ -496,6 +497,27 @@ BxDF* XMLReader::LoadBxDF(QXmlStreamReader &xml_reader)
         if(QStringRef::compare(exponent, QString("")) != 0)
         {
             ((BlinnMicrofacetBxDF*)result)->exponent = exponent.toFloat();
+        }
+    }
+    else if(QStringRef::compare(type, QString("anisotropic")) == 0)
+    {
+        glm::vec3 refl_color(0.5f);
+        QStringRef color = attribs.value(QString(), QString("reflectionColor"));
+        if(QStringRef::compare(color, QString("")) != 0)
+        {
+            refl_color = ToVec3(color);
+        }
+        result = new AnisotropicBxDF(refl_color);
+
+        QStringRef exponentx = attribs.value(QString(), QString("expx"));
+        if(QStringRef::compare(exponentx, QString("")) != 0)
+        {
+            ((AnisotropicBxDF*)result)->ex = exponentx.toFloat();
+        }
+        QStringRef exponenty = attribs.value(QString(), QString("expy"));
+        if(QStringRef::compare(exponenty, QString("")) != 0)
+        {
+            ((AnisotropicBxDF*)result)->ey = exponenty.toFloat();
         }
     }
     else

@@ -39,6 +39,7 @@ SOURCES += \
     $$PWD/scene/geometry/boundingbox.cpp \
     $$PWD/raytracing/totallightingintegrator.cpp \
     $$PWD/raytracing/directlightingintegrator.cpp
+    $$PWD/scene/materials/bxdfs/anisotropicbxdf.cpp
 
 HEADERS += \
     $$PWD/mainwindow.h \
@@ -83,6 +84,7 @@ HEADERS += \
     $$PWD/scene/geometry/boundingbox.h \
     $$PWD/raytracing/totallightingintegrator.h \
     $$PWD/raytracing/directlightingintegrator.h \
-    $$PWD/helpers.h
+    $$PWD/helpers.h \
+    $$PWD/scene/materials/bxdfs/anisotropicbxdf.h
 
 DISTFILES +=
