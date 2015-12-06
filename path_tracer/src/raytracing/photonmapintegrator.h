@@ -1,10 +1,10 @@
 #pragma once
 
-#include <raytracing/integrator.h>
+#include <raytracing/directlightingintegrator.h>
 #include <raytracing/photon.h>
 #include <raytracing/kdtree.h>
 
-class PhotonMapIntegrator : public Integrator
+class PhotonMapIntegrator : public DirectLightingIntegrator
 {
 public:
     PhotonMapIntegrator();
@@ -13,9 +13,10 @@ public:
     virtual void PrePass();
     virtual glm::vec3 TraceRay(Ray r, unsigned int depth);
 
-protected:
     int indirect_photons_requested;
     int caustic_photons_requested;
+
+protected:
 
     KdTree<Photon>* indirect_map;
     KdTree<Photon>* caustic_map;

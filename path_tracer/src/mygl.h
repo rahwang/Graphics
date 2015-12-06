@@ -14,6 +14,7 @@
 #include <raytracing/Integrator.h>
 #include <raytracing/directlightingintegrator.h>
 #include <raytracing/totallightingintegrator.h>
+#include <raytracing/photonmapintegrator.h>
 
 // Uncomment corresponding section to build with specified integrator type
 #define PHOTON_MAP
@@ -36,7 +37,9 @@ private:
 
     Scene scene;
     XMLReader xml_reader;
-#if defined(ALL_LIGHTING)
+#if defined(PHOTON_MAP)
+    PhotonMapIntegrator integrator;
+#elif defined(ALL_LIGHTING)
     TotalLightingIntegrator integrator;
 #elif defined(DIRECT_LIGHTING)
     DirectLightingIntegrator integrator;

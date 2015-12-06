@@ -195,7 +195,10 @@ void MyGL::SceneLoadDialog()
     scene.Clear();
     // Clean up BVH Tree
     bvhNode::DeleteTree(intersection_engine.bvh);
-#if defined(ALL_LIGHTING)
+
+#if defined(PHOTON_MAP)
+    integrator = PhotonMapIntegrator();
+#elif defined(ALL_LIGHTING)
     integrator = TotalLightingIntegrator();
 #elif defined(DIRECT_LIGHTING)
     integrator = DirectLightingIntegrator();
@@ -208,8 +211,16 @@ void MyGL::SceneLoadDialog()
     xml_reader.LoadSceneFromFile(file, local_path, scene, integrator);
     integrator.scene = &scene;
     integrator.intersection_engine = &intersection_engine;
+#if defined(PHOTON_MAP)
+    integrator.caustic_photons_requested = 1000;
+    integrator.indirect_photons_requested = 1000;
+#endif
     intersection_engine.scene = &scene;
     intersection_engine.bvh = bvhNode::InitTree(scene.objects);
+
+#ifdef PHOTON_MAP
+    integrator.PrePass();
+#endif
     ResizeToSceneCamera();
     update();
 }
