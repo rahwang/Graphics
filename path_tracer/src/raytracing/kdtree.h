@@ -204,7 +204,7 @@ int KdTree<NodeData>::LookUpPrivate(
     distances.push_back((data_nodes[curr_idx].position - position).length());
     node_indicies.push_back(curr_idx);
 
-    while (curr_idx != 0) {
+    while (curr_idx > 0) {
         // Get parent.
         KdNode *parent = kd_nodes[kd_nodes[curr_idx]->parent];
 

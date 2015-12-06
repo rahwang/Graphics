@@ -135,23 +135,36 @@ void PhotonMapIntegrator::PrePass()
                 break;
             }
 
-            bounce_count++;
 
             // Accumulate alpha values
             glm::vec3 new_direction;
             float new_pdf;
             glm::vec3 new_energy = bounced_isx.object_hit->material->SampleAndEvaluateScatteredEnergy(bounced_isx, -ray.direction, new_direction, new_pdf);
             float cosine_component = glm::abs(glm::dot(new_direction, bounced_isx.normal));
-            glm::vec3 new_alpha = alpha * new_energy * cosine_component / new_pdf;
+            glm::vec3 new_alpha = new_energy * cosine_component / new_pdf;
+
+            bounce_count++;
+
+            if (bounce_count == 1)
+            {
+                // Update for new ray
+                ray.direction = new_direction;
+                ray.origin = bounced_isx.point + new_direction * OFFSET;
+                alpha = new_alpha;
+
+                continue;
+            }
 
             // Use Russian roulette to terminate
             float continue_probability = glm::min(1.f, new_alpha.y / alpha.y);
-            if (unif_distribution(mersenne_generator) > continue_probability) {
+            if (unif_distribution(mersenne_generator) > continue_probability && bounce_count > 2) {
                break;
             }
 
             // Update for new ray
-            alpha = new_alpha / continue_probability;
+            ray.direction = new_direction;
+            ray.origin = bounced_isx.point + new_direction * OFFSET;
+            alpha = new_alpha;
         }
     }
 
