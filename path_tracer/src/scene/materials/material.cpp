@@ -21,8 +21,13 @@ Material::Material(const glm::vec3 &color):
 glm::vec3 Material::EvaluateScatteredEnergy(const Intersection &isx, const glm::vec3 &woW, const glm::vec3 &wiW, BxDFType flags) const
 {
     int random_idx = rand() % bxdfs.size();
-    return bxdfs[random_idx]->EvaluateScatteredEnergy(woW, wiW)
-            * base_color * isx.texture_color;
+    glm::vec3 woL = worldToObjectSpace(woW, isx);
+    glm::vec3 wiL = worldToObjectSpace(wiW, isx);
+    glm::vec3 energy =
+            base_color *
+            isx.texture_color *
+            bxdfs[random_idx]->EvaluateScatteredEnergy(woL, wiL);
+    return energy;
 }
 
 glm::vec3 Material::SampleAndEvaluateScatteredEnergy(const Intersection &isx, const glm::vec3 &woW, glm::vec3 &wiW_ret, float &pdf_ret, BxDFType flags) const
