@@ -11,13 +11,18 @@ Intersection Disc::SampleLight(const IntersectionEngine *intersection_engine,
                                const glm::vec3 &origin, const float rand1, const float rand2,
                                const glm::vec3 &normal)
 {
-    double theta = rand2 * 2 * M_PI;
-    glm::vec3 point(sqrt(rand1) * cos(theta), sqrt(rand1) * sin(theta), 0);
-    glm::vec3 world_point = glm::vec3(transform.T() * glm::vec4(point, 1));
+    glm::vec3 world_point = SampleArea(rand1, rand2, normal, true);
     Ray r(origin, world_point-origin);
 
     Intersection result = intersection_engine->GetIntersection(r);
     return result;
+}
+
+glm::vec3 Disc::SampleArea(const float rand1, const float rand2, const glm::vec3 &normal, bool inWorldSpace)
+{
+    double theta = rand2 * 2 * M_PI;
+    glm::vec3 point(sqrt(rand1) * cos(theta), sqrt(rand1) * sin(theta), 0);
+    return inWorldSpace ? glm::vec3(transform.T() * glm::vec4(point, 1)) : point;
 }
 
 Intersection Disc::GetIntersection(Ray r, Camera &camera)

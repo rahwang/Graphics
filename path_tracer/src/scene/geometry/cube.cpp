@@ -22,6 +22,11 @@ Intersection Cube::SampleLight(const IntersectionEngine *intersection_engine,
     return Intersection();
 }
 
+glm::vec3 Cube::SampleArea(const float rand1, const float rand2, const glm::vec3 &normal, bool inWorldSpace)
+{
+    return glm::vec3();
+}
+
 
 glm::vec4 GetCubeNormal(const glm::vec4& P)
 {
@@ -40,7 +45,9 @@ glm::vec4 GetCubeNormal(const glm::vec4& P)
 
 
 glm::vec3 Cube::ComputeNormal(const glm::vec3 &P)
-{return glm::vec3(0);}
+{
+    return glm::normalize(glm::vec3(GetCubeNormal(glm::vec4(P, 1.f))));
+}
 
 
 Intersection Cube::GetIntersection(Ray r, Camera &camera)

@@ -27,11 +27,21 @@ Intersection Triangle::SampleLight(const IntersectionEngine *intersection_engine
     return Intersection();
 }
 
+glm::vec3 Triangle::SampleArea(const float rand1, const float rand2, const glm::vec3 &normal, bool inWorldSpace)
+{
+    return glm::vec3();
+}
+
 Intersection Mesh::SampleLight(const IntersectionEngine *intersection_engine,
                                const glm::vec3 &origin, const float x, const float y,
                                const glm::vec3 &normal)
 {
     return Intersection();
+}
+
+glm::vec3 Mesh::SampleArea(const float rand1, const float rand2, const glm::vec3 &normal, bool inWorldSpace)
+{
+    return glm::vec3();
 }
 
 Triangle::Triangle(const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3):
