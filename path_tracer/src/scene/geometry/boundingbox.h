@@ -27,6 +27,7 @@ public:
     glm::vec3 center;
     glm::vec3 minimum;
     glm::vec3 maximum;
+    float radius;
     std::vector<glm::vec3> normals;
     Geometry *object;
 };

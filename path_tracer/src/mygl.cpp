@@ -224,7 +224,7 @@ void MyGL::RaytraceScene()
     }
 
 //#define PERLIN_TEST
-//#define MULTITHREADED
+#define MULTITHREADED
 #ifdef MULTITHREADED
     //Set up 16 (max) threads
     unsigned int width = scene.camera.width;

@@ -15,7 +15,13 @@ float Geometry::RayPDF(const Intersection &isx, const Ray &ray, const Intersecti
     return pow(glm::length(light_intersection.point-ray.origin), 2.0f) / (theta * area);
 }
 
-float Geometry::NoiseDensity(const glm::vec3 voxel, float noise) {
-    float scale = 1.0f;
-    return noise * scale + (1.0f - (voxel / (voxel - bounding_box->center)).length()) * scale;
+float Geometry::CloudDensity(const glm::vec3 voxel, float noise, float step_size) {
+    float scale = step_size / 2;
+    glm::vec3 world_voxel = (voxel * step_size) + bounding_box->minimum;
+    float radius_ratio = glm::length(world_voxel / glm::length(bounding_box->center - bounding_box->minimum));
+    return (1 + noise*2) * (1.0f - tanh(radius_ratio * 2)) * scale;
+}
+
+float Geometry::PyroclasticDensity(const glm::vec3 voxel, float noise, float step_size) {
+    return 0.0f;
 }

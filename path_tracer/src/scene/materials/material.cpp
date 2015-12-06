@@ -41,7 +41,7 @@ glm::vec3 Material::EvaluateHemisphereScatteredEnergy(const Intersection &isx, c
     return glm::vec3(0);
 }
 
-float Material::SampleVolume(Intersection &intersection, Ray &ray) {
+float Material::SampleVolume(const Intersection &intersection, Ray &ray, glm::vec3 &out_point) {
     return 0;
 }
 

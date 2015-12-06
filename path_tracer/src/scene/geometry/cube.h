@@ -13,6 +13,7 @@ public:
     virtual void ComputeTangents(const glm::vec3 &normal, glm::vec3 &tangent, glm::vec3 &bitangent);
     virtual Intersection SampleLight(const IntersectionEngine *intersection_engine,
                                      const glm::vec3 &origin, const float rand1, const float rand2, const glm::vec3 &normal);
+    virtual float CloudDensity(const glm::vec3 voxel, float noise, float step_size);
     bvhNode *SetBoundingBox();
     void create();
 

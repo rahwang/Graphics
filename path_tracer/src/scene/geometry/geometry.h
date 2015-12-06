@@ -34,7 +34,8 @@ public:
                                    const glm::vec3 &origin, const float rand1, const float rand2,
                                    const glm::vec3 &normal) = 0;
     virtual bvhNode *SetBoundingBox() = 0;
-    virtual float NoiseDensity(const glm::vec3 voxel, float noise);
+    virtual float CloudDensity(const glm::vec3 voxel, float noise, float step_size);
+    virtual float PyroclasticDensity(const glm::vec3 voxel, float noise, float step_size);
 
     //Returns the solid-angle weighted probability density function given a point we're trying to illuminate and
     //a ray going towards the Geometry

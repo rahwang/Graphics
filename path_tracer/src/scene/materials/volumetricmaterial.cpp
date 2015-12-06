@@ -6,7 +6,7 @@
 
 std::mutex mtx;           // mutex for critical section
 
-#define STEP 0.1f
+#define STEP 0.05f
 
 VolumetricMaterial::VolumetricMaterial() : Material() {
     is_volumetric = true;
@@ -37,7 +37,7 @@ float VolumetricMaterial::NoiseGenerator(float x, float y, float z, int i) {
           15493, 466561, 1376312657, 1073741833,
           11443, 500699, 1376312687, 1073741839};
 
-  long int n = x + (y * 57) + (z * 89);
+  long int n = (x * 97) + (y * 57) + (z * 89);
   n = (n << 13) ^ n;
   int hex = 0x7FFFFFFF;
   return 1.0f - float( (n * (n * n * primes[4*i] + primes[4*i+1]) + primes[4*i+2]) & hex) / primes[4*i+3];
@@ -98,9 +98,13 @@ float VolumetricMaterial::PerlinNoise_3d(float x, float y, float z) {
   float persistance = 0.5f;
   int N_OCTAVES = 5;
 
-  x *= 0.022;
-  y *= 0.022;
-  z *= 0.022;
+  x *= STEP * 2;
+  y *= STEP * 2;
+  z *= STEP * 2;
+
+  x += 2.5;
+  y += 2.5;
+  z += 2.5;
 
   for (int i = 0; i < N_OCTAVES; ++i) {
       float frequency = pow(2, i);
@@ -113,8 +117,9 @@ float VolumetricMaterial::PerlinNoise_3d(float x, float y, float z) {
   return total;
 }
 
-void VolumetricMaterial::CalculateDensities(Intersection &intersection) {
+void VolumetricMaterial::CalculateDensities(const Intersection &intersection) {
     BoundingBox *bbox = intersection.object_hit->bounding_box;
+
     float width = bbox->maximum.x - bbox->minimum.x;
     float height = bbox->maximum.y - bbox->minimum.y;
     float depth = bbox->maximum.z - bbox->minimum.z;
@@ -123,16 +128,31 @@ void VolumetricMaterial::CalculateDensities(Intersection &intersection) {
     densities_height = floor(height / STEP);
     densities_depth = floor(depth / STEP);
 
-    for (float i=0; i < width; i += STEP) {
-        for (float j=0; j < height; j += STEP) {
-            for (float k=0; k < depth; k += STEP) {
-                densities.push_back(0.1);
+    for (float k=0; k < depth / STEP; ++k) {
+        for (float j=0; j < height / STEP; ++j) {
+            for (float i=0; i < width / STEP; ++i) {
+                //densities.push_back(0.05);
+                glm::vec3 voxel(i, j, k);
+                //densities.push_back(PerlinNoise_3d(i, j, k) * 0.5);
+                densities.push_back(intersection.object_hit->CloudDensity(voxel, PerlinNoise_3d(i, j, k), STEP));
             }
         }
     }
 }
 
-float VolumetricMaterial::SampleVolume(Intersection &intersection, Ray &ray) {
+float VolumetricMaterial::GetVoxelDensityAtPoint(const Intersection &intersection, const glm::vec3 &point) {
+
+    BoundingBox *bbox = intersection.object_hit->bounding_box;
+    int x = floor((point.x - bbox->minimum.x) / STEP);
+    int y = floor((point.y - bbox->minimum.y) / STEP);
+    int z = floor((point.z - bbox->minimum.z) / STEP);
+
+    return densities[x * densities_height * densities_depth
+            + y * densities_depth
+            + z];
+}
+
+float VolumetricMaterial::SampleVolume(const Intersection &intersection, Ray &ray, glm::vec3 &out_point) {
     BoundingBox *bbox = intersection.object_hit->bounding_box;
 
     mtx.lock();
@@ -143,21 +163,21 @@ float VolumetricMaterial::SampleVolume(Intersection &intersection, Ray &ray) {
 
     Camera camera;
 
-    Ray offset_ray(ray.origin + (ray.direction * 0.1f), ray.direction);
-    glm::vec3 far_point = intersection.object_hit->GetIntersection(offset_ray, camera).point;
-    float ray_segment_length = (intersection.point - far_point).length();
+    Ray offset_ray(intersection.point + (ray.direction * 0.01f), ray.direction);
+    Intersection far_intersection = intersection.object_hit->GetIntersection(offset_ray, camera);
+    float ray_segment_length = far_intersection.t;
     float density = 0;
-    glm::vec3 offset_point = intersection.point - bbox->minimum;
+    glm::vec3 offset_point = intersection.point;
 
-    for (float i=0; i < ray_segment_length; i += STEP) {
-        density += densities[floor((offset_point.x / STEP) * densities_width)
-                             + floor((offset_point.y / STEP) * densities_height)
-                             + floor((offset_point.z / STEP) * densities_depth)];
+    for (float i=0; i < ray_segment_length + 0.01; i += STEP) {
+        density += GetVoxelDensityAtPoint(intersection, offset_point);
 
         if (density > 1) {
-            break;
+            return 1.0f;
         }
         offset_point += ray.direction * STEP;
     }
+
+    out_point = far_intersection.point + (ray.direction * 0.01f);
     return density;
 }

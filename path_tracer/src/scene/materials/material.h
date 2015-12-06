@@ -37,7 +37,7 @@ public:
     static glm::vec3 GetImageColorInterp(const glm::vec2 &uv_coord, const QImage * const &image);
 
     // Only for use in volumetric material
-    virtual float SampleVolume(Intersection &intersection, Ray &ray);
+    virtual float SampleVolume(const Intersection &intersection, Ray &ray, glm::vec3 &out_point);
 
 //Member Variables
     QString name;           //The name given in the scene XML file
