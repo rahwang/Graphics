@@ -30,7 +30,8 @@ public:
     //A shorthand way of calling EvaluateHemisphereScatteredEnergy
     glm::vec3 Rho(const Intersection &isx, const glm::vec3 &wo, int num_samples, BxDFType flags = BSDF_ALL) const {return EvaluateHemisphereScatteredEnergy(isx, wo, num_samples, flags);}
 
-
+    //Check if the material is specular
+    bool IsSpecular();
 
 
     //Returns the RGB color stored in the input image as a vec3 with values ranging from 0 to 1.

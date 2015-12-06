@@ -104,3 +104,14 @@ glm::vec3 Material::GetImageColorInterp(const glm::vec2 &uv_coord, const QImage*
         }
     }
 }
+
+bool Material::IsSpecular()
+{
+    for (BxDF* bxdf : bxdfs)
+    {
+        if (bxdf->type & BSDF_SPECULAR) {
+            return true;
+        }
+    }
+    return false;
+}
