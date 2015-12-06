@@ -164,6 +164,29 @@ glm::vec3 DirectLightingIntegrator::TraceRay(Ray r, unsigned int depth) {
                 *intersection.object_hit->material->EvaluateScatteredEnergy(intersection, glm::vec3(0), -r.direction);
     }
 
+    if (intersection.object_hit->material->is_volumetric) {
+        // Begin sampling volumetric material
+        glm::vec3 out_point;
+
+        // Get density of the volumetric material.
+        float density =
+                intersection.object_hit->material->SampleVolume(intersection, r, out_point);
+        Ray exiting_ray(out_point, r.direction);
+
+        if (density >= 1.0f) {
+            return intersection.object_hit->material->base_color;
+        }
+
+        // Get color behind the volumetric material.
+        //glm::vec3 background_color = TraceRay(exiting_ray, depth+1);
+        Intersection background_intersection = (intersection_engine->GetIntersection(exiting_ray));
+        if (background_intersection.object_hit) {
+          return density *intersection.object_hit->material->base_color
+                    + (1.0f - density) * background_intersection.object_hit->material->base_color;
+        }
+            return density * intersection.object_hit->material->base_color;
+    }
+
     glm::vec3 unused_vec;
     float unused_float;
     return ComputeDirectLighting(r, intersection, unused_vec, unused_float);

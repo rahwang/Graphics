@@ -11,6 +11,7 @@ Material::Material(const glm::vec3 &color):
     name("MATERIAL"),
     bxdfs(),
     is_light_source(false),
+    is_volumetric(false),
     base_color(color),
     intensity(0)
 {
@@ -51,6 +52,10 @@ glm::vec3 Material::EvaluateHemisphereScatteredEnergy(const Intersection &isx, c
 {
     //TODO
     return glm::vec3(0);
+}
+
+float Material::SampleVolume(const Intersection &intersection, Ray &ray, glm::vec3 &out_point) {
+    return 0;
 }
 
 

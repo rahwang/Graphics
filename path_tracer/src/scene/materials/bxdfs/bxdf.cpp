@@ -31,8 +31,8 @@ float BxDF::PDF(const glm::vec3 &wo, const glm::vec3 &wi) const
 float BxDF::FresnelTerm(float cosi) const {
     // Do Fresnel equation.
     float air_ior = 1.00029;
-    float vacuum_ior = 1;
-    float incident_media_ior = vacuum_ior;
+    float vacuum_ior = 1.33;
+    float incident_media_ior = air_ior;
     float transmitted_media_ior = vacuum_ior;
 
     cosi = (cosi > 1.f) ? 1.f : cosi;

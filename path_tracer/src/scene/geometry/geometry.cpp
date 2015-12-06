@@ -23,3 +23,14 @@ glm::vec3 Geometry::SamplePhotonDirectionFromLight(const float r1, const float r
     direction.z = sqrt(fmaxf(0.f, 1.f - direction.x * direction.x - direction.y * direction.y));
     return inWorldSpace ? glm::normalize(glm::vec3(transform.T() * glm::vec4(direction, 0.f))) : direction;
 }
+
+float Geometry::CloudDensity(const glm::vec3 voxel, float noise, float step_size) {
+    float scale = step_size / 2;
+    glm::vec3 world_voxel = (voxel * step_size) + bounding_box->minimum;
+    float radius_ratio = glm::length(world_voxel / glm::length(bounding_box->center - bounding_box->minimum));
+    return (1 + noise*2) * (1.0f - tanh(radius_ratio * 2)) * scale;
+}
+
+float Geometry::PyroclasticDensity(const glm::vec3 voxel, float noise, float step_size) {
+    return 0.0f;
+}

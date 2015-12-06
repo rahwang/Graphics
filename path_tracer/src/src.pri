@@ -39,7 +39,8 @@ SOURCES += \
     $$PWD/scene/geometry/boundingbox.cpp \
     $$PWD/raytracing/totallightingintegrator.cpp \
     $$PWD/raytracing/directlightingintegrator.cpp \
-    $$PWD/raytracing/photonmapintegrator.cpp
+    $$PWD/raytracing/photonmapintegrator.cpp \
+    $$PWD/scene/materials/volumetricmaterial.cpp
 
 HEADERS += \
     $$PWD/mainwindow.h \
@@ -87,6 +88,7 @@ HEADERS += \
     $$PWD/helpers.h \
     $$PWD/raytracing/photonmapintegrator.h \
     $$PWD/raytracing/kdtree.h \
-    $$PWD/raytracing/photon.h
+    $$PWD/raytracing/photon.h \
+    $$PWD/scene/materials/volumetricmaterial.h
 
 DISTFILES +=

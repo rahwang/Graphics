@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include <renderthread.h>
 #include <raytracing/samplers/stratifiedpixelsampler.h>
+#include <scene/materials/volumetricmaterial.h>
 
 
 MyGL::MyGL(QWidget *parent)
@@ -233,6 +234,7 @@ void MyGL::RaytraceScene()
         return;
     }
 
+//#define PERLIN_TEST
 #define MULTITHREADED
 #ifdef MULTITHREADED
     //Set up 16 (max) threads
@@ -292,10 +294,16 @@ void MyGL::RaytraceScene()
     }
     delete [] render_threads;
 
+#elif defined(PERLIN_TEST)
+    for(unsigned int j = 0; j < scene.camera.height; j++)
+    {
+        for(unsigned int i = 0; i < scene.camera.width; i++)
+        {
+            scene.film.pixels[i][j] = glm::vec3(VolumetricMaterial::PerlinNoise_3d(i, j, 10));
+        }
+    }
 #else
-    integrator.TraceRayTotalLighting(scene.camera.Raycast(100.f, 41.0f), 0);
-    integrator.TraceRayTotalLighting(scene.camera.Raycast(100.f, 41.0f), 0);
-    integrator.TraceRayTotalLighting(scene.camera.Raycast(100.f, 41.0f), 0);
+    glm::vec3 color = integrator.TraceRay(scene.camera.Raycast(200.f, 200.f), 0);
     StratifiedPixelSampler pixel_sampler(scene.sqrt_samples,0);
     for(unsigned int i = 0; i < scene.camera.width; i++)
     {

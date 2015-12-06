@@ -222,6 +222,15 @@ bvhNode *Cube::SetBoundingBox() {
 }
 
 
+float Cube::CloudDensity(const glm::vec3 voxel, float noise, float step_size) {
+    float scale = step_size / 2;
+
+    glm::vec3 world_voxel = (voxel * step_size) + bounding_box->minimum;
+    float radius_ratio = voxel.y/((bounding_box->maximum.y - bounding_box->minimum.y) / step_size);
+    return (1 + noise*2) * (1.0f - radius_ratio) * scale;
+}
+
+
 //These are functions that are only defined in this cpp file. They're used for organizational purposes
 //when filling the arrays used to hold the vertex and index data.
 void createCubeVertexPositions(glm::vec3 (&cub_vert_pos)[CUB_VERT_COUNT])

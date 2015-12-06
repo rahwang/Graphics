@@ -3,6 +3,7 @@
 #include <bmp/EasyBMP.h>
 #include <scene/materials/bxdfs/bxdf.h>
 #include <raytracing/intersection.h>
+#include <raytracing/ray.h>
 #include <QImage>
 
 class Geometry;
@@ -33,17 +34,20 @@ public:
     //Check if the material is specular
     bool IsSpecular();
 
-
     //Returns the RGB color stored in the input image as a vec3 with values ranging from 0 to 1.
     //Note that this is a STATIC function, so you don't need to call it from an instance of Material
     static glm::vec3 GetImageColor(const glm::vec2 &uv_coord, const QImage * const &image);
     static glm::vec3 GetImageColorInterp(const glm::vec2 &uv_coord, const QImage * const &image);
+
+    // Only for use in volumetric material
+    virtual float SampleVolume(const Intersection &intersection, Ray &ray, glm::vec3 &out_point);
 
 //Member Variables
     QString name;           //The name given in the scene XML file
     QList<BxDF*> bxdfs;     //The set of BxDFs to which this Material can refer when computing the color at a given intersection.
     bool is_light_source;   //A quick way to check if this material is that of a light source. If TRUE, the owning geometry is treated as an area light.
                             //Its color is base_color * texture, and its intensity is set by the intensity member variable
+    bool is_volumetric;     //A quick way to check if this material is volumetric.
 
     glm::vec3 base_color;   //Multiplied by texture color
     float intensity;        //Only used for light sources
@@ -51,4 +55,9 @@ public:
     QImage* texture;   //When non-null, the Material has a texture assigned to it.
                     //A Material's texture is multiplied with its base_color to determine its color at a given point in space.
     QImage* normal_map;
+
+    std::vector<float> densities;
+    float densities_width;
+    float densities_height;
+    float densities_depth;
 };
