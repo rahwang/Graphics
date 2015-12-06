@@ -201,7 +201,11 @@ int KdTree<NodeData>::LookUpPrivate(
     int curr_idx = Search(position, start_idx);
 
     // Get distance from position.
-    distances.push_back((data_nodes[curr_idx].position - position).length());
+    float distance = (data_nodes[curr_idx].position - position).length();
+    if (distance > max_dist) {
+        return out_neighbors.size();
+    }
+    distances.push_back(distance);
     node_indicies.push_back(curr_idx);
 
     while (curr_idx > 0) {

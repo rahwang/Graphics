@@ -164,7 +164,7 @@ void PhotonMapIntegrator::PrePass()
             // Update for new ray
             ray.direction = new_direction;
             ray.origin = bounced_isx.point + new_direction * OFFSET;
-            alpha = new_alpha;
+            alpha = new_alpha / continue_probability;
         }
     }
 
@@ -219,8 +219,8 @@ glm::vec3 PhotonMapIntegrator::TraceRay(Ray r, unsigned int depth)
     }
 
     std::vector<Photon> neighbors;
-    int neighbors_num = 10;
-    float max_squared_distance = 10.f;
+    int neighbors_num = 100;
+    float max_squared_distance = 2.f;
     if (bounced_isx.object_hit->material->IsSpecular())
     {
         caustic_map->LookUp(bounced_isx.point, neighbors_num, max_squared_distance, neighbors);
