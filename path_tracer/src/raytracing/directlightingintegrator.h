@@ -13,6 +13,6 @@ protected:
     glm::vec3 SampleLightPdf(Ray r, Intersection intersection, Geometry *light);
 
     // Randomly sample points on the object surface. Second term of MIS.
-    glm::vec3 SampleBxdfPdf(Ray r, Intersection intersection, Geometry *light);
-    glm::vec3 ComputeDirectLighting(Ray r, const Intersection &intersection);
+    glm::vec3 SampleBxdfPdf(Ray r, Intersection intersection, Geometry *light, glm::vec3 &out_reflected, float &out_pdf);
+    glm::vec3 ComputeDirectLighting(Ray r, const Intersection &intersection, glm::vec3 &out_reflected, float &out_pdf);
 };
