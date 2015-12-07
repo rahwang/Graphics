@@ -12,6 +12,8 @@ PhotonMapIntegrator::PhotonMapIntegrator() :
 
     indirect_photons_requested = 0;
     caustic_photons_requested = 0;
+    nearest_neighbors_num = 10;
+    max_dist_from_neighbors = 10.f;
 
     indirect_map = NULL;
     caustic_map = NULL;
@@ -29,6 +31,8 @@ PhotonMapIntegrator::PhotonMapIntegrator(
 {
     scene = scene;
     intersection_engine = NULL;
+    nearest_neighbors_num = 10;
+    max_dist_from_neighbors = 10.f;
 
     indirect_map = NULL;
     caustic_map = NULL;
@@ -38,6 +42,26 @@ PhotonMapIntegrator::PhotonMapIntegrator(
 PhotonMapIntegrator::~PhotonMapIntegrator()
 {
 
+}
+
+void PhotonMapIntegrator::SetIndirectPhotonsNum(const int& num)
+{
+    indirect_photons_requested = num;
+}
+
+void PhotonMapIntegrator::SetCausticPhotonsNum(const int& num)
+{
+    caustic_photons_requested = num;
+}
+
+void PhotonMapIntegrator::SetNearestNeighborsNum(const int& num)
+{
+    nearest_neighbors_num = num;
+}
+
+void PhotonMapIntegrator::SetMaxDistanceFromNeighbors(const float& max_dist)
+{
+    max_dist_from_neighbors = max_dist;
 }
 
 void PhotonMapIntegrator::PrePass()
@@ -54,9 +78,6 @@ void PhotonMapIntegrator::PrePass()
     std::vector<Photon> direct_photons;
     std::vector<Photon> indirect_photons;
     std::vector<Photon> caustic_photons;
-    bool specular_path = true;
-    unsigned int bounce_count = 0;
-
     //
     // -- Compute light power CDF for photon shooting
     //
@@ -70,6 +91,10 @@ void PhotonMapIntegrator::PrePass()
 
     for (int i = 0; i < paths_num; ++i)
     {
+        // -- RESET
+        unsigned int bounce_count = 0;
+        bool specular_path = true;
+
         // -- DIRECT LIGHTING
         // Sample light
         float r1 = unif_distribution(mersenne_generator);
@@ -82,7 +107,7 @@ void PhotonMapIntegrator::PrePass()
         ray_direction = light->SamplePhotonDirectionFromLight(r1, r2, true);
         Ray ray(ray_origin + ray_direction * OFFSET, ray_direction);
 
-        // First bounce
+        // First intersection
         Intersection isx_light;
         isx_light.point = ray_origin;
         isx_light.normal = light->ComputeNormal(ray.origin);
@@ -90,11 +115,10 @@ void PhotonMapIntegrator::PrePass()
         isx_light.t = 0;
 
         // Factor based on angle.
-        glm::vec3 light_energy =  light->material->EvaluateScatteredEnergy(isx_light, glm::vec3(), ray_direction);
-        float cosine_component = glm::abs(glm::dot(ray.direction, isx_light.normal));
+        glm::vec3 photon_energy =  light->material->EvaluateScatteredEnergy(isx_light, glm::vec3(), ray_direction);
 
         // LTE term for this iteration;
-        glm::vec3 alpha = light_energy * cosine_component / 1.f; // pdf = 1
+        glm::vec3 alpha = photon_energy;
 
         while(true) {
 
@@ -106,10 +130,9 @@ void PhotonMapIntegrator::PrePass()
 
             // If has specular, deposit at surface
 
-            // If it's a diffuse surface, save into a direct map
-            // If it's a specular surface, mark the specular path, then put the next diffuse one into caustic map
+            // If it's a diffuse surface, save into a indirect map
+            // If it's a specular surface, put into caustic map
 
-            specular_path = true;
             if (bounce_count == 0)
             {
                 direct_photons.push_back(Photon(bounced_isx.point, ray.direction, alpha));
@@ -139,32 +162,38 @@ void PhotonMapIntegrator::PrePass()
             // Accumulate alpha values
             glm::vec3 new_direction;
             float new_pdf;
-            glm::vec3 new_energy = bounced_isx.object_hit->material->SampleAndEvaluateScatteredEnergy(bounced_isx, -ray.direction, new_direction, new_pdf);
+            glm::vec3 new_energy = bounced_isx.object_hit->material->SampleAndEvaluateScatteredEnergy(
+                        bounced_isx,
+                        -ray.direction,
+                        new_direction,
+                        new_pdf
+                        );
+
             float cosine_component = glm::abs(glm::dot(new_direction, bounced_isx.normal));
-            glm::vec3 new_alpha = new_energy * cosine_component / new_pdf;
+            glm::vec3 new_alpha = alpha * new_energy * cosine_component / new_pdf;
 
-            bounce_count++;
-
-            if (bounce_count == 1)
+            if (fequal(new_pdf, 0.f) || (fequal(new_energy.x, 0.f) && fequal(new_energy.y, 0.f) && fequal(new_energy.z, 0.f)))
             {
                 // Update for new ray
                 ray.direction = new_direction;
                 ray.origin = bounced_isx.point + new_direction * OFFSET;
-                alpha = new_alpha;
-
+                bounce_count++;
                 continue;
             }
 
             // Use Russian roulette to terminate
-            float continue_probability = glm::min(1.f, new_alpha.y / alpha.y);
-            if (unif_distribution(mersenne_generator) > continue_probability && bounce_count > 2) {
+            float continue_probability = 0.5f;//glm::min(1.f, new_alpha.y / alpha.y);
+            if (unif_distribution(mersenne_generator) > continue_probability && bounce_count > 3 || bounce_count > 5) {
                break;
             }
 
             // Update for new ray
             ray.direction = new_direction;
             ray.origin = bounced_isx.point + new_direction * OFFSET;
-            alpha = new_alpha / continue_probability;
+//            alpha *= continue_probability;
+            alpha = new_alpha;
+            alpha *= 0.2f;
+            bounce_count++;
         }
     }
 
@@ -203,11 +232,8 @@ glm::vec3 PhotonMapIntegrator::TraceRay(Ray r, unsigned int depth)
     glm::vec3 bounced_direction;
     float pdf;
     glm::vec3 direct_light = ComputeDirectLighting(r, isx, bounced_direction, pdf);
-    if (fequal(pdf, 0.f) || (fequal(direct_light.x, 0.f) && fequal(direct_light.y, 0.f) && fequal(direct_light.z, 0.f)))
-    {
-        return color;
-    }
-    color += direct_light;
+
+//    color += direct_light;
 
     // Boune once
     // Bounce on bxdf surfaces
@@ -219,15 +245,13 @@ glm::vec3 PhotonMapIntegrator::TraceRay(Ray r, unsigned int depth)
     }
 
     std::vector<Photon> neighbors;
-    int neighbors_num = 100;
-    float max_squared_distance = 2.f;
     if (bounced_isx.object_hit->material->IsSpecular())
     {
-        caustic_map->LookUp(bounced_isx.point, neighbors_num, max_squared_distance, neighbors);
+        caustic_map->LookUp(bounced_isx.point, nearest_neighbors_num, max_dist_from_neighbors, neighbors);
     }
     else
     {
-        indirect_map->LookUp(bounced_isx.point, neighbors_num, max_squared_distance, neighbors);
+        indirect_map->LookUp(bounced_isx.point, nearest_neighbors_num, max_dist_from_neighbors, neighbors);
     }
 
     // Average neighbors' colors

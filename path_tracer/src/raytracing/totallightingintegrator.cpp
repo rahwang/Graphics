@@ -41,13 +41,15 @@ glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth)
         // Direct component.
         glm::vec3 new_direction;
         float pdf;
-        glm::vec3 energy = ComputeDirectLighting(current_ray, current_intersection, new_direction, pdf);
+        light_accum += multiplier * ComputeDirectLighting(current_ray, current_intersection, new_direction, pdf);
+        glm::vec3 energy = intersection.object_hit->material->SampleAndEvaluateScatteredEnergy(
+                    intersection,
+                    -current_ray.direction,
+                    new_direction, pdf);
         if (fequal(pdf, 0.f) || (fequal(energy.x, 0.f) && fequal(energy.y, 0.f) && fequal(energy.z, 0.f)))
         {
             return light_accum;
         }
-
-        light_accum += multiplier * energy;
 
         // Ray may or may not be to light.
         offset_point = current_intersection.point + (current_intersection.normal * OFFSET);

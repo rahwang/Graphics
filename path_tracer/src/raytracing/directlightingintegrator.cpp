@@ -83,18 +83,24 @@ glm::vec3 DirectLightingIntegrator::SampleBxdfPdf(
                 intersection, -r.direction, bxdf_ray_direction, bxdf_pdf);
 
     if (fequal(bxdf_pdf, 0.f) || (fequal(energy.x, 0.f) && fequal(energy.y, 0.f) && fequal(energy.z, 0.f))) {
+        // Update return values
+        out_reflected = bxdf_ray_direction;
+        out_pdf = bxdf_pdf;
         return glm::vec3(0);
     }
 
     // Create ray from bxdf_ray_direction;
     // Ray may or may not be to light.
-    glm::vec3 offset_point = intersection.point + bxdf_ray_direction * OFFSET;
+    glm::vec3 offset_point = intersection.point + intersection.normal * OFFSET;
     Ray ray_to_light(offset_point, bxdf_ray_direction); // ray_to_light = Wi
 
     // Get intersection with new ray.
     Intersection light_intersection = intersection_engine->GetIntersection(ray_to_light);
 
     if (!light_intersection.object_hit || !(light_intersection.object_hit == light)) {
+        // Update return values
+        out_reflected = bxdf_ray_direction;
+        out_pdf = bxdf_pdf;
         return glm::vec3(0);
     }
 
@@ -110,6 +116,10 @@ glm::vec3 DirectLightingIntegrator::SampleBxdfPdf(
                 intersection, ray_to_light, light_intersection);
 
     if (fequal(light_pdf, 0.f)) {
+        // Update return values
+        out_reflected = bxdf_ray_direction;
+        out_pdf = bxdf_pdf;
+
         return glm::vec3(0);
     }
 
@@ -134,11 +144,9 @@ glm::vec3 DirectLightingIntegrator::ComputeDirectLighting(
 
     // Calculate light using sample to random point on random light.
     glm::vec3 light_sample_value = SampleLightPdf(r, intersection, light);
-    //glm::vec3 light_sample_value = glm::vec3(0);
 
     // Calculate light using sample generated from bxdf.
     glm::vec3 brdf_sample_value = SampleBxdfPdf(r, intersection, light, out_reflected, out_pdf);
-    //glm::vec3 brdf_sample_value = glm::vec3(0);
 
     return (light_sample_value + brdf_sample_value) * float(scene->lights.size());
 }

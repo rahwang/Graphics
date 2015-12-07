@@ -116,7 +116,7 @@ void KdTree<NodeData>::CreateTreeRecursive(
     // Partial sort all points less than to the left and greater than to the right
     unsigned int split_axis = bound.MaximumExtent();
     unsigned int split_pos = (start + end) / 2;
-    std::nth_element(&build_data[0], &build_data[split_pos], &build_data[end], CompareData<NodeData>(split_axis));
+    std::nth_element(&build_data[start], &build_data[split_pos], &build_data[end], CompareData<NodeData>(split_axis));
 
     // Initialize this node
     kd_nodes[node_index] = new KdNode(build_data[split_pos].position[split_axis], split_axis, parent);
@@ -151,17 +151,10 @@ unsigned int KdTree<NodeData>::Search(
     KdNode *curr = kd_nodes[node_idx];
 
     // Check if position is to the left of the split plane.
-    if (position[curr->split_axis] < curr->split_pos) {
-        // If there is no left child, return current index.
-        if (curr->left == -1) {
-            return node_idx;
-        }
+    if (position[curr->split_axis] < curr->split_pos && curr->left != -1) {
         // Recursively search left sub-tree.
         return Search(position, curr->left);
-    } else if (position[curr->split_axis] > curr->split_pos) {
-        if (curr->right == -1) {
-            return node_idx;
-        }
+    } else if (position[curr->split_axis] > curr->split_pos && curr->right != -1) {
         return Search(position, curr->right);
     }
     return node_idx;
@@ -191,7 +184,6 @@ int KdTree<NodeData>::LookUpPrivate(
         std::vector<NodeData>& out_neighbors
         ) const
 {
-
     // Vector containing k best distance.
     std::vector<float> distances;
     // Vector containing k best nodes (index parallel to "distances").
@@ -201,42 +193,48 @@ int KdTree<NodeData>::LookUpPrivate(
     int curr_idx = Search(position, start_idx);
 
     // Get distance from position.
-    float distance = (data_nodes[curr_idx].position - position).length();
-    if (distance > max_dist) {
-        return out_neighbors.size();
+    float distance = glm::distance2(data_nodes[curr_idx].position, position);
+    if (distance < max_dist) {
+        distances.push_back(distance);
+        node_indicies.push_back(curr_idx);
     }
-    distances.push_back(distance);
-    node_indicies.push_back(curr_idx);
 
     while (curr_idx > 0) {
         // Get parent.
         KdNode *parent = kd_nodes[kd_nodes[curr_idx]->parent];
 
         // Check if parent should be inserted into candidate list.
-        float tmp_distance = (data_nodes[kd_nodes[curr_idx]->parent].position - position).length();
+        float tmp_distance = glm::distance2(data_nodes[kd_nodes[curr_idx]->parent].position, position);
 
         int insert_idx = 0;
-        while (tmp_distance > distances[insert_idx]) {
+        while (distances.size() && tmp_distance > distances[insert_idx]) {
             ++insert_idx;
         }
 
-        if (insert_idx < neighbor_num) {
+        if (insert_idx < neighbor_num &&
+                insert_idx < node_indicies.size() &&
+                tmp_distance < max_dist
+                )
+        {
             // If the distance should be inserted before index k, it belongs in the list.
             distances.insert(distances.begin() + insert_idx, 1, tmp_distance);
             node_indicies.insert(node_indicies.begin() + insert_idx, 1, kd_nodes[curr_idx]->parent);
+        }
+
+        while (node_indicies.size() >= neighbor_num) {
             distances.pop_back();
             node_indicies.pop_back();
         }
 
         // Check if the sphere of radius position to kth candidate intersects the split plane.
         // If the plane intersects or we have less than k candidates, traverse other subtree.
-        if (distances.back() > (parent->split_pos - position[parent->split_axis])
+        if (distances.size() && distances.back() > (parent->split_pos - position[parent->split_axis])
                 || distances.size() < neighbor_num) {
             // Check whether should go down left or right subtree
-            if (curr_idx == parent->left) {
+            if (curr_idx == parent->left && parent->right != -1) {
                 // Go right.
                 LookUpPrivate(position, neighbor_num, parent->right, max_dist, out_neighbors);
-            } else {
+            } else if (curr_idx == parent->right && parent->left != -1) {
                 // Go left.
                 LookUpPrivate(position, neighbor_num, parent->left, max_dist, out_neighbors);
             }
