@@ -28,18 +28,7 @@ Intersection IntersectionEngine::GetIntersection(Ray r) const
     return bvh->GetIntersection(r, scene->camera);
 }
 
-QList<Intersection> IntersectionEngine::GetAllIntersections(Ray r)
+std::vector<Intersection> IntersectionEngine::GetAllIntersections(Ray r) const
 {
-    QList<Intersection> result;
-    for(Geometry* g : scene->objects)
-    {
-        Intersection isx = g->GetIntersection(r, scene->camera);
-        if(isx.t > 0)
-        {
-            result.append(isx);
-        }
-    }
-
-    std::sort(result.begin(), result.end(), IntersectionComp);
-    return result;
+    return bvh->GetAllIntersections(r, scene->camera);
 }

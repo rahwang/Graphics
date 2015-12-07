@@ -51,7 +51,7 @@ glm::vec3 SquarePlane::ComputeNormal(const glm::vec3 &P)
 }
 
 
-Intersection SquarePlane::SampleLight(
+std::vector<Intersection> SquarePlane::SampleLight(
         const IntersectionEngine *intersection_engine,
         const glm::vec3 &origin,
         const float rand1,
@@ -62,7 +62,7 @@ Intersection SquarePlane::SampleLight(
     glm::vec3 world_point = SampleArea(rand1, rand2, normal, true);
     Ray r(origin, world_point - origin);
 
-    Intersection result = intersection_engine->GetIntersection(r);
+    std::vector<Intersection> result = intersection_engine->GetAllIntersections(r);
     return result;
 }
 

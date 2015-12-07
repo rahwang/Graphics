@@ -32,5 +32,9 @@ float Geometry::CloudDensity(const glm::vec3 voxel, float noise, float step_size
 }
 
 float Geometry::PyroclasticDensity(const glm::vec3 voxel, float noise, float step_size) {
-    return 0.0f;
+    float scale = step_size / 2;
+    glm::vec3 world_voxel = (voxel * step_size) + bounding_box->minimum;
+    float radius = glm::length(bounding_box->center - bounding_box->minimum);
+    float radius_ratio = voxel.y/(radius / step_size);
+    return fmax((radius * scale - radius_ratio + fabs(noise)), 0) * scale;
 }

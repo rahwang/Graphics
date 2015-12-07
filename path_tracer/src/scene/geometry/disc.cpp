@@ -7,14 +7,14 @@ void Disc::ComputeArea()
     area = radius1 * radius2 * M_PI;
 }
 
-Intersection Disc::SampleLight(const IntersectionEngine *intersection_engine,
+std::vector<Intersection> Disc::SampleLight(const IntersectionEngine *intersection_engine,
                                const glm::vec3 &origin, const float rand1, const float rand2,
                                const glm::vec3 &normal)
 {
     glm::vec3 world_point = SampleArea(rand1, rand2, normal, true);
     Ray r(origin, world_point-origin);
 
-    Intersection result = intersection_engine->GetIntersection(r);
+    std::vector<Intersection> result = intersection_engine->GetAllIntersections(r);
     return result;
 }
 

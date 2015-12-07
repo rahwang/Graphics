@@ -15,7 +15,7 @@
 			<translate>0 0 -5.1</translate>
 			<scale>10 10 1</scale>
 		</transform>
-		<material>yellow_diffuse</material>
+		<material>white_diffuse</material>
 	</geometry>
 
 	<geometry type="square" name="Right Wall">
@@ -51,16 +51,24 @@
 			<rotate>-90 0 0</rotate>
 			<scale>10 10 1</scale>
 		</transform>
-		<material>blue_diffuse</material>
+		<material>white_diffuse</material>
 	</geometry>
 
-	<geometry type="cube" name="Cloud">
+	<geometry type="sphere" name="Cloud">
 		<transform>
-			<translate>0 -3.9 0</translate>
-			<scale>10 2 10</scale>
+			<translate>0 0 0</translate>
+			<scale>2 2 2</scale>
 		</transform>
-		<material>cloud</material>
+		<material>red_diffuse</material>
 	</geometry>
+    
+    <geometry type="sphere" name="Cloud">
+        <transform>
+            <translate>-2 0 3</translate>
+            <scale>3 3 3</scale>
+        </transform>
+        <material>yellow_diffuse</material>
+    </geometry>
 
 	<geometry type="square" name="Light Source1">
 		<transform>
@@ -80,27 +88,9 @@
         </transform>
         <material>emissive_material</material>
     </geometry> -->
-    
-    <geometry type="square" name="Light Source3">
-        <transform>
-            <translate>-4.99 0 0</translate>
-            <rotate>0 90 0 </rotate>
-            <scale>3 3 3</scale>
-        </transform>
-        <material>emissive_material</material>
-    </geometry>
-    
-    <geometry type="square" name="Light Source4">
-        <transform>
-            <translate>4.99 0 0</translate>
-            <rotate>0 -90 0</rotate>
-            <scale>3 3 3</scale>
-        </transform>
-        <material>emissive_material</material>
-    </geometry>
 
     <material type="volumetric" name="cloud">
-        <baseColor>1 1 1</baseColor>
+        <baseColor>1 0 0</baseColor>
         <bxdf>lambert1</bxdf>
     </material>
     

@@ -15,7 +15,7 @@ class IntersectionEngine
 public:
     IntersectionEngine();
     Intersection GetIntersection(Ray r) const;
-    QList<Intersection> GetAllIntersections(Ray r);
+    std::vector<Intersection> GetAllIntersections(Ray r) const;
 
     Scene *scene;
     bvhNode *bvh;

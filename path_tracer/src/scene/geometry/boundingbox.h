@@ -48,6 +48,7 @@ public:
     static void DeleteTree(bvhNode * root);
     static void FlattenTree(bvhNode *root, std::vector<bvhNode*> &nodes);
     Intersection GetIntersection(Ray r, Camera &camera);
+    std::vector<Intersection> GetAllIntersections(Ray r, Camera &camera);
 
     BoundingBox bounding_box;
     bvhNode *left;

@@ -20,11 +20,12 @@ void Mesh::ComputeArea()
     }
 }
 
-Intersection Triangle::SampleLight(const IntersectionEngine *intersection_engine,
+std::vector<Intersection> Triangle::SampleLight(const IntersectionEngine *intersection_engine,
                                    const glm::vec3 &origin, const float rand1, const float rand2,
                                    const glm::vec3 &normal)
 {
-    return Intersection();
+    std::vector<Intersection> res;
+    return res;
 }
 
 glm::vec3 Triangle::SampleArea(const float rand1, const float rand2, const glm::vec3 &normal, bool inWorldSpace)
@@ -32,11 +33,12 @@ glm::vec3 Triangle::SampleArea(const float rand1, const float rand2, const glm::
     return glm::vec3();
 }
 
-Intersection Mesh::SampleLight(const IntersectionEngine *intersection_engine,
+std::vector<Intersection> Mesh::SampleLight(const IntersectionEngine *intersection_engine,
                                const glm::vec3 &origin, const float x, const float y,
                                const glm::vec3 &normal)
 {
-    return Intersection();
+    std::vector<Intersection> res;
+    return res;
 }
 
 glm::vec3 Mesh::SampleArea(const float rand1, const float rand2, const glm::vec3 &normal, bool inWorldSpace)

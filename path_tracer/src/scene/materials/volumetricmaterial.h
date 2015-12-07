@@ -14,7 +14,7 @@ public:
     static float SmoothNoiseGenerator(float x, float y, float z, int i);
     static float InterpolatedNoise(float x, float y, float z, int i);
     static float PerlinNoise_3d(float x, float y, float z);
-    virtual float SampleVolume(const Intersection &intersection, Ray &ray, glm::vec3 &out_point);
+    virtual float SampleVolume(const Intersection &intersection, Ray &ray, float distance);
     void CalculateDensities(Geometry *object);
     float GetVoxelDensityAtPoint(const Intersection &intersection, const glm::vec3 &point);
 

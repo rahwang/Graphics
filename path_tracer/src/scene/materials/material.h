@@ -40,7 +40,7 @@ public:
     static glm::vec3 GetImageColorInterp(const glm::vec2 &uv_coord, const QImage * const &image);
 
     // Only for use in volumetric material
-    virtual float SampleVolume(const Intersection &intersection, Ray &ray, glm::vec3 &out_point);
+    virtual float SampleVolume(const Intersection &intersection, Ray &ray, float distance);
 
 //Member Variables
     QString name;           //The name given in the scene XML file
@@ -48,6 +48,7 @@ public:
     bool is_light_source;   //A quick way to check if this material is that of a light source. If TRUE, the owning geometry is treated as an area light.
                             //Its color is base_color * texture, and its intensity is set by the intensity member variable
     bool is_volumetric;     //A quick way to check if this material is volumetric.
+    bool is_grunge;         // special caaaase for grungy mirror.
 
     glm::vec3 base_color;   //Multiplied by texture color
     float intensity;        //Only used for light sources

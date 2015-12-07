@@ -28,7 +28,7 @@ glm::vec3 Sphere::ComputeNormal(const glm::vec3 &P)
 }
 
 
-Intersection Sphere::SampleLight(const IntersectionEngine *intersection_engine,
+std::vector<Intersection> Sphere::SampleLight(const IntersectionEngine *intersection_engine,
                                  const glm::vec3 &origin, const float rand1, float rand2, const glm::vec3 &normal)
 {
         float z = 1.f - 2.f * rand1;
@@ -50,7 +50,7 @@ Intersection Sphere::SampleLight(const IntersectionEngine *intersection_engine,
 
         glm::vec3 world_point = glm::vec3(transform.T() * pointL);
         Ray ray_to_light(origin, world_point-origin);
-        Intersection result = intersection_engine->GetIntersection(ray_to_light);
+        std::vector<Intersection> result = intersection_engine->GetAllIntersections(ray_to_light);
 
         return result;
 }

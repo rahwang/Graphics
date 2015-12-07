@@ -221,6 +221,12 @@ Material* XMLReader::LoadMaterial(QXmlStreamReader &xml_reader, const QStringRef
     {
         result = new VolumetricMaterial();
     }
+
+    else if(QStringRef::compare(type, QString("grunge")) == 0)
+    {
+        result = new Material();
+        result->is_grunge = true;
+    }
     else
     {
         std::cout << "Could not parse the material!" << std::endl;

@@ -132,7 +132,7 @@ void VolumetricMaterial::CalculateDensities(Geometry *object) {
         for (float j=0; j < height / STEP; ++j) {
             for (float i=0; i < width / STEP; ++i) {
                 glm::vec3 voxel(i, j, k);
-                densities.push_back(object->CloudDensity(voxel, PerlinNoise_3d(i, j, k), STEP));
+                densities.push_back(object->PyroclasticDensity(voxel, PerlinNoise_3d(i, j, k), STEP));
             }
         }
     }
@@ -150,16 +150,12 @@ float VolumetricMaterial::GetVoxelDensityAtPoint(const Intersection &intersectio
             + z];
 }
 
-float VolumetricMaterial::SampleVolume(const Intersection &intersection, Ray &ray, glm::vec3 &out_point) {
-    Camera camera;
+float VolumetricMaterial::SampleVolume(const Intersection &intersection, Ray &ray, float distance) {
 
-    Ray offset_ray(intersection.point + (ray.direction * 0.01f), ray.direction);
-    Intersection far_intersection = intersection.object_hit->GetIntersection(offset_ray, camera);
-    float ray_segment_length = far_intersection.t;
     float density = 0;
     glm::vec3 offset_point = intersection.point;
-
-    for (float i=0; i < ray_segment_length + 0.01; i += STEP) {
+    // Step through the volume, accumulating density.
+    for (float i=0; i < distance; i += STEP) {
         density += GetVoxelDensityAtPoint(intersection, offset_point);
 
         if (density > 1) {
@@ -168,6 +164,5 @@ float VolumetricMaterial::SampleVolume(const Intersection &intersection, Ray &ra
         offset_point += ray.direction * STEP;
     }
 
-    out_point = far_intersection.point + (ray.direction * 0.01f);
     return density;
 }

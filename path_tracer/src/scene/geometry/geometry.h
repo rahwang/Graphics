@@ -30,7 +30,7 @@ public:
     virtual glm::vec2 GetUVCoordinates(const glm::vec3 &point) = 0;
     virtual glm::vec3 ComputeNormal(const glm::vec3 &P) = 0;
     virtual void ComputeTangents(const glm::vec3 &normal, glm::vec3 &tangent, glm::vec3 &bitangent) = 0;
-    virtual Intersection SampleLight(
+    virtual std::vector<Intersection> SampleLight(
             const IntersectionEngine *intersection_engine,
             const glm::vec3 &origin,
             const float rand1,

@@ -62,6 +62,7 @@ public:
 
     void RaytraceScene();
     void DenoisePixels();
+    void CompressColors(int k);
 
 protected:
     void keyPressEvent(QKeyEvent *e);

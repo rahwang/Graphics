@@ -19,12 +19,24 @@ glm::vec3 DirectLightingIntegrator::SampleLightPdf(Ray r, Intersection intersect
     float x = float(rand()) / float(RAND_MAX);
     float y = float(rand()) / float(RAND_MAX);
     glm::vec3 offset_point = intersection.point + (intersection.normal * OFFSET);
-    Intersection light_intersection = light->SampleLight(intersection_engine, offset_point, x, y, intersection.normal);
+    std::vector<Intersection> light_intersections = light->SampleLight(intersection_engine, offset_point, x, y, intersection.normal);
+    Intersection light_intersection;
 
-    // If we don't intersect with the chosen light, return black.
-    if (!light_intersection.object_hit || light_intersection.object_hit != light) {
+    for (Intersection i : light_intersections) {
+        if (i.object_hit == light) {
+            light_intersection = i;
+            break;
+        } else if (i.object_hit->material->is_volumetric) {
+            continue;
+        } else {
+            return glm::vec3(0);
+        }
+    }
+
+    if (light_intersection.object_hit != light) {
         return glm::vec3(0);
     }
+
     // Create ray.
     Ray ray_to_light(offset_point, glm::normalize(light_intersection.point - offset_point));
 
@@ -165,29 +177,40 @@ glm::vec3 DirectLightingIntegrator::TraceRay(Ray r, unsigned int depth, int pixe
     }
 
     if (intersection.object_hit->material->is_volumetric) {
-        // Begin sampling volumetric material
-        glm::vec3 out_point;
+        // Find the object behind the volumetric object.
+        // Could either be an object intersecting the volume, or the far side of the volume.
+        Ray offset_ray(intersection.point + (r.direction * 0.01f), r.direction);
+        Intersection far_intersection = intersection_engine->GetIntersection(offset_ray);
+
+        if (far_intersection.object_hit == NULL) {
+            return intersection.object_hit->material->base_color;
+        }
 
         // Get density of the volumetric material.
         float density =
-                intersection.object_hit->material->SampleVolume(intersection, r, out_point);
-        Ray exiting_ray(out_point, r.direction);
+                intersection.object_hit->material->SampleVolume(intersection, r, far_intersection.t + 0.01);
 
         if (density >= 1.0f) {
             return intersection.object_hit->material->base_color;
         }
 
-        // Get color behind the volumetric material.
-        //glm::vec3 background_color = TraceRay(exiting_ray, depth+1);
-        Intersection background_intersection = (intersection_engine->GetIntersection(exiting_ray));
-        if (background_intersection.object_hit) {
-          return density *intersection.object_hit->material->base_color
-                   + (1.0f - density) * background_intersection.object_hit->material->base_color;
+        if (intersection.object_hit == far_intersection.object_hit) {
+            // Get color behind the volumetric material.
+            offset_ray = Ray(far_intersection.point + (r.direction * 0.01f), r.direction);
+            far_intersection = intersection_engine->GetIntersection(offset_ray);
+        }
 
-            //glm::vec3 unused_vec;
-            //float unused_float;
-            //return density * intersection.object_hit->material->base_color
-             //                   + (1.0f - density) * ComputeDirectLighting(exiting_ray, background_intersection, unused_vec, unused_float);
+        //glm::vec3 background_color = TraceRay(exiting_ray, depth+1);
+        if (far_intersection.object_hit) {
+          //return density *intersection.object_hit->material->base_color
+          //         + (1.0f - density) * far_intersection.object_hit->material->base_color;
+
+            glm::vec3 unused_vec;
+            float unused_float;
+            Ray exiting_ray(far_intersection.point + (r.direction * 0.01f), r.direction);
+            Geometry *light = scene->lights.at(rand() % scene->lights.size());
+            return density * (SampleLightPdf(r, intersection, light) * 2.0f)
+                               + (1.0f - density) * ComputeDirectLighting(offset_ray, far_intersection, unused_vec, unused_float);
         }
         return density * intersection.object_hit->material->base_color;
     }

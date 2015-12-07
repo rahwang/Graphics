@@ -276,6 +276,60 @@ Intersection bvhNode::GetIntersection(Ray r, Camera &camera)
     return intersection;
 }
 
+std::vector<Intersection> mergeVectors(std::vector<Intersection> v1, std::vector<Intersection> v2) {
+    std::vector<Intersection> res;
+
+    while (!v1.empty() && !v2.empty()) {
+        if (v1[0].t < v2[0].t) {
+            res.push_back(v1[0]);
+            v1.erase(v1.begin());
+        } else {
+            res.push_back(v2[0]);
+            v2.erase(v2.begin());
+        }
+    }
+
+    if (!v1.empty()) {
+        res.insert(res.end(), v1.begin(), v1.end());
+    } else if (!v2.empty()) {
+        res.insert(res.end(), v2.begin(), v2.end());
+    }
+    return res;
+}
+
+std::vector<Intersection> bvhNode::GetAllIntersections(Ray r, Camera &camera)
+{
+    std::vector<Intersection> res;
+    Intersection intersection;
+    if (!bounding_box.GetIntersection(r)) {
+        return res;
+    }
+    if (bounding_box.object) {
+        Intersection current = bounding_box.object->GetIntersection(r, camera);
+        if (current.object_hit) {
+            // Transform point into camera space to check for clipping.
+            glm::vec3 world_point = glm::vec3(camera.ViewMatrix()
+                                              * glm::vec4(current.point, 1.0f));
+            if (world_point.z > camera.near_clip
+                && world_point.z < camera.far_clip) {
+                res.push_back(current);
+            }
+        }
+        return res;
+    }
+
+    Intersection child0, child1;
+    if (left) {
+        std::vector<Intersection> child0 = left->GetAllIntersections(r, camera);
+        res = mergeVectors(res, child0);
+    }
+    if (right) {
+        std::vector<Intersection> child1 = right->GetAllIntersections(r, camera);
+        res = mergeVectors(res, child1);
+    }
+    return res;
+}
+
 void bvhNode::DeleteTree(bvhNode * root) {
     if (root == NULL) {
         return;

@@ -312,7 +312,7 @@ void MyGL::RaytraceScene()
         }
     }
 #else
-    glm::vec3 color = integrator.TraceRay(scene.camera.Raycast(200.f, 200.f), 0);
+    glm::vec3 color = integrator.TraceRay(scene.camera.Raycast(320.f, 303.f), 0, 0, 0);
     StratifiedPixelSampler pixel_sampler(scene.sqrt_samples,0);
     for(unsigned int i = 0; i < scene.camera.width; i++)
     {
@@ -329,6 +329,7 @@ void MyGL::RaytraceScene()
         }
     }
 #endif
+    CompressColors(64);
     DenoisePixels();
     scene.film.WriteImage(filepath);
 }
@@ -351,43 +352,43 @@ void MyGL::DenoisePixels() {
             std::vector<glm::vec3> neighbors;
 
             // Check surrounding pixels in cardinal directions.
-            if (fabs(scene.film.pixel_depths[i-1][j] - original_depth) < 0.5) {
+            if (fabs(scene.film.pixel_depths[i-1][j] - original_depth) < 0.1) {
                 // left
                 neighbors.push_back(scene.film.pixels[i-1][j]);
             }
-            if (fabs(scene.film.pixel_depths[i+1][j] - original_depth) < 0.5) {
+            if (fabs(scene.film.pixel_depths[i+1][j] - original_depth) < 0.1) {
                 // right
                 neighbors.push_back(scene.film.pixels[i+1][j]);
             }
-            if (fabs(scene.film.pixel_depths[i][j-1] - original_depth) < 0.5) {
+            if (fabs(scene.film.pixel_depths[i][j-1] - original_depth) < 0.1) {
                 // up
                 neighbors.push_back(scene.film.pixels[i][j-1]);
             }
-            if (fabs(scene.film.pixel_depths[i][j+1] - original_depth) < 0.5) {
+            if (fabs(scene.film.pixel_depths[i][j+1] - original_depth) < 0.1) {
                 // down
                 neighbors.push_back(scene.film.pixels[i][j+1]);
             }
 
             // Check surrounding pixels in cardinal directions.
-            if (fabs(scene.film.pixel_depths[i-1][j+1] - original_depth) < 0.5) {
+            if (fabs(scene.film.pixel_depths[i-1][j+1] - original_depth) < 0.1) {
                 // upper_left
                 neighbors.push_back(scene.film.pixels[i-1][j+1]);
             }
-            if (fabs(scene.film.pixel_depths[i+1][j+1] - original_depth) < 0.5) {
+            if (fabs(scene.film.pixel_depths[i+1][j+1] - original_depth) < 0.1) {
                 // upper_right
                 neighbors.push_back(scene.film.pixels[i+1][j+1]);
             }
-            if (fabs(scene.film.pixel_depths[i-1][j-1] - original_depth) < 0.5) {
+            if (fabs(scene.film.pixel_depths[i-1][j-1] - original_depth) < 0.1) {
                 // lower_left
                 neighbors.push_back(scene.film.pixels[i-1][j-1]);
             }
-            if (fabs(scene.film.pixel_depths[i+1][j-1] - original_depth) < 0.5) {
+            if (fabs(scene.film.pixel_depths[i+1][j-1] - original_depth) < 0.1) {
                 // lower_right
                 neighbors.push_back(scene.film.pixels[i+1][j-1]);
             }
 
             glm::vec3 suggested_color(0);
-            if (!neighbors.empty()) {
+            if (!neighbors.empty() || (suggested_color.x + suggested_color.y +suggested_color.z) < 0.6) {
                 for (glm::vec3 n : neighbors) {
                     suggested_color += n / float(neighbors.size());
                 }
@@ -395,8 +396,8 @@ void MyGL::DenoisePixels() {
                 tmp_colors[i][j] = original_color;
             }
 
-            tmp_colors[i][j] = original_color * 0.5f
-                    + suggested_color * 0.5f;
+            tmp_colors[i][j] = original_color * 0.25f
+                    + suggested_color * 0.75f;
         }
     }
 
@@ -405,6 +406,64 @@ void MyGL::DenoisePixels() {
         for(unsigned int j = 1; j < scene.camera.height-1; j++)
         {
             scene.film.pixels[i][j] = tmp_colors[i][j];
+        }
+    }
+}
+
+int nearest(const glm::vec3 &color, const std::vector<glm::vec3> &centroids) {
+    float best = 100000000;
+    int idx = 0;
+    for (int i=0; i<centroids.size(); ++i) {
+        float distance = glm::length(centroids[i]-color);
+        if (distance < best) {
+            best = distance;
+            idx = i;
+        }
+    }
+    return idx;
+}
+
+void MyGL::CompressColors(int k) {
+
+    // Array storing centroids, initialize with random cells
+    std::vector<glm::vec3> centroids(k);
+    for (int i=0; i < k; ++i) {
+        centroids[i] = scene.film.pixels[rand() % scene.camera.width][rand() % scene.camera.height];
+    }
+
+    // Iterate!
+    for (int i=0; i < 24; i++) {
+        // scratch arrays for recomputing centroids
+        std::vector<glm::vec3> scratch(k);
+        // Number of elements in each cluster
+        std::vector<int> counters(k);
+
+        // Assign clusters, then recompute centroids
+        for(unsigned int i = 0; i < scene.camera.width; i++)
+        {
+            for(unsigned int j = 0; j < scene.camera.height; j++)
+            {
+                int idx = nearest(scene.film.pixels[i][j], centroids);
+                scratch[idx] += scene.film.pixels[i][j];
+                counters[idx] += 1;
+            }
+        }
+
+        // Recompute centers.
+        for (int i=0; i < k; ++i) {
+            if (counters[i] != 0) {
+                centroids[i] = scratch[i]/float(counters[i]);
+            }
+        }
+    }
+
+    // Overwrite colors with new values;
+    for(unsigned int i = 0; i < scene.camera.width; i++)
+    {
+        for(unsigned int j = 0; j < scene.camera.height; j++)
+        {
+            int idx = nearest(scene.film.pixels[i][j], centroids);
+            scene.film.pixels[i][j] = centroids[idx];
         }
     }
 }

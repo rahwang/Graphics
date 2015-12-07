@@ -30,6 +30,48 @@ glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth, int pixel
                 *intersection.object_hit->material->EvaluateScatteredEnergy(intersection, glm::vec3(0), -r.direction);
     }
 
+    if (intersection.object_hit->material->is_volumetric) {
+        // Find the object behind the volumetric object.
+        // Could either be an object intersecting the volume, or the far side of the volume.
+        Ray offset_ray(intersection.point + (r.direction * 0.01f), r.direction);
+        Intersection far_intersection = intersection_engine->GetIntersection(offset_ray);
+
+        if (far_intersection.object_hit == NULL) {
+            return intersection.object_hit->material->base_color;
+        }
+
+        // Get density of the volumetric material.
+        float density =
+                intersection.object_hit->material->SampleVolume(intersection, r, far_intersection.t + 0.01);
+
+        if (density >= 1.0f) {
+            return intersection.object_hit->material->base_color;
+        }
+
+        if (intersection.object_hit == far_intersection.object_hit) {
+            // Get color behind the volumetric material.
+            offset_ray = Ray(far_intersection.point + (r.direction * 0.01f), r.direction);
+            far_intersection = intersection_engine->GetIntersection(offset_ray);
+        }
+
+        if (far_intersection.object_hit) {
+
+            glm::vec3 unused_vec;
+            float unused_float;
+            Ray exiting_ray(far_intersection.point + (r.direction * 0.01f), r.direction);
+            Geometry *light = scene->lights.at(rand() % scene->lights.size());
+            return density * (SampleLightPdf(r, intersection, light) * 2.0f)
+                               + (1.0f - density) * ComputeDirectLighting(offset_ray, far_intersection, unused_vec, unused_float);
+        }
+        return density * intersection.object_hit->material->base_color;
+    }
+
+    if (intersection.object_hit->material->is_grunge) {
+        if ((intersection.texture_color.x + intersection.texture_color.y + intersection.texture_color.z) > 2.0) {
+            return intersection.texture_color;
+        }
+    }
+
     // Do integrated lighting, updating the following variables.
     glm::vec3 light_accum(0.f);
     glm::vec3 multiplier(1.f);
