@@ -75,7 +75,7 @@ glm::vec3 SquarePlane::SampleArea(
 {
     glm::vec3 point(rand1-0.5, rand2-0.5, 0);
     if (inWorldSpace) {
-        point = glm::vec3(transform.T() * glm::vec4(point, 1));
+        point = glm::vec3(transform.T() * glm::vec4(point, 1.f));
     }
     return point;
 }

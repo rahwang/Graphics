@@ -209,14 +209,15 @@ void MyGL::SceneLoadDialog()
     intersection_engine = IntersectionEngine();
 
     //Load new objects based on the XML file chosen.
-    xml_reader.LoadSceneFromFile(file, local_path, scene, integrator);
-    integrator.scene = &scene;
-    integrator.intersection_engine = &intersection_engine;
 
 #if defined(PHOTON_MAP)
-    integrator.caustic_photons_requested = 1000;
-    integrator.indirect_photons_requested = 1000;
+    xml_reader.LoadSceneFromFilePhotonMap(file, local_path, scene, integrator);
+#else
+    xml_reader.LoadSceneFromFile(file, local_path, scene, integrator);
 #endif
+
+    integrator.scene = &scene;
+    integrator.intersection_engine = &intersection_engine;
     intersection_engine.scene = &scene;
     intersection_engine.bvh = bvhNode::InitTree(scene.objects);
 
