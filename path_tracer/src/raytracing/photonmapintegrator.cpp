@@ -182,7 +182,7 @@ void PhotonMapIntegrator::PrePass()
     //
 }
 
-glm::vec3 PhotonMapIntegrator::TraceRay(Ray r, unsigned int depth)
+glm::vec3 PhotonMapIntegrator::TraceRay(Ray r, unsigned int depth, int pixel_i, int pixel_j)
 {
     glm::vec3 color = glm::vec3(0.0f);
     // If recursion depth max hit, return black.
@@ -191,6 +191,7 @@ glm::vec3 PhotonMapIntegrator::TraceRay(Ray r, unsigned int depth)
     }
 
     Intersection isx = intersection_engine->GetIntersection(r);
+    scene->film.pixel_depths[pixel_i][pixel_j] = isx.t / pow(scene->sqrt_samples, 2);
     // If no object intersected or the object is in shadow, return black.
     if (!isx.object_hit) {
         return color;

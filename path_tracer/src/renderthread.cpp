@@ -20,7 +20,7 @@ void RenderThread::run()
             for(int i = 0; i < samples.size(); i++)
             {
                 Ray ray = camera->Raycast(samples[i]);
-                pixel_color += integrator->TraceRay(ray, 0);
+                pixel_color += integrator->TraceRay(ray, 0, X, Y);
             }
             pixel_color /= samples.size();
             film->pixels[X][Y] = pixel_color;

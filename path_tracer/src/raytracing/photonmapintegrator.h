@@ -11,7 +11,7 @@ public:
     PhotonMapIntegrator(Scene* scene, int indirect_photons_requested, int caustic_photons_requested);
     ~PhotonMapIntegrator();
     virtual void PrePass();
-    virtual glm::vec3 TraceRay(Ray r, unsigned int depth);
+    virtual glm::vec3 TraceRay(Ray r, unsigned int depth, int pixel_i, int pixel_j);
 
     int indirect_photons_requested;
     int caustic_photons_requested;
