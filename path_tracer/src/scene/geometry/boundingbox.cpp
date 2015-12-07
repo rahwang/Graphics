@@ -322,10 +322,12 @@ std::vector<Intersection> bvhNode::GetAllIntersections(Ray r, Camera &camera)
     if (left) {
         std::vector<Intersection> child0 = left->GetAllIntersections(r, camera);
         res = mergeVectors(res, child0);
+        //res.insert(res.end(), child0.begin(), child0.end());
     }
     if (right) {
         std::vector<Intersection> child1 = right->GetAllIntersections(r, camera);
         res = mergeVectors(res, child1);
+        //res.insert(res.end(), child1.begin(), child1.end());
     }
     return res;
 }

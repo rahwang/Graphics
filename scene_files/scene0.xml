@@ -12,8 +12,8 @@
 
 	<geometry type="square" name="Back Wall">
 		<transform>
-			<translate>0 0 -5.1</translate>
-			<scale>10 10 1</scale>
+			<translate>0 0 -5</translate>
+			<scale>12 10 1</scale>
 		</transform>
 		<material>grunge</material>
 	</geometry>
@@ -33,7 +33,7 @@
 			<rotate>0 90 0</rotate>
 			<scale>10 10 1</scale>
 		</transform>
-		<material>red_diffuse</material>
+		<material>red_diffuse</material>=
 	</geometry>
 
 	<geometry type="square" name="Ceiling">
@@ -53,47 +53,7 @@
 		</transform>
 		<material>white_diffuse</material>
 	</geometry>
-
-
-<!--
-	<geometry type="cube" name="Cloud">
-		<transform>
-			<translate>0 -3.9 0</translate>
-			<scale>10 0.5 10</scale>
-		</transform>
-		<material>cloud</material>
-	</geometry>
--->
-	<geometry type="square" name="Light Source1">
-		<transform>
-			<translate>0 4.99 0</translate>
-			<rotate>90 0 0</rotate>
-			<scale>3 3 3</scale>
-		</transform>
-		<material>emissive_material</material>
-	</geometry>
-
-    <!--
-    <geometry type="square" name="Light Source2">
-        <transform>
-            <translate>0 -4.99 0</translate>
-            <rotate>-90 0 0</rotate>
-            <scale>3 3 3</scale>
-        </transform>
-        <material>emissive_material</material>
-    </geometry> -->
-
-<!--
-    <geometry type="cube" name="Cloud">
-        <transform>
-            <translate>0 3.9 0</translate>
-            <scale>2 0.5 2</scale>
-            <rotate>180 0 0</scale>
-        </transform>
-        <material>cloud</material>
-    </geometry>
--->
-
+    
     <geometry type="obj" name="Frame">
         <filename>frame.obj</filename>
         <transform>
@@ -104,6 +64,15 @@
         <material>white_diffuse</material>
     </geometry>
 
+<!--
+	<geometry type="cube" name="Cloud">
+		<transform>
+			<translate>0 3.9 0</translate>
+			<scale>10 0.5 10</scale>
+		</transform>
+		<material>cloud</material>
+	</geometry>
+-->
     <geometry type="sphere" name="ball">
         <transform>
             <translate>1.3 -4.25 0</translate>
@@ -112,7 +81,7 @@
         </transform>
         <material>red_diffuse</material>
     </geometry>
-
+    
     <geometry type="cube" name="c1">
         <transform>
             <translate>2 -3.5 -2</translate>
@@ -122,12 +91,55 @@
         <material>white_diffuse</material>
     </geometry>
     
+<!--
+    <geometry type="sphere" name="Light Source1">
+        <transform>
+            <translate>2.8 -2 -0.5</translate>
+            <rotate>0 0 0</rotate>
+            <scale>1 1 1</scale>
+        </transform>
+        <material>emissive_material</material>
+    </geometry>
+-->
+	<geometry type="square" name="Light Source1">
+		<transform>
+			<translate>0 4.99 -0.5</translate>
+			<rotate>90 0 0</rotate>
+			<scale>3 3 3</scale>
+		</transform>
+		<material>emissive_material</material>
+	</geometry>
+ 
+ <!--
+    <geometry type="square" name="Light Source2">
+        <transform>
+            <translate>0 -4.99 0</translate>
+            <rotate>-90 0 0</rotate>
+            <scale>3 3 3</scale>
+        </transform>
+        <material>emissive_material</material>
+    </geometry>
+    
+    <geometry type="square" name="Light Source4">
+        <transform>
+            <translate>4.99 0 0</translate>
+            <rotate>0 -90 0</rotate>
+            <scale>3 3 3</scale>
+        </transform>
+        <material>emissive_material</material>
+    </geometry> 
+  -->
 
     <material type="volumetric" name="cloud">
         <baseColor>1 1 1</baseColor>
         <bxdf>lambert1</bxdf>
     </material>
-
+    
+    <material type="default" name="grey_diffuse">
+        <baseColor>0.1 0.1 0.2</baseColor>
+        <bxdf>lambert1</bxdf>
+    </material>
+    
 	<material type="default" name="white_diffuse">
 		<baseColor>1 1 1</baseColor>
 		<bxdf>lambert1</bxdf>
@@ -147,14 +159,9 @@
 		<baseColor>1 1 0.25</baseColor>
 		<bxdf>lambert1</bxdf>
 	</material>
-
+    
     <material type="default" name="blue_diffuse">
-        <baseColor>0 0 0.9</baseColor>
-        <bxdf>lambert1</bxdf>
-    </material>
-
-    <material type="volumetric" name="cloud">
-        <baseColor>1 1 1</baseColor>
+        <baseColor>0 0 0.7</baseColor>
         <bxdf>lambert1</bxdf>
     </material>
 
@@ -165,34 +172,32 @@
 		<bxdf>lambert1</bxdf>
 	</material>
 
-<!--
+	<material type="default" name="reflective_white">
+		<baseColor>1 1 1</baseColor>
+		<bxdf>specular1</bxdf>
+	</material>
+
+	<material type="light" name="emissive_material" intensity="20">
+		<baseColor>1 1 1</baseColor>
+	</material>
+
+	<bxdf type="lambert" name="lambert1" diffuseColor="1 1 1">
+	</bxdf>
+    
+    <bxdf type="specularReflection" name="specular1" diffuseColor="1 1 1">
+    </bxdf>
+    
     <material type="grunge" name="grunge">
         <baseColor>1 1 1</baseColor>
         <texture>grunge.jpg</texture>
         <bxdf>specular1</bxdf>
         <bxdf>lambert1</bxdf>
     </material>
--->
-
-	<material type="default" name="reflective_white">
-		<baseColor>1 1 1</baseColor>
-		<bxdf>specular1</bxdf>
-	</material>
-
-	<material type="light" name="emissive_material" intensity="50">
-		<baseColor>1 1 1</baseColor>
-	</material>
-
-	<bxdf type="lambert" name="lambert1" diffuseColor="1 1 1">
-	</bxdf>
-
-    <bxdf type="specularReflection" name="specular1" diffuseColor="1 1 1">
-    </bxdf>
 
 	<integrator type="raytrace">
 		<maxDepth>5</maxDepth>
 	</integrator>
 
-	<pixelSampleLength>1</pixelSampleLength>
+	<pixelSampleLength>5</pixelSampleLength>
 
 </scene>

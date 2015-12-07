@@ -88,13 +88,13 @@ glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth, int pixel
         float pdf;
         glm::vec3 energy;
         glm::vec3 direct_lighting = ComputeDirectLighting(current_ray, current_intersection, pdf, new_direction, energy);
-        if (direct_lighting.x > 1.f) direct_lighting.x = 1.f;
-        if (direct_lighting.y > 1.f) direct_lighting.y = 1.f;
-        if (direct_lighting.z > 1.f) direct_lighting.z = 1.f;
+        //if (direct_lighting.x > 1.f) direct_lighting.x = 1.f;
+        //if (direct_lighting.y > 1.f) direct_lighting.y = 1.f;
+        //if (direct_lighting.z > 1.f) direct_lighting.z = 1.f;
 
-        if (energy.x > 1.f) energy.x = 1.f;
-        if (energy.y > 1.f) energy.y = 1.f;
-        if (energy.z > 1.f) energy.z = 1.f;
+//        if (energy.x > 1.f) energy.x = 1.f;
+//        if (energy.y > 1.f) energy.y = 1.f;
+//        if (energy.z > 1.f) energy.z = 1.f;
 
         light_accum += multiplier * direct_lighting;
 

@@ -136,6 +136,12 @@ glm::vec3 DirectLightingIntegrator::SampleBxdfPdf(Ray r, Intersection intersecti
 }
 
 glm::vec3 DirectLightingIntegrator::ComputeDirectLighting(Ray r, const Intersection &intersection, float& pdf, glm::vec3& new_direction, glm::vec3& energy_back) {
+
+    if (intersection.object_hit->material->is_light_source) {
+        return intersection.object_hit->material->base_color
+                *intersection.object_hit->material->EvaluateScatteredEnergy(intersection, glm::vec3(0), -r.direction);
+    }
+
     // Choose a random light in the scene.
     Geometry *light = scene->lights.at(rand() % scene->lights.size());
 

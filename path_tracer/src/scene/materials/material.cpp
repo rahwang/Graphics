@@ -38,7 +38,7 @@ glm::vec3 Material::SampleAndEvaluateScatteredEnergy(const Intersection &isx, co
 
     BxDF *bxdf = bxdfs.at(rand() % bxdfs.size());
 
-    if (isx.texture_color.x < 0.1f && isx.texture_color.y < 0.1f && isx.texture_color.z < 0.1f)
+    if (isx.texture_color.x < 0.7f && isx.texture_color.y < 0.7f && isx.texture_color.z < 0.7f)
     {
         // Make it diffuse
         if (bxdfs.size() == 2)
@@ -46,8 +46,7 @@ glm::vec3 Material::SampleAndEvaluateScatteredEnergy(const Intersection &isx, co
             bxdf = bxdfs.at(1);
         }
 
-    } else if (isx.texture_color.x > 0.9f && isx.texture_color.y > 0.9f && isx.texture_color.z > 0.9f)
-    {
+    } else {
         // Make it specular
         bxdf = bxdfs.at(0);
     }

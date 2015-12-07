@@ -330,8 +330,8 @@ void MyGL::RaytraceScene()
         }
     }
 #endif
-    CompressColors(64);
-    DenoisePixels();
+    //CompressColors(64);
+    //DenoisePixels();
     scene.film.WriteImage(filepath);
 }
 
@@ -389,7 +389,7 @@ void MyGL::DenoisePixels() {
             }
 
             glm::vec3 suggested_color(0);
-            if (!neighbors.empty() || (suggested_color.x + suggested_color.y +suggested_color.z) < 0.6) {
+            if (!neighbors.empty()) {
                 for (glm::vec3 n : neighbors) {
                     suggested_color += n / float(neighbors.size());
                 }

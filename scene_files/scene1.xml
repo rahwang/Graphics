@@ -89,7 +89,7 @@
         <material>emissive_material</material>
     </geometry>
 
-<!--
+
 	<geometry type="square" name="Light Source1">
 		<transform>
 			<translate>0 4.99 0</translate>
@@ -98,7 +98,7 @@
 		</transform>
 		<material>emissive_material</material>
 	</geometry>
- 
+<!--
     <geometry type="square" name="Light Source2">
         <transform>
             <translate>0 -4.99 0</translate>
@@ -178,6 +178,6 @@
 		<maxDepth>5</maxDepth>
 	</integrator>
 
-	<pixelSampleLength>1</pixelSampleLength>
+	<pixelSampleLength>5</pixelSampleLength>
 
 </scene>
