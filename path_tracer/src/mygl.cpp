@@ -212,6 +212,7 @@ void MyGL::SceneLoadDialog()
     xml_reader.LoadSceneFromFile(file, local_path, scene, integrator);
     integrator.scene = &scene;
     integrator.intersection_engine = &intersection_engine;
+
 #if defined(PHOTON_MAP)
     integrator.caustic_photons_requested = 1000;
     integrator.indirect_photons_requested = 1000;
@@ -224,6 +225,13 @@ void MyGL::SceneLoadDialog()
 #endif
     ResizeToSceneCamera();
     update();
+
+    // Populate volumetric density buffers.
+    for (Geometry *object : integrator.scene->objects) {
+        if (object->material->is_volumetric) {
+            ((VolumetricMaterial *)object->material)->CalculateDensities(object);
+        }
+    }
 }
 
 void MyGL::RaytraceScene()

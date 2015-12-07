@@ -3,6 +3,7 @@
 PhotonMapIntegrator::PhotonMapIntegrator() :
     indirect_photons_requested(0),
     caustic_photons_requested(0),
+    volumetric_photons_requested(0),
     mersenne_generator(0),
     unif_distribution(0,1)
 
@@ -12,6 +13,7 @@ PhotonMapIntegrator::PhotonMapIntegrator() :
 
     indirect_photons_requested = 0;
     caustic_photons_requested = 0;
+    volumetric_photons_requested = 0;
 
     indirect_map = NULL;
     caustic_map = NULL;

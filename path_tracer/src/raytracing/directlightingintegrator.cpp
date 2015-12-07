@@ -183,6 +183,10 @@ glm::vec3 DirectLightingIntegrator::TraceRay(Ray r, unsigned int depth) {
         if (background_intersection.object_hit) {
           return density *intersection.object_hit->material->base_color
                     + (1.0f - density) * background_intersection.object_hit->material->base_color;
+            //glm::vec3 unused_vec;
+            //float unused_float;
+            //return density *intersection.object_hit->material->base_color
+                                + (1.0f - density) * ComputeDirectLighting(exiting_ray, background_intersection, unused_vec, unused_float);
         }
             return density * intersection.object_hit->material->base_color;
     }

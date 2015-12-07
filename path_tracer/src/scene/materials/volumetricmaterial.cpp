@@ -117,8 +117,8 @@ float VolumetricMaterial::PerlinNoise_3d(float x, float y, float z) {
   return total;
 }
 
-void VolumetricMaterial::CalculateDensities(const Intersection &intersection) {
-    BoundingBox *bbox = intersection.object_hit->bounding_box;
+void VolumetricMaterial::CalculateDensities(Geometry *object) {
+    BoundingBox *bbox = object->bounding_box;
 
     float width = bbox->maximum.x - bbox->minimum.x;
     float height = bbox->maximum.y - bbox->minimum.y;
@@ -131,10 +131,8 @@ void VolumetricMaterial::CalculateDensities(const Intersection &intersection) {
     for (float k=0; k < depth / STEP; ++k) {
         for (float j=0; j < height / STEP; ++j) {
             for (float i=0; i < width / STEP; ++i) {
-                //densities.push_back(0.05);
                 glm::vec3 voxel(i, j, k);
-                //densities.push_back(PerlinNoise_3d(i, j, k) * 0.5);
-                densities.push_back(intersection.object_hit->CloudDensity(voxel, PerlinNoise_3d(i, j, k), STEP));
+                densities.push_back(object->CloudDensity(voxel, PerlinNoise_3d(i, j, k), STEP));
             }
         }
     }
@@ -153,14 +151,6 @@ float VolumetricMaterial::GetVoxelDensityAtPoint(const Intersection &intersectio
 }
 
 float VolumetricMaterial::SampleVolume(const Intersection &intersection, Ray &ray, glm::vec3 &out_point) {
-    BoundingBox *bbox = intersection.object_hit->bounding_box;
-
-    mtx.lock();
-    if (densities.empty()) {
-        CalculateDensities(intersection);
-    }
-    mtx.unlock();
-
     Camera camera;
 
     Ray offset_ray(intersection.point + (ray.direction * 0.01f), ray.direction);

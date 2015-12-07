@@ -15,11 +15,13 @@ public:
 
     int indirect_photons_requested;
     int caustic_photons_requested;
+    int volumetric_photons_requested;
 
 protected:
 
     KdTree<Photon>* indirect_map;
     KdTree<Photon>* caustic_map;
+    KdTree<Photon>* volumetric_map;
 
     std::mt19937 mersenne_generator;
     std::uniform_real_distribution<float> unif_distribution;
