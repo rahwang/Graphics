@@ -37,10 +37,17 @@ glm::vec3 DirectLightingIntegrator::SampleLightPdf(Ray r, Intersection intersect
     }
 
     // Energy scattered by intersected material.
-    glm::vec3 energy = intersection.object_hit->material->EvaluateScatteredEnergy(
+    float bxdf_pdf;
+    glm::vec3 bxdf_wi;
+    glm::vec3 energy = intersection.object_hit->material->SampleAndEvaluateScatteredEnergy(
                 intersection,
                 -r.direction,
-                ray_to_light.direction);
+                bxdf_wi,
+                bxdf_pdf);
+
+    if (fequal(bxdf_pdf, 0.f)) {
+        return glm::vec3(0);
+    }
 
     // Energy scattered by intersected light material.
     glm::vec3 light_energy = light_intersection.object_hit->material->EvaluateScatteredEnergy(
@@ -51,14 +58,6 @@ glm::vec3 DirectLightingIntegrator::SampleLightPdf(Ray r, Intersection intersect
     float cosine_component = glm::abs(glm::dot(ray_to_light.direction, intersection.normal));
 
     // Weight in MIS lighting equation based on pdfs.
-    BxDF *bxdf = intersection.object_hit->material->bxdfs.at(
-                rand() % intersection.object_hit->material->bxdfs.size());
-    float bxdf_pdf = bxdf->PDF(-r.direction,
-                               ray_to_light.direction);
-    if (fabs(bxdf_pdf) < 0.01) {
-        return glm::vec3(0);
-    }
-
     float weight = PowerHeuristics(light_pdf, bxdf_pdf);
 
     glm::vec3 total_energy = energy * light_energy * cosine_component * weight / light_pdf;
