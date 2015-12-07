@@ -3,6 +3,12 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
 
+#include <QImage>
+#include <QOpenGLShader>
+#include <QOpenGLTexture>
+#include <QBuffer>
+#include <QTimer>
+
 #include <openGL/glwidget277.h>
 #include <la.h>
 #include <openGL/shaderprogram.h>
@@ -14,6 +20,8 @@
 #include <raytracing/Integrator.h>
 #include <raytracing/directlightingintegrator.h>
 #include <raytracing/totallightingintegrator.h>
+#include <renderthread.h>
+
 #include <raytracing/photonmapintegrator.h>
 
 // Uncomment corresponding section to build with specified integrator type
@@ -30,6 +38,7 @@ private:
 
     ShaderProgram prog_lambert;
     ShaderProgram prog_flat;
+    ShaderProgram prog_ren;
 
     Camera gl_camera;//This is a camera we can move around the scene to view it from any angle.
                                 //However, the camera defined in the config file is the one from which the scene will be rendered.
@@ -61,6 +70,25 @@ public:
     void ResizeToSceneCamera();
 
     void RaytraceScene();
+    //reDraw: Progrssive drawing on framebuffer
+    void reDraw();
+    //clean and delete threads
+    void cleanThreads();
+
+    unsigned int num_render_threads;
+    RenderThread** render_threads;
+
+    //the custom shader to draw texture on
+    QOpenGLShaderProgram prog;
+
+    //flag to check if thread still rendering
+    bool rendering;
+    //image to store the pixel buffer
+    QImage p_img;
+    //flag to check if threads still active
+    bool signal = false;
+    QString filepath;
+
     void DenoisePixels();
     void CompressColors(int k);
 
@@ -69,4 +97,7 @@ protected:
 
 signals:
     void sig_ResizeToCamera(int,int);
+private slots:
+    //function to check if threads active; write to image file
+    void render_check();
 };

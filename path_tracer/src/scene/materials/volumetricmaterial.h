@@ -1,5 +1,7 @@
 #ifndef VOLUMETRICMATERIAL_H
 #define VOLUMETRICMATERIAL_H
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #include <scene/materials/material.h>
 

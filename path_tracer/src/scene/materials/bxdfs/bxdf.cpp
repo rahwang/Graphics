@@ -28,12 +28,12 @@ float BxDF::PDF(const glm::vec3 &wo, const glm::vec3 &wi) const
     return 0.0f;
 }
 
-float BxDF::FresnelTerm(float cosi) const {
+float BxDF::FresnelTerm(float cosi, float eta_i, float eta_o) const {
     // Do Fresnel equation.
     float air_ior = 1.00029;
-    float vacuum_ior = 1.33;
-    float incident_media_ior = air_ior;
-    float transmitted_media_ior = vacuum_ior;
+    float vacuum_ior = 1;
+    float incident_media_ior = eta_i;
+    float transmitted_media_ior = eta_o;
 
     cosi = (cosi > 1.f) ? 1.f : cosi;
     cosi = (cosi < -1.f) ? -1.f : cosi;
@@ -45,7 +45,7 @@ float BxDF::FresnelTerm(float cosi) const {
     }
 
     float sint = ei/et * sqrt(fmax(0.f, 1.f - cosi*cosi));
-    if (sint >- 1.f) {
+    if (sint >= 1.f) {
         // total internal reflection.
         return 1.f;
     }
