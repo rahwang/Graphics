@@ -3,7 +3,7 @@
 glm::vec3 SpecularReflectionBxDF::EvaluateScatteredEnergy(const glm::vec3 &wo, const glm::vec3 &wi) const
 {
     float cosi = glm::dot(wo, glm::normalize(wo + wi));
-    return reflection_color * FresnelTerm(cosi) / glm::abs(wi.z);
+    return reflection_color * 1.f/*FresnelTerm(cosi, 1.0f, 1.34f)*/ / glm::abs(wi.z);
 }
 
 glm::vec3 SpecularReflectionBxDF::EvaluateHemisphereScatteredEnergy(const glm::vec3 &wo, int num_samples, const glm::vec2 *samples) const
@@ -28,7 +28,7 @@ float SpecularReflectionBxDF::PDF(const glm::vec3 &wo, const glm::vec3 &wi) cons
     // Perfect specular only returns the color in the direction of the reflection
     // Since we're in the shading coordinates, the surface normal is 0,0,1
     // and the reflection of wo is just pi radians about the normal
-
+//    return 1.f;
     float cos_theta_reflected = glm::abs(wo.z);
     float cos_theta_wi = glm::abs(wi.z);
     if (fequal(float(cos_theta_reflected - cos_theta_wi), 0.f)) {

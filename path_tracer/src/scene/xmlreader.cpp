@@ -11,7 +11,9 @@
 #include <raytracing/samplers/stratifiedpixelsampler.h>
 #include <scene/materials/bxdfs/lambertBxDF.h>
 #include <scene/materials/bxdfs/specularreflectionbxdf.h>
+#include <scene/materials/bxdfs/speculartransmissionbxdf.h>
 #include <scene/materials/bxdfs/blinnmicrofacetbxdf.h>
+#include <scene/materials/bxdfs/anisotropicbxdf.h>
 #include <scene/materials/weightedmaterial.h>
 #include <scene/materials/volumetricmaterial.h>
 #include <QImage>
@@ -676,6 +678,33 @@ BxDF* XMLReader::LoadBxDF(QXmlStreamReader &xml_reader)
         }
         result = new SpecularReflectionBxDF(refl_color);
     }
+    else if(QStringRef::compare(type, QString("specularTransmission")) == 0)
+    {
+        glm::vec3 trans_color(0.5f);
+        QStringRef color = attribs.value(QString(), QString("transmissionColor"));
+        if(QStringRef::compare(color, QString("")) != 0)
+        {
+            trans_color = ToVec3(color);
+        }
+        result = new SpecularTransmissionBxDF(trans_color);
+
+        QStringRef t = attribs.value(QString(), QString("TransmissionScaleFactor"));
+        if(QStringRef::compare(t, QString("")) != 0)
+        {
+            ((SpecularTransmissionBxDF*)result)->t_scale = t.toFloat();
+        }
+
+        QStringRef eta_i = attribs.value(QString(), QString("eta_i"));
+        if(QStringRef::compare(eta_i, QString("")) != 0)
+        {
+            ((SpecularTransmissionBxDF*)result)->eta_i = eta_i.toFloat();
+        }
+        QStringRef eta_o = attribs.value(QString(), QString("eta_o"));
+        if(QStringRef::compare(eta_o, QString("")) != 0)
+        {
+            ((SpecularTransmissionBxDF*)result)->eta_o = eta_o.toFloat();
+        }
+    }
     else if(QStringRef::compare(type, QString("blinnMicrofacet")) == 0)
     {
         glm::vec3 refl_color(0.5f);
@@ -690,6 +719,27 @@ BxDF* XMLReader::LoadBxDF(QXmlStreamReader &xml_reader)
         if(QStringRef::compare(exponent, QString("")) != 0)
         {
             ((BlinnMicrofacetBxDF*)result)->exponent = exponent.toFloat();
+        }
+    }
+    else if(QStringRef::compare(type, QString("anisotropic")) == 0)
+    {
+        glm::vec3 refl_color(0.5f);
+        QStringRef color = attribs.value(QString(), QString("reflectionColor"));
+        if(QStringRef::compare(color, QString("")) != 0)
+        {
+            refl_color = ToVec3(color);
+        }
+        result = new AnisotropicBxDF(refl_color);
+
+        QStringRef exponentx = attribs.value(QString(), QString("expx"));
+        if(QStringRef::compare(exponentx, QString("")) != 0)
+        {
+            ((AnisotropicBxDF*)result)->ex = exponentx.toFloat();
+        }
+        QStringRef exponenty = attribs.value(QString(), QString("expy"));
+        if(QStringRef::compare(exponenty, QString("")) != 0)
+        {
+            ((AnisotropicBxDF*)result)->ey = exponenty.toFloat();
         }
     }
     else

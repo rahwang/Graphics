@@ -8,7 +8,7 @@ class PhotonMapIntegrator : public DirectLightingIntegrator
 {
 public:
     PhotonMapIntegrator();
-    PhotonMapIntegrator(Scene* scene, int indirect_photons_requested, int caustic_photons_requested);
+    PhotonMapIntegrator(Scene* scene, int indirect_photons_requested, int caustic_photons_requested, int volumetric_photons_requested);
     ~PhotonMapIntegrator();
     virtual void PrePass();
     virtual glm::vec3 TraceRay(Ray r, unsigned int depth, int pixel_i, int pixel_j);
@@ -26,6 +26,7 @@ protected:
 
     int indirect_photons_requested;
     int caustic_photons_requested;
+    int volumetric_photons_requested;
     int nearest_neighbors_num;
     float max_dist_from_neighbors;
 

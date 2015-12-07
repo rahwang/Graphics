@@ -12,7 +12,7 @@ glm::vec3 BlinnMicrofacetBxDF::EvaluateScatteredEnergy(const glm::vec3 &wo, cons
 
     // Fresnel term.
     float cosi = glm::dot(wo, half_angle);
-    float fresnel = FresnelTerm(cosi);
+    float fresnel = FresnelTerm(cosi, 1.0f, 1.34f);
 
     // Distribution term.
     float distribution_term = (exponent + 2.f)/(2.f * M_PI) * pow(fabs(half_angle.z), exponent);

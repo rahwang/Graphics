@@ -21,11 +21,10 @@ PhotonMapIntegrator::PhotonMapIntegrator() :
     caustic_map = NULL;
 }
 
-PhotonMapIntegrator::PhotonMapIntegrator(
-        Scene* scene,
+PhotonMapIntegrator::PhotonMapIntegrator(Scene* scene,
         int indirect_photons_requested,
         int caustic_photons_requested
-        ) :
+        , int volumetric_photons_requested) :
     indirect_photons_requested(indirect_photons_requested),
     caustic_photons_requested(caustic_photons_requested),
     mersenne_generator(0),
@@ -232,9 +231,9 @@ glm::vec3 PhotonMapIntegrator::TraceRay(Ray r, unsigned int depth, int pixel_i, 
                 *isx.object_hit->material->EvaluateScatteredEnergy(isx, glm::vec3(0), -r.direction);
     }
 
-    glm::vec3 bounced_direction;
+    glm::vec3 bounced_direction, energy_back;
     float pdf;
-    glm::vec3 direct_light = ComputeDirectLighting(r, isx, bounced_direction, pdf);
+    glm::vec3 direct_light = ComputeDirectLighting(r, isx, pdf, bounced_direction, energy_back);
 
 //    color += direct_light;
 

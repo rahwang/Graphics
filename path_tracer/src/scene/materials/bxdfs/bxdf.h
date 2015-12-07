@@ -56,7 +56,7 @@ public:
     // Transform spherical angles into vector.
     glm::vec3 SphericalDirection(float sin_theta, float cos_theta, float phi) const;
 
-    float FresnelTerm(float cosi) const;
+    float FresnelTerm(float cosi, float eta_i, float eta_o) const;
 //Member variables
     BxDFType type;
     QString name;

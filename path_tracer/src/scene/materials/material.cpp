@@ -37,6 +37,21 @@ glm::vec3 Material::SampleAndEvaluateScatteredEnergy(const Intersection &isx, co
     float y = float(rand()) / float(RAND_MAX);
 
     BxDF *bxdf = bxdfs.at(rand() % bxdfs.size());
+
+    if (isx.texture_color.x < 0.1f && isx.texture_color.y < 0.1f && isx.texture_color.z < 0.1f)
+    {
+        // Make it diffuse
+        if (bxdfs.size() == 1)
+        {
+            bxdf = bxdfs.at(1);
+        }
+
+    } else if (isx.texture_color.x > 0.9f && isx.texture_color.y > 0.9f && isx.texture_color.z > 0.9f)
+    {
+        // Make it specular
+        bxdf = bxdfs.at(0);
+    }
+
     glm::vec3 woL = worldToObjectSpace(woW, isx);
     glm::vec3 wiL_ret;
     glm::vec3 energy =
@@ -46,6 +61,15 @@ glm::vec3 Material::SampleAndEvaluateScatteredEnergy(const Intersection &isx, co
 
     wiW_ret = objectToWorldSpace(wiL_ret, isx);
     return energy;
+}
+
+bool Material::isTransmissive(){
+    for(BxDF* b : this->bxdfs){
+        if(b->type & BSDF_TRANSMISSION){
+            return true;
+        }
+    }
+    return false;
 }
 
 glm::vec3 Material::EvaluateHemisphereScatteredEnergy(const Intersection &isx, const glm::vec3 &wo, int num_samples, BxDFType flags) const

@@ -54,6 +54,7 @@
 		<material>white_diffuse</material>
 	</geometry>
     
+    
 <!--
 	<geometry type="cube" name="Cloud">
 		<transform>
@@ -81,6 +82,15 @@
         </transform>
         <material>emissive_material</material>
     </geometry> -->
+    
+    <geometry type="cube" name="Cloud">
+        <transform>
+            <translate>0 -3.9 0</translate>
+            <scale>10 0.5 10</scale>
+        </transform>
+        <material>cloud</material>
+    </geometry>
+
     
     <geometry type="obj" name="Frame">
         <filename>frame.obj</filename>
@@ -145,6 +155,11 @@
         <texture>wahoo.bmp</texture>
     </material>
 
+    <material type="volumetric" name="cloud">
+        <baseColor>1 1 1</baseColor>
+        <bxdf>lambert1</bxdf>
+    </material>
+
 	<material type="default" name="textured_diffuse">
 		<baseColor>1 1 1</baseColor>
 		<texture>tex_nor_maps/165.jpg</texture>
@@ -156,6 +171,7 @@
         <baseColor>1 1 1</baseColor>
         <texture>grunge.jpg</texture>
         <bxdf>specular1</bxdf>
+        <bxdf>lambert</bxdf>
     </material>
 
 	<material type="default" name="reflective_white">
