@@ -18,8 +18,8 @@
 
 // Uncomment corresponding section to build with specified integrator type
 //#define PHOTON_MAP
-//#define ALL_LIGHTING
-#define DIRECT_LIGHTING
+#define ALL_LIGHTING
+//#define DIRECT_LIGHTING
 
 class MyGL
     : public GLWidget277

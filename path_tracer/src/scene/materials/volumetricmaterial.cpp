@@ -132,7 +132,7 @@ void VolumetricMaterial::CalculateDensities(Geometry *object) {
         for (float j=0; j < height / STEP; ++j) {
             for (float i=0; i < width / STEP; ++i) {
                 glm::vec3 voxel(i, j, k);
-                densities.push_back(object->PyroclasticDensity(voxel, PerlinNoise_3d(i, j, k), STEP));
+                densities.push_back(object->CloudDensity(voxel, PerlinNoise_3d(i, j, k), STEP));
             }
         }
     }

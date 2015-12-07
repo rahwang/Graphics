@@ -41,7 +41,7 @@ glm::vec3 Material::SampleAndEvaluateScatteredEnergy(const Intersection &isx, co
     if (isx.texture_color.x < 0.1f && isx.texture_color.y < 0.1f && isx.texture_color.z < 0.1f)
     {
         // Make it diffuse
-        if (bxdfs.size() == 1)
+        if (bxdfs.size() == 2)
         {
             bxdf = bxdfs.at(1);
         }
