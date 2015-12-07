@@ -38,7 +38,8 @@ SOURCES += \
     $$PWD/scene/geometry/geometry.cpp \
     $$PWD/scene/geometry/boundingbox.cpp \
     $$PWD/raytracing/totallightingintegrator.cpp \
-    $$PWD/raytracing/directlightingintegrator.cpp
+    $$PWD/raytracing/directlightingintegrator.cpp \
+    $$PWD/scene/materials/bxdfs/anisotropicbxdf.cpp
     $$PWD/scene/materials/bxdfs/anisotropicbxdf.cpp
 
 HEADERS += \
