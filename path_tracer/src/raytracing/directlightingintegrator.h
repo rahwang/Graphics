@@ -6,7 +6,7 @@ class DirectLightingIntegrator : public Integrator
 {
 public:
     DirectLightingIntegrator();
-    virtual glm::vec3 TraceRay(Ray r, unsigned int depth);
+    virtual glm::vec3 TraceRay(Ray r, unsigned int depth, int pixel_i, int pixel_j);
 
 protected:
     // Randomly sample points on the light surface. First term of MIS.

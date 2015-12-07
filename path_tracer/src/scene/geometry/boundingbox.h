@@ -21,12 +21,14 @@ public:
     glm::vec3 GetCenter();
     bool GetIntersection(Ray r);
     static BoundingBox Union(const BoundingBox &a, const BoundingBox &b);
+    static BoundingBox Union(const BoundingBox &b, const glm::vec3 &p);
     void SetNormals();
     int MaximumExtent() const;
 
     glm::vec3 center;
     glm::vec3 minimum;
     glm::vec3 maximum;
+    float radius;
     std::vector<glm::vec3> normals;
     Geometry *object;
 };

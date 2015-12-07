@@ -1,6 +1,7 @@
 #include <scene/materials/material.h>
 #include <QColor>
 #include <math.h>
+#include <helpers.h>
 
 Material::Material() :
     Material(glm::vec3(0.5f, 0.5f, 0.5f))
@@ -10,6 +11,7 @@ Material::Material(const glm::vec3 &color):
     name("MATERIAL"),
     bxdfs(),
     is_light_source(false),
+    is_volumetric(false),
     base_color(color),
     intensity(0)
 {
@@ -20,8 +22,13 @@ Material::Material(const glm::vec3 &color):
 glm::vec3 Material::EvaluateScatteredEnergy(const Intersection &isx, const glm::vec3 &woW, const glm::vec3 &wiW, BxDFType flags) const
 {
     int random_idx = rand() % bxdfs.size();
-    return bxdfs[random_idx]->EvaluateScatteredEnergy(woW, wiW)
-            * base_color * isx.texture_color;
+    glm::vec3 woL = worldToObjectSpace(woW, isx);
+    glm::vec3 wiL = worldToObjectSpace(wiW, isx);
+    glm::vec3 energy =
+            base_color *
+            isx.texture_color *
+            bxdfs[random_idx]->EvaluateScatteredEnergy(woL, wiL);
+    return energy;
 }
 
 glm::vec3 Material::SampleAndEvaluateScatteredEnergy(const Intersection &isx, const glm::vec3 &woW, glm::vec3 &wiW_ret, float &pdf_ret, BxDFType flags) const
@@ -30,8 +37,15 @@ glm::vec3 Material::SampleAndEvaluateScatteredEnergy(const Intersection &isx, co
     float y = float(rand()) / float(RAND_MAX);
 
     BxDF *bxdf = bxdfs.at(rand() % bxdfs.size());
-    return bxdf->SampleAndEvaluateScatteredEnergy(woW, wiW_ret, x, y, pdf_ret)
-            * base_color * isx.texture_color;
+    glm::vec3 woL = worldToObjectSpace(woW, isx);
+    glm::vec3 wiL_ret;
+    glm::vec3 energy =
+            base_color *
+            isx.texture_color *
+            bxdf->SampleAndEvaluateScatteredEnergy(woL, wiL_ret, x, y, pdf_ret);
+
+    wiW_ret = objectToWorldSpace(wiL_ret, isx);
+    return energy;
 }
 
 bool Material::isTransmissive(){
@@ -47,6 +61,10 @@ glm::vec3 Material::EvaluateHemisphereScatteredEnergy(const Intersection &isx, c
 {
     //TODO
     return glm::vec3(0);
+}
+
+float Material::SampleVolume(const Intersection &intersection, Ray &ray, glm::vec3 &out_point) {
+    return 0;
 }
 
 
@@ -104,4 +122,15 @@ glm::vec3 Material::GetImageColorInterp(const glm::vec2 &uv_coord, const QImage*
             return result;
         }
     }
+}
+
+bool Material::IsSpecular()
+{
+    for (BxDF* bxdf : bxdfs)
+    {
+        if (bxdf->type & BSDF_SPECULAR) {
+            return true;
+        }
+    }
+    return false;
 }

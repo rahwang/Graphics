@@ -47,22 +47,38 @@ glm::vec2 SquarePlane::GetUVCoordinates(const glm::vec3 &point)
 
 glm::vec3 SquarePlane::ComputeNormal(const glm::vec3 &P)
 {
-        return glm::vec3(0,0,1);
+    return glm::vec3(0,0,1);
 }
 
 
-Intersection SquarePlane::SampleLight(const IntersectionEngine *intersection_engine,
-                                      const glm::vec3 &origin, const float rand1, const float rand2,
-                                      const glm::vec3 &normal)
+Intersection SquarePlane::SampleLight(
+        const IntersectionEngine *intersection_engine,
+        const glm::vec3 &origin,
+        const float rand1,
+        const float rand2,
+        const glm::vec3 &normal
+        )
 {
-    glm::vec3 point(rand1-0.5, rand2-0.5, 0);
-    glm::vec3 world_point = glm::vec3(transform.T() * glm::vec4(point, 1));
-    Ray r(origin, world_point-origin);
+    glm::vec3 world_point = SampleArea(rand1, rand2, normal, true);
+    Ray r(origin, world_point - origin);
 
     Intersection result = intersection_engine->GetIntersection(r);
     return result;
 }
 
+glm::vec3 SquarePlane::SampleArea(
+        const float rand1,
+        const float rand2,
+        const glm::vec3 &normal,
+        bool inWorldSpace
+        )
+{
+    glm::vec3 point(rand1-0.5, rand2-0.5, 0);
+    if (inWorldSpace) {
+        point = glm::vec3(transform.T() * glm::vec4(point, 1.f));
+    }
+    return point;
+}
 
 void SquarePlane::ComputeTangents(const glm::vec3 &normal,
                      glm::vec3 &tangent, glm::vec3 &bitangent)

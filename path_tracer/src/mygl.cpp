@@ -8,8 +8,7 @@
 #include <QFileDialog>
 #include <renderthread.h>
 #include <raytracing/samplers/stratifiedpixelsampler.h>
-#include <scene/geometry/square.h>
-#include <scene/materials/bxdfs/lambertBxDF.h>
+#include <scene/materials/volumetricmaterial.h>
 
 
 MyGL::MyGL(QWidget *parent)
@@ -256,7 +255,10 @@ void MyGL::SceneLoadDialog()
     scene.Clear();
     // Clean up BVH Tree
     bvhNode::DeleteTree(intersection_engine.bvh);
-#if defined(ALL_LIGHTING)
+
+#if defined(PHOTON_MAP)
+    integrator = PhotonMapIntegrator();
+#elif defined(ALL_LIGHTING)
     integrator = TotalLightingIntegrator();
 #elif defined(DIRECT_LIGHTING)
     integrator = DirectLightingIntegrator();
@@ -266,13 +268,30 @@ void MyGL::SceneLoadDialog()
     intersection_engine = IntersectionEngine();
 
     //Load new objects based on the XML file chosen.
+
+#if defined(PHOTON_MAP)
+    xml_reader.LoadSceneFromFilePhotonMap(file, local_path, scene, integrator);
+#else
     xml_reader.LoadSceneFromFile(file, local_path, scene, integrator);
+#endif
+
     integrator.scene = &scene;
     integrator.intersection_engine = &intersection_engine;
     intersection_engine.scene = &scene;
     intersection_engine.bvh = bvhNode::InitTree(scene.objects);
+
+#ifdef PHOTON_MAP
+    integrator.PrePass();
+#endif
     ResizeToSceneCamera();
     update();
+
+    // Populate volumetric density buffers.
+    for (Geometry *object : integrator.scene->objects) {
+        if (object->material->is_volumetric) {
+            ((VolumetricMaterial *)object->material)->CalculateDensities(object);
+        }
+    }
 }
 
 void MyGL::cleanThreads(){
@@ -307,6 +326,7 @@ void MyGL::render_check(){
         }
         else{
             rendering = false;
+            DenoisePixels();
             scene.film.WriteImage(filepath);
         }
     }
@@ -328,6 +348,7 @@ void MyGL::RaytraceScene()
 
     p_img = this->grabFramebuffer(); //current frame buffer values
 
+//#define PERLIN_TEST
 #define MULTITHREADED
 #ifdef MULTITHREADED
     //Set up 16 (max) threads
@@ -395,6 +416,14 @@ void MyGL::RaytraceScene()
         scene.film.WriteImage(filepath);
     #endif
 
+#elif defined(PERLIN_TEST)
+    for(unsigned int j = 0; j < scene.camera.height; j++)
+    {
+        for(unsigned int i = 0; i < scene.camera.width; i++)
+        {
+            scene.film.pixels[i][j] = glm::vec3(VolumetricMaterial::PerlinNoise_3d(i, j, 10));
+        }
+    }
 #else
     StratifiedPixelSampler pixel_sampler(scene.sqrt_samples,0);
     rendering = true;
@@ -407,7 +436,7 @@ void MyGL::RaytraceScene()
             glm::vec3 accum_color;
             for(int a = 0; a < sample_points.size(); a++)
             {
-                glm::vec3 color = integrator.TraceRay(scene.camera.Raycast(sample_points[a]), 0);
+                glm::vec3 color = integrator.TraceRay(scene.camera.Raycast(sample_points[a]), 0, i, j);
                 accum_color += color;
             }
             scene.film.pixels[i][j] = accum_color / (float)sample_points.size();
@@ -419,8 +448,84 @@ void MyGL::RaytraceScene()
 //            reDraw();
         }
     }
-//    rendering = false;
+    DenoisePixels();
     scene.film.WriteImage(filepath);
 
 #endif
+}
+
+void MyGL::DenoisePixels() {
+    std::vector<std::vector<glm::vec3>> tmp_colors;
+    tmp_colors = std::vector<std::vector<glm::vec3>>(scene.camera.width);
+
+    for(unsigned int i = 0; i < scene.camera.width; i++)
+    {
+        tmp_colors[i] = std::vector<glm::vec3>(scene.camera.height);
+    }
+
+    for(unsigned int i = 1; i < scene.camera.width-1; i++)
+    {
+        for(unsigned int j = 1; j < scene.camera.height-1; j++)
+        {
+            glm::vec3 original_color = scene.film.pixels[i][j];
+            float original_depth = scene.film.pixel_depths[i][j];
+            std::vector<glm::vec3> neighbors;
+
+            // Check surrounding pixels in cardinal directions.
+            if (fabs(scene.film.pixel_depths[i-1][j] - original_depth) < 0.5) {
+                // left
+                neighbors.push_back(scene.film.pixels[i-1][j]);
+            }
+            if (fabs(scene.film.pixel_depths[i+1][j] - original_depth) < 0.5) {
+                // right
+                neighbors.push_back(scene.film.pixels[i+1][j]);
+            }
+            if (fabs(scene.film.pixel_depths[i][j-1] - original_depth) < 0.5) {
+                // up
+                neighbors.push_back(scene.film.pixels[i][j-1]);
+            }
+            if (fabs(scene.film.pixel_depths[i][j+1] - original_depth) < 0.5) {
+                // down
+                neighbors.push_back(scene.film.pixels[i][j+1]);
+            }
+
+            // Check surrounding pixels in cardinal directions.
+            if (fabs(scene.film.pixel_depths[i-1][j+1] - original_depth) < 0.5) {
+                // upper_left
+                neighbors.push_back(scene.film.pixels[i-1][j+1]);
+            }
+            if (fabs(scene.film.pixel_depths[i+1][j+1] - original_depth) < 0.5) {
+                // upper_right
+                neighbors.push_back(scene.film.pixels[i+1][j+1]);
+            }
+            if (fabs(scene.film.pixel_depths[i-1][j-1] - original_depth) < 0.5) {
+                // lower_left
+                neighbors.push_back(scene.film.pixels[i-1][j-1]);
+            }
+            if (fabs(scene.film.pixel_depths[i+1][j-1] - original_depth) < 0.5) {
+                // lower_right
+                neighbors.push_back(scene.film.pixels[i+1][j-1]);
+            }
+
+            glm::vec3 suggested_color(0);
+            if (!neighbors.empty()) {
+                for (glm::vec3 n : neighbors) {
+                    suggested_color += n / float(neighbors.size());
+                }
+            } else {
+                tmp_colors[i][j] = original_color;
+            }
+
+            tmp_colors[i][j] = original_color * 0.5f
+                    + suggested_color * 0.5f;
+        }
+    }
+
+    for(unsigned int i = 1; i < scene.camera.width-1; i++)
+    {
+        for(unsigned int j = 1; j < scene.camera.height-1; j++)
+        {
+            scene.film.pixels[i][j] = tmp_colors[i][j];
+        }
+    }
 }

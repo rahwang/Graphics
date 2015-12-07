@@ -15,6 +15,7 @@
 #include <scene/materials/bxdfs/blinnmicrofacetbxdf.h>
 #include <scene/materials/bxdfs/anisotropicbxdf.h>
 #include <scene/materials/weightedmaterial.h>
+#include <scene/materials/volumetricmaterial.h>
 #include <QImage>
 
 void XMLReader::LoadSceneFromFile(QFile &file, const QStringRef &local_path, Scene &scene, Integrator &integrator)
@@ -65,7 +66,117 @@ void XMLReader::LoadSceneFromFile(QFile &file, const QStringRef &local_path, Sce
                 }
                 else if(QString::compare(tag, QString("integrator")) == 0)
                 {
-                    integrator = LoadIntegrator(xml_reader);
+                    //First check what type of integrator we're supposed to load
+                    QXmlStreamAttributes attribs(xml_reader.attributes());
+                    QStringRef type = attribs.value(QString(), QString("type"));
+
+                    if (QStringRef::compare(type, "photonMap") == 0)
+                    {
+                        integrator = LoadPhotonMapIntegrator(xml_reader);
+                    } else {
+                        integrator = LoadIntegrator(xml_reader);
+                    }
+                }
+                else if(QString::compare(tag, QString("pixelSampleLength"), Qt::CaseInsensitive) == 0)
+                {
+                    scene.sqrt_samples = LoadPixelSamples(xml_reader);
+                }
+            }
+        }
+        //Associate the materials in the XML file with the geometries that use those materials.
+        for(int i = 0; i < scene.materials.size(); i++)
+        {
+            QList<Geometry*> l = material_to_geometry_map.value(scene.materials[i]->name);
+            for(int j = 0; j < l.size(); j++)
+            {
+                l[j]->SetMaterial(scene.materials[i]);
+            }
+        }
+
+        for(int i = 0; i < scene.bxdfs.size(); i++)
+        {
+            QList<Material*> l = bxdf_to_material_map.value(scene.bxdfs[i]->name);
+            for(int j = 0; j < l.size(); j++)
+            {
+                l[j]->bxdfs.append(scene.bxdfs[i]);
+            }
+        }
+
+        //Copy emissive geometry from the list of objects to the list of lights
+        QList<Geometry*> to_lights;
+        for(Geometry *g : scene.objects)
+        {
+            g->create();
+            if(g->material->is_light_source)
+            {
+                to_lights.append(g);
+            }
+            g->ComputeArea();
+        }
+        for(Geometry *g : to_lights)
+        {
+            scene.lights.append(g);
+        }
+        file.close();
+    }
+}
+
+void XMLReader::LoadSceneFromFilePhotonMap(QFile &file, const QStringRef &local_path, Scene &scene, PhotonMapIntegrator &integrator)
+{
+    if(file.open(QIODevice::ReadOnly))
+    {
+        QXmlStreamReader xml_reader;
+        xml_reader.setDevice(&file);
+        QMap<QString, QList<Geometry*>> material_to_geometry_map;
+        QMap<QString, QList<Material*>> bxdf_to_material_map;//Key is the bxdf's name
+        while(!xml_reader.isEndDocument())
+        {
+            xml_reader.readNext();
+            if(xml_reader.isStartElement())
+            {
+                //Get the tag name
+                QString tag(xml_reader.name().toString());
+                if(QString::compare(tag, QString("camera")) == 0)
+                {
+                    scene.SetCamera(LoadCamera(xml_reader));
+                }
+                else if(QString::compare(tag, QString("geometry")) == 0)
+                {
+                    Geometry* geometry = LoadGeometry(xml_reader, material_to_geometry_map, local_path);
+                    if(geometry == NULL)
+                    {
+                        return;
+                    }
+                    scene.objects.append(geometry);
+                }
+                else if(QString::compare(tag, QString("material")) == 0)
+                {
+                    Material* material = LoadMaterial(xml_reader, local_path, bxdf_to_material_map);
+                    if(material == NULL)
+                    {
+                        return;
+                    }
+                    scene.materials.append(material);
+                }
+                else if(QString::compare(tag, QString("bxdf")) == 0)
+                {
+                    BxDF* bxdf = LoadBxDF(xml_reader);
+                    if(bxdf == NULL)
+                    {
+                        return;
+                    }
+                    scene.bxdfs.append(bxdf);
+                }
+                else if(QString::compare(tag, QString("integrator")) == 0)
+                {
+                    //First check what type of integrator we're supposed to load
+                    QXmlStreamAttributes attribs(xml_reader.attributes());
+                    QStringRef type = attribs.value(QString(), QString("type"));
+
+                    if (QStringRef::compare(type, "photonMap") == 0)
+                    {
+                        integrator = LoadPhotonMapIntegrator(xml_reader);
+                    }
                 }
                 else if(QString::compare(tag, QString("pixelSampleLength"), Qt::CaseInsensitive) == 0)
                 {
@@ -217,6 +328,10 @@ Material* XMLReader::LoadMaterial(QXmlStreamReader &xml_reader, const QStringRef
         result = new WeightedMaterial();
         weighted_material = true;
         //weights are handled below
+    }
+    else if(QStringRef::compare(type, QString("volumetric")) == 0)
+    {
+        result = new VolumetricMaterial();
     }
     else
     {
@@ -421,21 +536,76 @@ Transform XMLReader::LoadTransform(QXmlStreamReader &xml_reader)
     return Transform(t, r, s);
 }
 
-Integrator XMLReader::LoadIntegrator(QXmlStreamReader &xml_reader)
+PhotonMapIntegrator XMLReader::LoadPhotonMapIntegrator(QXmlStreamReader &xml_reader)
 {
-    Integrator result;
-
-    //First check what type of integrator we're supposed to load
-    QXmlStreamAttributes attribs(xml_reader.attributes());
-    QStringRef type = attribs.value(QString(), QString("type"));
-    bool is_mesh = false;
+    PhotonMapIntegrator result;
 
     while(!xml_reader.isEndElement() || QStringRef::compare(xml_reader.name(), QString("integrator")) != 0)
     {
         xml_reader.readNext();
 
         QString tag(xml_reader.name().toString());
-        if(is_mesh && QString::compare(tag, QString("maxDepth")) == 0)
+        if(QString::compare(tag, QString("maxDepth")) == 0)
+        {
+            xml_reader.readNext();
+            if(xml_reader.isCharacters())
+            {
+                result.SetDepth(xml_reader.text().toInt());
+            }
+            xml_reader.readNext();
+        }
+        else if (QString::compare(tag, "indirectPhotons") == 0)
+        {
+            xml_reader.readNext();
+            if(xml_reader.isCharacters())
+            {
+                result.SetIndirectPhotonsNum(xml_reader.text().toInt());
+            }
+            xml_reader.readNext();
+        }
+        else if (QString::compare(tag, "causticPhotons") == 0)
+        {
+            xml_reader.readNext();
+            if(xml_reader.isCharacters())
+            {
+                result.SetCausticPhotonsNum(xml_reader.text().toInt());
+            }
+            xml_reader.readNext();
+        }
+        else if (QString::compare(tag, "neighborSamples") == 0)
+        {
+            xml_reader.readNext();
+            if(xml_reader.isCharacters())
+            {
+                result.SetNearestNeighborsNum(xml_reader.text().toInt());
+            }
+            xml_reader.readNext();
+        }
+        else if (QString::compare(tag, "maxDistance") == 0)
+        {
+            xml_reader.readNext();
+            if(xml_reader.isCharacters())
+            {
+                result.SetMaxDistanceFromNeighbors(xml_reader.text().toFloat());
+            }
+            xml_reader.readNext();
+        }
+    }
+
+
+    return result;
+}
+
+Integrator XMLReader::LoadIntegrator(QXmlStreamReader &xml_reader)
+{
+    Integrator result;
+
+    while(!xml_reader.isEndElement() || QStringRef::compare(xml_reader.name(), QString("integrator")) != 0)
+    {
+        xml_reader.readNext();
+
+        QString tag(xml_reader.name().toString());
+        if(QString::compare(tag, QString("maxDepth")) == 0)
         {
             xml_reader.readNext();
             if(xml_reader.isCharacters())

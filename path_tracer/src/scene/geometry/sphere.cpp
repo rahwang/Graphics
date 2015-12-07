@@ -23,13 +23,15 @@ void Sphere::ComputeArea()
 
 
 glm::vec3 Sphere::ComputeNormal(const glm::vec3 &P)
-{}
+{
+    return glm::normalize(P);
+}
 
 
 Intersection Sphere::SampleLight(const IntersectionEngine *intersection_engine,
                                  const glm::vec3 &origin, const float rand1, float rand2, const glm::vec3 &normal)
 {
-    float z = 1.f - 2.f * rand1;
+        float z = 1.f - 2.f * rand1;
         float r = glm::sqrt(glm::max(0.f, 1.f - z*z));
         float phi = 2.f * PI * rand2;
         float x = r * glm::cos(phi);
@@ -53,6 +55,26 @@ Intersection Sphere::SampleLight(const IntersectionEngine *intersection_engine,
         return result;
 }
 
+glm::vec3 Sphere::SampleArea(
+        const float rand1,
+        const float rand2,
+        const glm::vec3 &normal,
+        bool inWorldSpace
+        )
+{
+    float z = 1.f - 2.f * rand1;
+    float r = glm::sqrt(glm::max(0.f, 1.f - z*z));
+    float phi = 2.f * PI * rand2;
+    float x = r * glm::cos(phi);
+    float y = r * glm::sin(phi);
+    glm::vec3 normal3 = glm::normalize(glm::vec3(x,y,z));
+    if(glm::dot(normal, normal3) > 0)
+    {
+        normal3 = -normal3;
+    }
+    glm::vec4 pointL(x/2, y/2, z/2, 1);
+    return inWorldSpace ? glm::vec3(transform.T() * pointL) : glm::vec3(pointL);
+}
 
 float Sphere::RayPDF(const Intersection &isx, const Ray &ray, const Intersection &light_intersection) {
     glm::vec3 Pcenter = transform.position();

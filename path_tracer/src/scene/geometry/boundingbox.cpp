@@ -13,6 +13,20 @@ int BoundingBox::MaximumExtent() const {
     }
 }
 
+BoundingBox BoundingBox::Union(const BoundingBox &b, const glm::vec3 &p) {
+    BoundingBox ret = b;
+    ret.minimum.x = fmin(b.minimum.x, p.x);
+    ret.minimum.y = fmin(b.minimum.y, p.y);
+    ret.minimum.z = fmin(b.minimum.z, p.z);
+    ret.maximum.x = fmax(b.maximum.x, p.x);
+    ret.maximum.y = fmax(b.maximum.y, p.y);
+    ret.maximum.z = fmax(b.maximum.z, p.z);
+    ret.center = ret.minimum + (ret.maximum - ret.minimum)/ 2.0f;
+    ret.object = NULL;
+    ret.SetNormals();
+    return ret;
+}
+
 BoundingBox BoundingBox::Union(const BoundingBox &a, const BoundingBox &b) {
     BoundingBox bbox;
     float min_x = fmin(a.minimum.x, b.minimum.x);

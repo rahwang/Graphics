@@ -22,11 +22,12 @@
 #include <raytracing/totallightingintegrator.h>
 #include <renderthread.h>
 
-#include <scene/geometry/square.h>
+#include <raytracing/photonmapintegrator.h>
 
 // Uncomment corresponding section to build with specified integrator type
-#define ALL_LIGHTING
-//#define DIRECT_LIGHTING
+//#define PHOTON_MAP
+//#define ALL_LIGHTING
+#define DIRECT_LIGHTING
 
 class MyGL
     : public GLWidget277
@@ -45,7 +46,9 @@ private:
 
     Scene scene;
     XMLReader xml_reader;
-#if defined(ALL_LIGHTING)
+#if defined(PHOTON_MAP)
+    PhotonMapIntegrator integrator;
+#elif defined(ALL_LIGHTING)
     TotalLightingIntegrator integrator;
 #elif defined(DIRECT_LIGHTING)
     DirectLightingIntegrator integrator;
@@ -85,6 +88,8 @@ public:
     //flag to check if threads still active
     bool signal = false;
     QString filepath;
+
+    void DenoisePixels();
 
 protected:
     void keyPressEvent(QKeyEvent *e);

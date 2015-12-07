@@ -40,10 +40,9 @@ SOURCES += \
     $$PWD/raytracing/totallightingintegrator.cpp \
     $$PWD/raytracing/directlightingintegrator.cpp \
     $$PWD/scene/materials/bxdfs/speculartransmissionbxdf.cpp \
-    $$PWD/scene/materials/bxdfs/anisotropicbxdf.cpp
-    $$PWD/scene/materials/bxdfs/speculartransmissionbxdf.cpp
-    $$PWD/scene/materials/bxdfs/anisotropicbxdf.cpp
-    $$PWD/scene/materials/bxdfs/anisotropicbxdf.cpp
+    $$PWD/scene/materials/bxdfs/anisotropicbxdf.cpp \
+    $$PWD/raytracing/photonmapintegrator.cpp \
+    $$PWD/scene/materials/volumetricmaterial.cpp
 
 HEADERS += \
     $$PWD/mainwindow.h \
@@ -89,8 +88,10 @@ HEADERS += \
     $$PWD/raytracing/totallightingintegrator.h \
     $$PWD/raytracing/directlightingintegrator.h \
     $$PWD/helpers.h \
-    $$PWD/scene/materials/bxdfs/speculartransmissionbxdf.h
-    $$PWD/scene/materials/bxdfs/speculartransmissionbxdf.h
-    $$PWD/scene/materials/bxdfs/anisotropicbxdf.h
-
+    $$PWD/scene/materials/bxdfs/speculartransmissionbxdf.h \
+    $$PWD/raytracing/kdtree.h \
+    $$PWD/raytracing/photon.h \
+    $$PWD/raytracing/photonmapintegrator.h \
+    $$PWD/scene/materials/bxdfs/anisotropicbxdf.h \
+    $$PWD/scene/materials/volumetricmaterial.h
 DISTFILES +=

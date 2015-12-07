@@ -22,6 +22,11 @@ Intersection Cube::SampleLight(const IntersectionEngine *intersection_engine,
     return Intersection();
 }
 
+glm::vec3 Cube::SampleArea(const float rand1, const float rand2, const glm::vec3 &normal, bool inWorldSpace)
+{
+    return glm::vec3();
+}
+
 
 glm::vec4 GetCubeNormal(const glm::vec4& P)
 {
@@ -40,7 +45,9 @@ glm::vec4 GetCubeNormal(const glm::vec4& P)
 
 
 glm::vec3 Cube::ComputeNormal(const glm::vec3 &P)
-{return glm::vec3(0);}
+{
+    return glm::normalize(glm::vec3(GetCubeNormal(glm::vec4(P, 1.f))));
+}
 
 
 Intersection Cube::GetIntersection(Ray r, Camera &camera)
@@ -212,6 +219,15 @@ bvhNode *Cube::SetBoundingBox() {
     bounding_box->create();
 
     return node;
+}
+
+
+float Cube::CloudDensity(const glm::vec3 voxel, float noise, float step_size) {
+    float scale = step_size / 2;
+
+    glm::vec3 world_voxel = (voxel * step_size) + bounding_box->minimum;
+    float radius_ratio = voxel.y/((bounding_box->maximum.y - bounding_box->minimum.y) / step_size);
+    return (1 + noise*2) * (1.0f - radius_ratio) * scale;
 }
 
 
