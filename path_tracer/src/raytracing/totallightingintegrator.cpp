@@ -39,14 +39,23 @@ glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth)
     while (true) {
 
         // Direct component.
-        glm::vec3 direct_lighting = ComputeDirectLighting(current_ray, current_intersection);
-        light_accum += multiplier * direct_lighting;
-
         glm::vec3 new_direction;
         float pdf;
-        glm::vec3 energy = intersection.object_hit->material->SampleAndEvaluateScatteredEnergy(
-                    intersection, worldToObjectSpace(-current_ray.direction, current_intersection),
-                    new_direction, pdf);
+        glm::vec3 energy;
+        glm::vec3 direct_lighting = ComputeDirectLighting(current_ray, current_intersection, pdf, new_direction, energy);
+        if (direct_lighting.x > 1.f) direct_lighting.x = 1.f;
+        if (direct_lighting.y > 1.f) direct_lighting.y = 1.f;
+        if (direct_lighting.z > 1.f) direct_lighting.z = 1.f;
+
+        if (energy.x > 1.f) energy.x = 1.f;
+        if (energy.y > 1.f) energy.y = 1.f;
+        if (energy.z > 1.f) energy.z = 1.f;
+
+        light_accum += multiplier * direct_lighting;
+
+//        glm::vec3 energy = intersection.object_hit->material->SampleAndEvaluateScatteredEnergy(
+//                    intersection, worldToObjectSpace(-current_ray.direction, current_intersection),
+//                    new_direction, pdf);
 
         if (fequal(pdf, 0.f) || (fequal(energy.x, 0.f) && fequal(energy.y, 0.f) && fequal(energy.z, 0.f))) {
             return light_accum;
@@ -69,8 +78,8 @@ glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth)
 //            offset_point = current_intersection.point + (current_intersection.normal * OFFSET);
 //        }
 
-        glm::vec3 wi_W = objectToWorldSpace(new_direction, current_intersection);
-        Ray bounced_ray(offset_point, wi_W);
+//        glm::vec3 wi_W = objectToWorldSpace(new_direction, current_intersection);
+        Ray bounced_ray(offset_point, new_direction);
 
         // Get intersection with bounced ray.
         Intersection bounce_intersection = intersection_engine->GetIntersection(bounced_ray);
@@ -88,13 +97,14 @@ glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth)
         glm::vec3 lte_term = energy * cosine_component / pdf;
 
         // Terminate if russian roulette murders ray.
+        if(throughput > 1.f) throughput = 1.f;
         if ((bounces > 2) && (throughput < (float(rand()) / float(RAND_MAX)))) {
 //        if (bounces > 5) {
             break;
         }
 
         throughput *= fmax(fmax(lte_term.x, lte_term.y), lte_term.z);
-        multiplier *= 0.5;
+        multiplier *= lte_term;
         current_ray = bounced_ray;
         current_intersection = bounce_intersection;
         bounces++;

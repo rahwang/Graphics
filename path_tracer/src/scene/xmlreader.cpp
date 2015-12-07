@@ -13,6 +13,7 @@
 #include <scene/materials/bxdfs/specularreflectionbxdf.h>
 #include <scene/materials/bxdfs/speculartransmissionbxdf.h>
 #include <scene/materials/bxdfs/blinnmicrofacetbxdf.h>
+#include <scene/materials/bxdfs/anisotropicbxdf.h>
 #include <scene/materials/weightedmaterial.h>
 #include <QImage>
 
@@ -355,6 +356,24 @@ Camera XMLReader::LoadCamera(QXmlStreamReader &xml_reader)
             }
             xml_reader.readNext();
         }
+        else if(QString::compare(tag, QString("lensRadius")) == 0)
+        {
+            xml_reader.readNext();
+            if(xml_reader.isCharacters())
+            {
+                result.lens_radius = xml_reader.text().toFloat();
+            }
+            xml_reader.readNext();
+        }
+        else if(QString::compare(tag, QString("focalDistance")) == 0)
+        {
+            xml_reader.readNext();
+            if(xml_reader.isCharacters())
+            {
+                result.focal_distance = xml_reader.text().toFloat();
+            }
+            xml_reader.readNext();
+        }
     }
     result.RecomputeAttributes();
     return result;
@@ -524,6 +543,27 @@ BxDF* XMLReader::LoadBxDF(QXmlStreamReader &xml_reader)
         if(QStringRef::compare(exponent, QString("")) != 0)
         {
             ((BlinnMicrofacetBxDF*)result)->exponent = exponent.toFloat();
+        }
+    }
+    else if(QStringRef::compare(type, QString("anisotropic")) == 0)
+    {
+        glm::vec3 refl_color(0.5f);
+        QStringRef color = attribs.value(QString(), QString("reflectionColor"));
+        if(QStringRef::compare(color, QString("")) != 0)
+        {
+            refl_color = ToVec3(color);
+        }
+        result = new AnisotropicBxDF(refl_color);
+
+        QStringRef exponentx = attribs.value(QString(), QString("expx"));
+        if(QStringRef::compare(exponentx, QString("")) != 0)
+        {
+            ((AnisotropicBxDF*)result)->ex = exponentx.toFloat();
+        }
+        QStringRef exponenty = attribs.value(QString(), QString("expy"));
+        if(QStringRef::compare(exponenty, QString("")) != 0)
+        {
+            ((AnisotropicBxDF*)result)->ey = exponenty.toFloat();
         }
     }
     else

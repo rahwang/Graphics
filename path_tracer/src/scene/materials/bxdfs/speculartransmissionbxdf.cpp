@@ -59,7 +59,15 @@ float SpecularTransmissionBxDF::PDF(const glm::vec3 &wo, const glm::vec3 &wi) co
     // Perfect specular only returns the color in the direction of the reflection
     // Since we're in the shading coordinates, the surface normal is 0,0,1
     // and the reflection of wo is just pi radians about the normal
+    float theta_reflected = glm::acos(glm::abs(wo.z));
+    float theta_wi = glm::acos(glm::abs(wi.z));
 
-    return 1.0f;
+    float pi = M_PI;
+    if(fequal(theta_reflected - theta_wi, pi)){
+        return 1.0f;
+    }
+    else{
+        return 0.f;
+    }
 }
 
