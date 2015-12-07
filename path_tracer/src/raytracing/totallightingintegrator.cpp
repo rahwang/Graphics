@@ -7,7 +7,7 @@ TotalLightingIntegrator::TotalLightingIntegrator()
 }
 
 
-glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth)
+glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth, int pixel_i, int pixel_j)
 {
     glm::vec3 color = glm::vec3(0.0f);
     // If recursion depth max hit, return black.
@@ -16,6 +16,8 @@ glm::vec3 TotalLightingIntegrator::TraceRay(Ray r, unsigned int depth)
     }
 
     Intersection intersection = intersection_engine->GetIntersection(r);
+    scene->film.pixel_depths[pixel_i][pixel_j] = intersection.t / pow(scene->sqrt_samples, 2);
+
     glm::vec3 offset_point = intersection.point + (intersection.normal * OFFSET);
     // If no object intersected or the object is in shadow, return black.
     if (!intersection.object_hit) {

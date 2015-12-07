@@ -14,7 +14,7 @@ Integrator::Integrator(Scene *s):
     intersection_engine = NULL;
 }
 
-glm::vec3 Integrator::TraceRay(Ray r, unsigned int depth)
+glm::vec3 Integrator::TraceRay(Ray r, unsigned int depth, int pixel_i, int pixel_j)
 {
     return glm::vec3(0.f);
 }

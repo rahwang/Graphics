@@ -226,7 +226,15 @@ void MyGL::SceneLoadDialog()
 #endif
     ResizeToSceneCamera();
     update();
+
+    // Populate volumetric density buffers.
+    for (Geometry *object : integrator.scene->objects) {
+        if (object->material->is_volumetric) {
+            ((VolumetricMaterial *)object->material)->CalculateDensities(object);
+        }
+    }
 }
+
 
 void MyGL::RaytraceScene()
 {
@@ -315,12 +323,89 @@ void MyGL::RaytraceScene()
             glm::vec3 accum_color;
             for(int a = 0; a < sample_points.size(); a++)
             {
-                glm::vec3 color = integrator.TraceRay(scene.camera.Raycast(sample_points[a]), 0);
+                glm::vec3 color = integrator.TraceRay(scene.camera.Raycast(sample_points[a]), 0, i, j);
                 accum_color += color;
             }
             scene.film.pixels[i][j] = accum_color / (float)sample_points.size();
         }
     }
 #endif
+    DenoisePixels();
     scene.film.WriteImage(filepath);
+}
+
+void MyGL::DenoisePixels() {
+    std::vector<std::vector<glm::vec3>> tmp_colors;
+    tmp_colors = std::vector<std::vector<glm::vec3>>(scene.camera.width);
+
+    for(unsigned int i = 0; i < scene.camera.width; i++)
+    {
+        tmp_colors[i] = std::vector<glm::vec3>(scene.camera.height);
+    }
+
+    for(unsigned int i = 1; i < scene.camera.width-1; i++)
+    {
+        for(unsigned int j = 1; j < scene.camera.height-1; j++)
+        {
+            glm::vec3 original_color = scene.film.pixels[i][j];
+            float original_depth = scene.film.pixel_depths[i][j];
+            std::vector<glm::vec3> neighbors;
+
+            // Check surrounding pixels in cardinal directions.
+            if (fabs(scene.film.pixel_depths[i-1][j] - original_depth) < 0.5) {
+                // left
+                neighbors.push_back(scene.film.pixels[i-1][j]);
+            }
+            if (fabs(scene.film.pixel_depths[i+1][j] - original_depth) < 0.5) {
+                // right
+                neighbors.push_back(scene.film.pixels[i+1][j]);
+            }
+            if (fabs(scene.film.pixel_depths[i][j-1] - original_depth) < 0.5) {
+                // up
+                neighbors.push_back(scene.film.pixels[i][j-1]);
+            }
+            if (fabs(scene.film.pixel_depths[i][j+1] - original_depth) < 0.5) {
+                // down
+                neighbors.push_back(scene.film.pixels[i][j+1]);
+            }
+
+            // Check surrounding pixels in cardinal directions.
+            if (fabs(scene.film.pixel_depths[i-1][j+1] - original_depth) < 0.5) {
+                // upper_left
+                neighbors.push_back(scene.film.pixels[i-1][j+1]);
+            }
+            if (fabs(scene.film.pixel_depths[i+1][j+1] - original_depth) < 0.5) {
+                // upper_right
+                neighbors.push_back(scene.film.pixels[i+1][j+1]);
+            }
+            if (fabs(scene.film.pixel_depths[i-1][j-1] - original_depth) < 0.5) {
+                // lower_left
+                neighbors.push_back(scene.film.pixels[i-1][j-1]);
+            }
+            if (fabs(scene.film.pixel_depths[i+1][j-1] - original_depth) < 0.5) {
+                // lower_right
+                neighbors.push_back(scene.film.pixels[i+1][j-1]);
+            }
+
+            glm::vec3 suggested_color(0);
+            if (!neighbors.empty()) {
+                for (glm::vec3 n : neighbors) {
+                    suggested_color += n / float(neighbors.size());
+                }
+            } else {
+                tmp_colors[i][j] = original_color;
+            }
+
+            tmp_colors[i][j] = original_color * 0.5f
+                    + suggested_color * 0.5f;
+        }
+    }
+
+    for(unsigned int i = 1; i < scene.camera.width-1; i++)
+    {
+        for(unsigned int j = 1; j < scene.camera.height-1; j++)
+        {
+            scene.film.pixels[i][j] = tmp_colors[i][j];
+        }
+    }
 }

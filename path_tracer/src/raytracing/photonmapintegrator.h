@@ -11,16 +11,18 @@ public:
     PhotonMapIntegrator(Scene* scene, int indirect_photons_requested, int caustic_photons_requested);
     ~PhotonMapIntegrator();
     virtual void PrePass();
-    virtual glm::vec3 TraceRay(Ray r, unsigned int depth);
+    virtual glm::vec3 TraceRay(Ray r, unsigned int depth, int pixel_i, int pixel_j);
 
     virtual void SetIndirectPhotonsNum(const int& num);
     virtual void SetCausticPhotonsNum(const int& num);
     virtual void SetNearestNeighborsNum(const int& num);
     virtual void SetMaxDistanceFromNeighbors(const float& max_dist);
+
 protected:
 
     KdTree<Photon>* indirect_map;
     KdTree<Photon>* caustic_map;
+    KdTree<Photon>* volumetric_map;
 
     int indirect_photons_requested;
     int caustic_photons_requested;

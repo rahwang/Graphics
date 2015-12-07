@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<scene>
+	<camera>
+		<target>0 0 0</target>
+		<eye>0 0.5 12</eye>
+		<worldUp>0 1 0</worldUp>
+		<fov>50</fov>
+		<width>400</width>
+		<height>400</height>
+	</camera>
+
+	<geometry type="square" name="Back Wall">
+		<transform>
+			<translate>0 0 -5.1</translate>
+			<scale>11 11 1</scale>
+		</transform>
+		<material>yellow_diffuse</material>
+	</geometry>
+
+	<geometry type="square" name="Right Wall">
+		<transform>
+			<translate>5.1 0 0</translate>
+			<rotate>0 -90 0</rotate>
+			<scale>11 11 1</scale>
+		</transform>
+		<material>green_diffuse</material>
+	</geometry>
+
+	<geometry type="square" name="Left Wall">
+		<transform>
+			<translate>-5.1 0 0</translate>
+			<rotate>0 90 0</rotate>
+			<scale>11 11 1</scale>
+		</transform>
+		<material>red_diffuse</material>=
+	</geometry>
+
+	<geometry type="square" name="Ceiling">
+		<transform>
+			<translate>0 5 0</translate>
+			<rotate>90 0 0</rotate>
+			<scale>11 11 1</scale>
+		</transform>
+		<material>white_diffuse</material>
+	</geometry>
+
+	<geometry type="square" name="Floor">
+		<transform>
+			<translate>0 -5 0</translate>
+			<rotate>-90 0 0</rotate>
+			<scale>10 10 1</scale>
+		</transform>
+		<material>blue_diffuse</material>
+	</geometry>
+    
+    <geometry type="obj" name="Mario">
+        <filename>wahoo.obj</filename>
+        <transform>
+            <translate>0 -4 0</translate>
+            <scale>.3 .3 .3</scale>
+        </transform>
+        <material>wahoo_diffuse</material>
+    </geometry>
+<!--
+	<geometry type="cube" name="Cloud">
+		<transform>
+			<translate>0 -3.9 0</translate>
+			<scale>10 0.5 10</scale>
+		</transform>
+		<material>cloud</material>
+	</geometry>
+-->
+	<geometry type="square" name="Light Source1">
+		<transform>
+			<translate>0 4.99 0</translate>
+			<rotate>90 0 0</rotate>
+			<scale>3 3 3</scale>
+		</transform>
+		<material>emissive_material</material>
+	</geometry>
+    
+    <!--
+    <geometry type="square" name="Light Source2">
+        <transform>
+            <translate>0 -4.99 0</translate>
+            <rotate>-90 0 0</rotate>
+            <scale>3 3 3</scale>
+        </transform>
+        <material>emissive_material</material>
+    </geometry> -->
+    
+    <geometry type="sphere" name="ball">
+        <transform>
+            <translate>-2.5 0 0</translate>
+            <rotate>0 0 0 </rotate>
+            <scale>1 1 1</scale>
+        </transform>
+        <material>red_diffuse</material>
+    </geometry>
+    
+    <geometry type="square" name="Light Source4">
+        <transform>
+            <translate>4.99 0 0</translate>
+            <rotate>0 -90 0</rotate>
+            <scale>3 3 3</scale>
+        </transform>
+        <material>emissive_material</material>
+    </geometry>
+
+    <material type="volumetric" name="cloud">
+        <baseColor>1 1 1</baseColor>
+        <bxdf>lambert1</bxdf>
+    </material>
+    
+	<material type="default" name="white_diffuse">
+		<baseColor>1 1 1</baseColor>
+		<bxdf>lambert1</bxdf>
+	</material>
+
+	<material type="default" name="red_diffuse">
+		<baseColor>1 0 0</baseColor>
+		<bxdf>lambert1</bxdf>
+	</material>
+
+	<material type="default" name="green_diffuse">
+		<baseColor>0 1 0</baseColor>
+		<bxdf>lambert1</bxdf>
+	</material>
+
+	<material type="default" name="yellow_diffuse">
+		<baseColor>1 1 0.25</baseColor>
+		<bxdf>lambert1</bxdf>
+	</material>
+    
+    <material type="default" name="blue_diffuse">
+        <baseColor>0.2 0 1</baseColor>
+        <bxdf>lambert1</bxdf>
+    </material>
+    
+    <material type="default" name="wahoo_diffuse">
+        <baseColor>1 1 1</baseColor>
+        <texture>wahoo.bmp</texture>
+    </material>
+
+	<material type="default" name="textured_diffuse">
+		<baseColor>1 1 1</baseColor>
+		<texture>tex_nor_maps/165.jpg</texture>
+		<normalMap>tex_nor_maps/165_norm.jpg</normalMap>
+		<bxdf>lambert1</bxdf>
+	</material>
+
+	<material type="default" name="reflective_white">
+		<baseColor>1 1 1</baseColor>
+		<bxdf>specular1</bxdf>
+	</material>
+
+	<material type="light" name="emissive_material" intensity="50">
+		<baseColor>1 1 1</baseColor>
+	</material>
+
+	<bxdf type="lambert" name="lambert1" diffuseColor="1 1 1">
+	</bxdf>
+    
+    <bxdf type="specularReflection" name="specular1" diffuseColor="1 1 1">
+    </bxdf>
+
+	<integrator type="raytrace">
+		<maxDepth>5</maxDepth>
+	</integrator>
+
+	<pixelSampleLength>2</pixelSampleLength>
+
+</scene>

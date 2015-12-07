@@ -19,7 +19,7 @@ public:
     Integrator();
     Integrator(Scene *s);
     void SetDepth(unsigned int depth);
-    virtual glm::vec3 TraceRay(Ray r, unsigned int depth);
+    virtual glm::vec3 TraceRay(Ray r, unsigned int depth, int pixel_i, int pixel_j);
 
     Scene* scene;
     IntersectionEngine* intersection_engine;

@@ -22,7 +22,7 @@ glm::vec3 DirectLightingIntegrator::SampleLightPdf(Ray r, Intersection intersect
     Intersection light_intersection = light->SampleLight(intersection_engine, offset_point, x, y, intersection.normal);
 
     // If we don't intersect with the chosen light, return black.
-    if (light_intersection.object_hit != light) {
+    if (!light_intersection.object_hit || light_intersection.object_hit != light) {
         return glm::vec3(0);
     }
     // Create ray.
@@ -152,7 +152,7 @@ glm::vec3 DirectLightingIntegrator::ComputeDirectLighting(
 }
 
 
-glm::vec3 DirectLightingIntegrator::TraceRay(Ray r, unsigned int depth) {
+glm::vec3 DirectLightingIntegrator::TraceRay(Ray r, unsigned int depth, int pixel_i, int pixel_j) {
     glm::vec3 color = glm::vec3(0.0f);
     // If recursion depth max hit, return black.
     if (depth > max_depth) {
@@ -160,6 +160,7 @@ glm::vec3 DirectLightingIntegrator::TraceRay(Ray r, unsigned int depth) {
     }
 
     Intersection intersection = intersection_engine->GetIntersection(r);
+    scene->film.pixel_depths[pixel_i][pixel_j] = intersection.t / pow(scene->sqrt_samples, 2);
     // If no object intersected or the object is in shadow, return black.
     if (!intersection.object_hit) {
         return color;
@@ -189,9 +190,14 @@ glm::vec3 DirectLightingIntegrator::TraceRay(Ray r, unsigned int depth) {
         Intersection background_intersection = (intersection_engine->GetIntersection(exiting_ray));
         if (background_intersection.object_hit) {
           return density *intersection.object_hit->material->base_color
-                    + (1.0f - density) * background_intersection.object_hit->material->base_color;
+                   + (1.0f - density) * background_intersection.object_hit->material->base_color;
+
+            //glm::vec3 unused_vec;
+            //float unused_float;
+            //return density * intersection.object_hit->material->base_color
+             //                   + (1.0f - density) * ComputeDirectLighting(exiting_ray, background_intersection, unused_vec, unused_float);
         }
-            return density * intersection.object_hit->material->base_color;
+        return density * intersection.object_hit->material->base_color;
     }
 
     glm::vec3 unused_vec;

@@ -61,6 +61,7 @@ public:
     void ResizeToSceneCamera();
 
     void RaytraceScene();
+    void DenoisePixels();
 
 protected:
     void keyPressEvent(QKeyEvent *e);
