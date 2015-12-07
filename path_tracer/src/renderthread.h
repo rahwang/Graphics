@@ -6,6 +6,7 @@
 #include <raytracing/Integrator.h>
 #include <raytracing/directlightingintegrator.h>
 #include <raytracing/totallightingintegrator.h>
+#include <mutex>
 
 class RenderThread : public QThread
 {
@@ -13,7 +14,7 @@ public:
     RenderThread(unsigned int xstart, unsigned int xend,
             unsigned int ystart, unsigned int yend,
             unsigned int samplesSqrt, unsigned int depth,
-            Film* f, Camera* c, Integrator* i);
+            Film* f, Camera* c, Integrator* i, QImage& p_img);
 
 protected:
     //This overrides the functionality of QThread::run
@@ -28,4 +29,5 @@ protected:
     Film* film;
     Camera* camera;
     Integrator* integrator;
+    QImage& image;
 };
