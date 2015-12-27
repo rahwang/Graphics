@@ -17,8 +17,8 @@
 #include <raytracing/photonmapintegrator.h>
 
 // Uncomment corresponding section to build with specified integrator type
-//#define PHOTON_MAP
-#define ALL_LIGHTING
+#define PHOTON_MAP
+//#define ALL_LIGHTING
 //#define DIRECT_LIGHTING
 
 class MyGL

@@ -1,6 +1,17 @@
 #pragma once
 #include <la.h>
 
+// Indices of refraction
+#define IOR_VACUUM          (1.0f)
+#define IOR_AIR             (1.00029f)
+#define IOR_ICE             (1.31f)
+#define IOR_WATER           (1.333f)
+#define IOR_FUSED_QUARTZ    (1.46f)
+#define IOR_GLASS           (1.5f)
+#define IOR_SAPPHIRE        (1.77f)
+#define IOR_DIAMOND         (2.42f)
+
+
 enum BxDFType {
     BSDF_REFLECTION   = 1<<0,
     BSDF_TRANSMISSION = 1<<1,
@@ -61,3 +72,32 @@ public:
     BxDFType type;
     QString name;
 };
+
+
+// Compute Fresnel term for dielectric material. All args are in local space
+inline float FresnelDiel(float cosi, float cost, float etai, float etat)
+{
+    // Clamp
+    cosi = glm::clamp(cosi, 1.f, -1.f);
+
+    float r_parl =
+            (etat * cosi - etai * cost) / (etat * cosi + etai * cost);
+
+    float r_perp =
+            (etai * cosi - etat * cost) / (etai * cosi + etat * cost);
+
+    return (r_parl * r_parl + r_perp * r_perp) / 2.f;
+}
+
+// Compute cosine of the transmission angle using Snell's law and cosine of incident angle. Normal is 0,0,1
+inline float CosTrans(float costheta)
+{
+    // Trig identity:
+    // cos ** 2 + sin ** 2 = 1.f
+    float sini = glm::sqrt(glm::max(0.f, 1.f - costheta * costheta)); // clamp
+
+    // Snell's law:
+    // n_i * sin(theta_i) = n_r * sin(theta_r)
+    float sint = (IOR_AIR / IOR_DIAMOND) * sini;
+    return glm::sqrt(glm::max(0.f, 1.f - sint * sint)); // clamp
+}

@@ -222,7 +222,13 @@ void MyGL::SceneLoadDialog()
     intersection_engine.bvh = bvhNode::InitTree(scene.objects);
 
 #ifdef PHOTON_MAP
+    // Preprocess: Cache all photons
+//#define MULTITHREADED
+#ifdef MULTITHREADED
+    integrator.PrePassMultithread();
+#else
     integrator.PrePass();
+#endif
 #endif
     ResizeToSceneCamera();
     update();

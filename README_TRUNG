@@ -1,0 +1,16 @@
+Trung: Photon mapping, depth of field, part of BVH, kd-tree
+Akshay: Transmissive material, anisotropic material, progressive rendering,
+Rachel:  Volumetric rendering, part of kd-tree, part of BVH, denoiser, pixel compression, Perlin noise generator
+
+To run photon mapping, make sure you uncomment #define PHOTON_MAP in mygl.h
+In your scene, also add this tag to enable photon map integrator:
+
+	<integrator type="photonMap">
+		<maxDepth>5</maxDepth>
+		<indirectPhotons>15000</indirectPhotons>
+		<causticPhotons>20000</causticPhotons>
+		<neighborSamples>100</neighborSamples>
+		<maxDistance>100</maxDistance>
+	</integrator>
+
+The "photon_map.xml" file provides a sample scene.

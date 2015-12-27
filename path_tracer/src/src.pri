@@ -42,7 +42,8 @@ SOURCES += \
     $$PWD/scene/materials/bxdfs/speculartransmissionbxdf.cpp \
     $$PWD/scene/materials/bxdfs/anisotropicbxdf.cpp \
     $$PWD/raytracing/photonmapintegrator.cpp \
-    $$PWD/scene/materials/volumetricmaterial.cpp
+    $$PWD/scene/materials/volumetricmaterial.cpp \
+    $$PWD/preprocessthread.cpp
 
 HEADERS += \
     $$PWD/mainwindow.h \
@@ -93,5 +94,6 @@ HEADERS += \
     $$PWD/raytracing/photon.h \
     $$PWD/raytracing/photonmapintegrator.h \
     $$PWD/scene/materials/bxdfs/anisotropicbxdf.h \
-    $$PWD/scene/materials/volumetricmaterial.h
+    $$PWD/scene/materials/volumetricmaterial.h \
+    $$PWD/preprocessthread.h
 DISTFILES +=

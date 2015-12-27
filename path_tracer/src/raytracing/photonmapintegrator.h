@@ -3,6 +3,7 @@
 #include <raytracing/directlightingintegrator.h>
 #include <raytracing/photon.h>
 #include <raytracing/kdtree.h>
+#include <preprocessthread.h>
 
 class PhotonMapIntegrator : public DirectLightingIntegrator
 {
@@ -11,6 +12,12 @@ public:
     PhotonMapIntegrator(Scene* scene, int indirect_photons_requested, int caustic_photons_requested, int volumetric_photons_requested);
     ~PhotonMapIntegrator();
     virtual void PrePass();
+    virtual void PrePassMultithread();
+    virtual void ShootPhoton(const int num_photons,
+            std::vector<Photon> *direct_photons,
+            std::vector<Photon> *indirect_photons,
+            std::vector<Photon> *caustic_photons
+            );
     virtual glm::vec3 TraceRay(Ray r, unsigned int depth, int pixel_i, int pixel_j);
 
     virtual void SetIndirectPhotonsNum(const int& num);
